@@ -1,6 +1,6 @@
 {
     "name": "@fjell/lib",
-    "version": "4.1.25",
+    "version": "4.1.26",
     "license": "UNLICENSED",
     "description": "Server-side Library for Fjell",
     "engines": {
