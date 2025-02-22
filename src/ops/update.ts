@@ -25,7 +25,7 @@ L5 extends string = never
     item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
   ): Promise<V> => {
   
-    logger.info('update', { key, item });
+    logger.debug('update', { key, item });
 
     let itemToUpdate = item;
     itemToUpdate = await runPreUpdateHook(key, itemToUpdate);
