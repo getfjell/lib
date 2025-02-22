@@ -490,7 +490,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fjell/core@npm:^4.3.1":
+"@fjell/core@npm:^4.3":
   version: 4.3.1
   resolution: "@fjell/core@npm:4.3.1"
   dependencies:
@@ -505,8 +505,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fjell/lib@workspace:."
   dependencies:
-    "@fjell/core": "npm:^4.3.1"
-    "@fjell/logging": "npm:^4.3.4"
+    "@fjell/core": "npm:^4.3"
+    "@fjell/logging": "npm:^4.3"
     "@google-cloud/firestore": "npm:^7.11.0"
     "@google-cloud/storage": "npm:^7.15.2"
     "@tsconfig/recommended": "npm:^1.0.8"
@@ -532,6 +532,17 @@ __metadata:
     winston: "npm:^3.17.0"
   languageName: unknown
   linkType: soft
+
+"@fjell/logging@npm:^4.3":
+  version: 4.3.8
+  resolution: "@fjell/logging@npm:4.3.8"
+  dependencies:
+    "@types/node": "npm:^22.13.4"
+    flatted: "npm:^3.3.3"
+    ts-node: "npm:^10.9.2"
+  checksum: 10c0/a9f785913b9b824d19315f8f9cbf0653cda836ba01afa589429fb2da6fefcbee71d140cfbdd80fdabcfc557fedd7ee25f60048544c6ddeb5817ebe5073523beb
+  languageName: node
+  linkType: hard
 
 "@fjell/logging@npm:^4.3.4":
   version: 4.3.4
