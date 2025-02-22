@@ -85,7 +85,6 @@ export const createRegistry = (): Registry => {
 
     while(ktaArray.length > 0) {
       const kt = ktaArray.pop();
-      console.log('kt', kt);
       if(kt) {
         if(ktaArray.length === 0) {
           if(!currentTree[kt]) {
