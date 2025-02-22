@@ -22,7 +22,6 @@ L3 extends string = never,
 L4 extends string = never,
 L5 extends string = never>(
     ops: Operations<V, S, L1, L2, L3, L4, L5>,
-  // eslint-disable-next-line max-params
   ) => {
 
   /**

@@ -1,6 +1,6 @@
 {
     "name": "@fjell/lib",
-    "version": "4.1.26",
+    "version": "4.3.0",
     "license": "UNLICENSED",
     "description": "Server-side Library for Fjell",
     "engines": {
@@ -8,7 +8,11 @@
     },
     "main": "dist/src/index.js",
     "exports": {
-        ".": "./dist/src/index.js"
+        ".": {
+            "require": "./dist/src/index.js",
+            "import": "./dist/src/index.js",
+            "types": "./dist/src/index.d.ts"
+        }
     },
     "type": "module",
     "scripts": {
@@ -19,10 +23,10 @@
         "test": "yarn run lint && yarn run jest --coverage"
     },
     "dependencies": {
-        "@fjell/core": "^4.2.12",
-        "@fjell/logging": "^4.2.11",
-        "@google-cloud/firestore": "^7.5.0",
-        "@google-cloud/storage": "^7.9.0",
+        "@fjell/core": "^4.3.1",
+        "@fjell/logging": "^4.3.4",
+        "@google-cloud/firestore": "^7.11.0",
+        "@google-cloud/storage": "^7.15.2",
         "dayjs": "^1.11.13",
         "deepmerge": "^4.3.1",
         "multer": "^1.4.5-lts.1",
@@ -31,13 +35,14 @@
         "winston": "^3.17.0"
     },
     "devDependencies": {
+        "@tsconfig/recommended": "^1.0.8",
         "@types/jest": "^29.5.14",
-        "@types/multer": "^1.4.11",
-        "@types/node": "^20.10.4",
-        "@typescript-eslint/eslint-plugin": "^7",
-        "@typescript-eslint/parser": "^7",
-        "concurrently": "^8.2.2",
-        "eslint": "^8.57.1",
+        "@types/multer": "^1.4.12",
+        "@types/node": "^22.13.5",
+        "@typescript-eslint/eslint-plugin": "^8.24.1",
+        "@typescript-eslint/parser": "^8.24.1",
+        "concurrently": "^9.1.2",
+        "eslint": "^9.21.0",
         "jest": "^29.7.0",
         "nodemon": "^3.1.9",
         "rimraf": "^6.0.1",

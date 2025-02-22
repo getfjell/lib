@@ -1,7 +1,7 @@
 import type { Config } from 'jest';
 
 const esModules = [
-  '@fjellproject',
+  '@fjell',
 ].join('|');
 
 const config: Config = {

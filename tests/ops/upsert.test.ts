@@ -1,4 +1,3 @@
-/* eslint-disable no-undefined */
 import { createCoordinate } from '@/Coordinate';
 import { NotFoundError, Operations } from '@/index';
 import { wrapUpsertOperation } from '@/ops/upsert';

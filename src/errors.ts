@@ -12,7 +12,6 @@ export class LibError<
   private operation: string;
   private coordinate: Coordinate<S, L1, L2, L3, L4, L5>;
 
-  // eslint-disable-next-line max-params
   constructor(
     message: string,
     operation: string,
@@ -89,7 +88,6 @@ export class ValidationError<
   L5 extends string,
 > extends LibError<S, L1, L2, L3, L4, L5> {
 
-  // eslint-disable-next-line max-params
   constructor(
     message: string,
     operation: string,
@@ -112,7 +110,6 @@ export class CreateValidationError<
   L5 extends string,
 > extends ValidationError<S, L1, L2, L3, L4, L5> {
 
-  // eslint-disable-next-line max-params
   constructor(
     parameters: {
       item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
@@ -145,7 +142,6 @@ export class UpdateValidationError<
   L5 extends string,
 > extends ValidationError<S, L1, L2, L3, L4, L5> {
 
-  // eslint-disable-next-line max-params
   constructor(
     parameters: {
       item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
@@ -174,7 +170,6 @@ export class RemoveValidationError<
   L5 extends string,
 > extends ValidationError<S, L1, L2, L3, L4, L5> {
 
-  // eslint-disable-next-line max-params
   constructor(
     parameters: {
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5> | undefined,
@@ -202,7 +197,6 @@ export class UpdateError<
   L4 extends string,
   L5 extends string,
 > extends LibError<S, L1, L2, L3, L4, L5> {
-  // eslint-disable-next-line max-params
   constructor(
     parameters: {
       item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
@@ -230,7 +224,6 @@ export class RemoveError<
   L4 extends string,
   L5 extends string,
 > extends LibError<S, L1, L2, L3, L4, L5> {
-  // eslint-disable-next-line max-params
   constructor(
     parameters: {
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5> | undefined,

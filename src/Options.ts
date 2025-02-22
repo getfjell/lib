@@ -97,7 +97,6 @@ export const createDefaultOptions = <
       
   return {
     hooks: {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       // TODO: "We need to figure out how to make this an array of hooks..."
       preCreate: async (
         item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
@@ -114,10 +113,8 @@ export const createDefaultOptions = <
         const retItem = clearAggs(item);
         return retItem as TypesProperties<V, S, L1, L2, L3, L4, L5>;
       },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       // TODO: "We need to figure out how to make this an array of hooks..."
       preUpdate: async (
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
         item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
       ) => {

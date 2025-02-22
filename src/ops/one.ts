@@ -23,9 +23,7 @@ export const wrapOneOperation = <
   ) => {
 
   const one = async (
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     itemQuery: ItemQuery,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     locations: LocKeyArray<L1, L2, L3, L4, L5> | [] = []
   ): Promise<V | null> => {
     logger.default('one', { itemQuery, locations });

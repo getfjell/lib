@@ -30,9 +30,7 @@ S extends string,
   const libOptions = definition.options;
 
   const create = async (
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     options?: {
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
       locations?: never;

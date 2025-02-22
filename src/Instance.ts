@@ -32,7 +32,6 @@ export const createInstance = <
 }
 
 export const isInstance = (instance: any): instance is Instance<any, any, any, any, any, any, any> => {
-  // eslint-disable-next-line no-undefined
   return instance !== null &&
     instance !== undefined &&
     instance.definition !== undefined &&

@@ -22,7 +22,6 @@ export const wrapRemoveOperation = <
   ) => {
 
   const remove = async (
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
   ): Promise<V> => {
     logger.default('Removing item', { key });
