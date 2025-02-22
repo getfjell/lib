@@ -118,7 +118,7 @@ S extends string,
     }
 
     try {
-      logger.info('Validating create', { item, options });
+      logger.debug('Validating create', { item, options });
       const isValid = await libOptions.validators.onCreate(item, options);
       if (!isValid) {
         throw new CreateValidationError(

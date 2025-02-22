@@ -102,7 +102,7 @@ L5 extends string = never
     }
 
     try {
-      logger.info('Validating update', { key, item: itemToUpdate });
+      logger.debug('Validating update', { key, item: itemToUpdate });
       const isValid = await definition.options.validators.onUpdate(key, itemToUpdate);
       if (!isValid) {
         throw new UpdateValidationError(
