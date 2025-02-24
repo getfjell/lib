@@ -58,8 +58,9 @@ L5 extends string = never>(
     let item: V | null = null;
     item = await retrieveOrCreateWithKey( key, itemProperties );
     
-    logger.default('Updating Item', { key: item.key, itemProperties });
+    logger.debug('Updating Item', { key: item.key, itemProperties });
     item = await ops.update(item.key, itemProperties);
+    logger.default("updated item: %j", { item });
 
     return item;
   }

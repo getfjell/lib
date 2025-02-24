@@ -36,6 +36,7 @@ L5 extends string = never
       let updatedItem = await toWrap.update(key, itemToUpdate) as V;
       updatedItem = await runPostUpdateHook(updatedItem);
 
+      logger.default("updated item: %j", { updatedItem });
       return updatedItem;
     } catch (error: unknown) {
       throw new UpdateError(

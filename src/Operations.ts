@@ -147,6 +147,7 @@ export const createReadOnlyOperations = <
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
   ): Operations<V, S, L1, L2, L3, L4, L5> => {
 
+  logger.debug("createReadOnlyOperations", { toWrap });
   const create = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     item: TypesProperties<V, S, L1, L2, L3, L4, L5>,

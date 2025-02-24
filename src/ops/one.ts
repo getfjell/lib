@@ -26,8 +26,9 @@ export const wrapOneOperation = <
     itemQuery: ItemQuery,
     locations: LocKeyArray<L1, L2, L3, L4, L5> | [] = []
   ): Promise<V | null> => {
-    logger.default('one', { itemQuery, locations });
+    logger.debug('one', { itemQuery, locations });
     const item = await toWrap.one(itemQuery, locations);
+    logger.default("one: %j", { item });
     return item;
   }
 

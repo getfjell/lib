@@ -23,8 +23,9 @@ export const wrapGetOperation = <
   const get = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
   ): Promise<V> => {
-    logger.default('get', { key });
+    logger.debug('get', { key });
     const item = await toWrap.get(key);
+    logger.default("get: %j", { item });
     return item;
   }
 

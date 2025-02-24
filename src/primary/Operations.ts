@@ -2,6 +2,10 @@ import { Definition } from "@/Definition";
 import { Operations as AbstractOperations, wrapOperations as createAbstractOperations } from "@/Operations";
 import { Item, ItemQuery, PriKey, TypesProperties } from "@fjell/core";
 
+import LibLogger from "@/logger";
+
+const logger = LibLogger.get("primary", "Operations");
+
 export interface Operations<
   V extends Item<S>,
   S extends string
@@ -62,6 +66,7 @@ export const wrapOperations = <
     toWrap: Operations<V, S>,
     definition: Definition<V, S>,
   ): Operations<V, S> => {
+  logger.debug("wrapOperations", { toWrap, definition });
   return {
     ...createAbstractOperations(toWrap, definition),
   };

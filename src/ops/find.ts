@@ -25,8 +25,9 @@ L1 extends string = never,
     finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<V[]> => {
-    logger.default("find", { finder, finderParams, locations });
+    logger.debug("find", { finder, finderParams, locations });
     const foundItems = await toWrap.find(finder, finderParams, locations);
+    logger.default("found items: %j", { foundItems });
     return foundItems;
   }
 

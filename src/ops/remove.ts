@@ -24,7 +24,7 @@ export const wrapRemoveOperation = <
   const remove = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
   ): Promise<V> => {
-    logger.default('Removing item', { key });
+    logger.debug('Removing item', { key });
 
     await runPreRemoveHook(key);
     await validateRemove(key);
@@ -37,6 +37,7 @@ export const wrapRemoveOperation = <
 
     await runPostRemoveHook(item);
 
+    logger.default("removed item: %j", { item });
     return item;
   }
 

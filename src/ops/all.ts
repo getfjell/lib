@@ -25,8 +25,9 @@ export const wrapAllOperation = <
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<V[]> => {
 
-    logger.default("getAllOperation", { itemQuery, locations });
+    logger.debug("getAllOperation", { itemQuery, locations });
     const items = await toWrap.all(itemQuery, locations);
+    logger.default("getAllOperation: %j", { items });
     return items;
   }
 

@@ -1,5 +1,8 @@
 import { ComKey, Item, ItemProperties, LocKeyArray, PriKey, TypesProperties } from "@fjell/core";
 import deepmerge from "deepmerge";
+import LibLogger from "@/logger";
+
+const logger = LibLogger.get("Options");
 
 export type FinderParams = Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>
 
@@ -87,7 +90,7 @@ export const createDefaultOptions = <
   L4 extends string = never,
   L5 extends string = never
 >(): Options<V, S, L1, L2, L3, L4, L5> => {
-
+  logger.debug("createDefaultOptions");
   function clearAggs(
     item: ItemProperties<S, L1, L2, L3, L4, L5>
   ): ItemProperties<S, L1, L2, L3, L4, L5> {

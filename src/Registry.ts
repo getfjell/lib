@@ -2,7 +2,7 @@ import { Item } from '@fjell/core';
 import LibLogger from '@/logger';
 import { Instance, isInstance } from './Instance';
 
-const logger = LibLogger;
+const logger = LibLogger.get("Registry");
   
 export interface Registry {
   register: (

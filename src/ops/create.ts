@@ -39,7 +39,7 @@ S extends string,
       locations: LocKeyArray<L1, L2, L3, L4, L5>,
     }
   ): Promise<V> => {
-    logger.default("create", { item, options });
+    logger.debug("create", { item, options });
 
     let itemToCreate = item;
 
@@ -49,6 +49,7 @@ S extends string,
     let createdItem = await toWrap.create(itemToCreate, options);
     createdItem = await runPostCreateHook(createdItem);
 
+    logger.default("created item: %j", { createdItem });
     return createdItem;
   }
 
@@ -65,7 +66,7 @@ S extends string,
     let itemToCreate = item;
     if (libOptions?.hooks?.preCreate) {
       try {
-        logger.default('Running preCreate hook', { item: itemToCreate, options });
+        logger.debug('Running preCreate hook', { item: itemToCreate, options });
         itemToCreate = await libOptions.hooks.preCreate(itemToCreate, options);
       } catch (error: unknown) {
         throw new HookError(
