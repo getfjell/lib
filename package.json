@@ -1,6 +1,6 @@
 {
     "name": "@fjell/lib",
-    "version": "4.3.8",
+    "version": "4.4.0",
     "license": "Apache-2.0",
     "description": "Server-side Library for Fjell",
     "engines": {
