@@ -76,12 +76,12 @@ describe('LibRegistry', () => {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
     } as unknown as Instance<Item<'test'>, 'test'>;
-    
+
     // @ts-expect-error
     registry.register(['test', 'lib1'], lib1);
     // @ts-expect-error
     registry.register(['test', 'lib2'], lib2);
-    
+
     expect(registry.get(['test', 'lib1'])).toBe(lib1);
     expect(registry.get(['test', 'lib2'])).toBe(lib2);
   });
@@ -103,7 +103,7 @@ describe('LibRegistry', () => {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
     } as unknown as Instance<Item<'test'>, 'test'>;
-    
+
     // @ts-expect-error
     registry.register(['nation'], nation);
     // @ts-expect-error
@@ -112,7 +112,7 @@ describe('LibRegistry', () => {
     registry.register(['container', 'region', 'nation'], container);
     // @ts-expect-error
     registry.register(['element', 'container', 'region', 'nation'], element);
-    
+
     expect(registry.get(['element', 'container', 'region', 'nation'])).toBe(element);
     expect(registry.get(['container', 'region', 'nation'])).toBe(container);
     expect(registry.get(['region', 'nation'])).toBe(region);
@@ -136,7 +136,7 @@ describe('LibRegistry', () => {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
     } as unknown as Instance<Item<'test'>, 'test'>;
-    
+
     // @ts-expect-error
     registry.register(['element', 'container', 'region', 'nation'], element);
     // @ts-expect-error
@@ -145,7 +145,7 @@ describe('LibRegistry', () => {
     registry.register(['region', 'nation'], region);
     // @ts-expect-error
     registry.register(['container', 'region', 'nation'], container);
-    
+
     expect(registry.get(['nation'])).toBe(nation);
     expect(registry.get(['element', 'container', 'region', 'nation'])).toBe(element);
     expect(registry.get(['container', 'region', 'nation'])).toBe(container);
@@ -165,14 +165,14 @@ describe('LibRegistry', () => {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
     } as unknown as Instance<Item<'test'>, 'test'>;
-    
+
     // @ts-expect-error
     registry.register(['nation'], nationDefault);
     // @ts-expect-error
     registry.register(['nation'], nationFirestore, { scopes: ['firestore'] });
     // @ts-expect-error
     registry.register(['nation'], nationSequelize, { scopes: ['sequelize'] });
-    
+
     expect(registry.get(['nation'])).toBe(nationDefault);
     expect(registry.get(['nation'], { scopes: ['firestore'] })).toBe(nationFirestore);
     expect(registry.get(['nation'], { scopes: ['sequelize'] })).toBe(nationSequelize);
@@ -236,7 +236,7 @@ describe('LibRegistry', () => {
     // @ts-expect-error
     registry.register(['element2', 'container', 'region', 'nation'], elementFirestore2, { scopes: ['firestore'] });
     registry.register(['element2', 'container', 'region', 'nation'],
-    // @ts-expect-error
+      // @ts-expect-error
       elementSequelizeBlamo2, { scopes: ['sequelize', 'blamo'] });
     // @ts-expect-error
     registry.register(['nation'], nation);
@@ -248,7 +248,7 @@ describe('LibRegistry', () => {
     registry.register(['container', 'region', 'nation'], containerFirestore, { scopes: ['firestore'] });
     // @ts-expect-error
     registry.register(['container', 'region', 'nation'], containerSequelize, { scopes: ['sequelize'] });
-    
+
     expect(registry.get(['nation'])).toBe(nation);
     expect(registry.get(['element', 'container', 'region', 'nation']))
       .toBe(elementFirestore1);
