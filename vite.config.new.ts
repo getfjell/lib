@@ -19,20 +19,14 @@ export default defineConfig({
       ],
       thresholds: {
         branches: 75,
-        functions: 86,
-        lines: 85,
-        statements: 85,
+        functions: 89,
+        lines: 89,
+        statements: 89,
       },
     },
     deps: {
-      inline: [/@fjell\/.*/, /@fjell\/core/],
+      inline: [/@fjell\/.*/],
     },
-  },
-  optimizeDeps: {
-    include: [
-      '@fjell/core',
-      '@fjell/logging'
-    ],
   },
   server: {
     port: 3000

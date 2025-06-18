@@ -4,27 +4,30 @@ import { Definition } from "@/Definition";
 import { HookError, UpdateError, UpdateValidationError } from "@/errors";
 import LibLogger from '@/logger';
 import { Operations } from "@/Operations";
+import { Registry } from "@/Registry";
 
-const logger = LibLogger.get('library', 'ops','update');
+const logger = LibLogger.get('library', 'ops', 'update');
 
 export const wrapUpdateOperation = <
-V extends Item<S, L1, L2, L3, L4, L5>,
-S extends string,
-L1 extends string = never,
-L2 extends string = never,
-L3 extends string = never,
-L4 extends string = never,
-L5 extends string = never
+  V extends Item<S, L1, L2, L3, L4, L5>,
+  S extends string,
+  L1 extends string = never,
+  L2 extends string = never,
+  L3 extends string = never,
+  L4 extends string = never,
+  L5 extends string = never
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
     definition: Definition<V, S, L1, L2, L3, L4, L5>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    registry: Registry,
   ) => {
 
   const update = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
     item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
   ): Promise<V> => {
-  
+
     logger.debug('update', { key, item });
 
     let itemToUpdate = item;

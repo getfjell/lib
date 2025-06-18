@@ -1,26 +1,32 @@
 /* eslint-disable no-undefined */
+import { describe, expect, test, vi } from 'vitest';
 import { createInstance, isInstance } from '@/Instance';
 import { Definition } from '@/Definition';
 import { Operations } from '@/Operations';
 import { Item } from '@fjell/core';
+import { Registry } from '@/Registry';
 
-jest.mock('@fjell/logging', () => {
+vi.mock('@fjell/logging', () => {
+  const logger = {
+    get: vi.fn().mockReturnThis(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    trace: vi.fn(),
+    emergency: vi.fn(),
+    alert: vi.fn(),
+    critical: vi.fn(),
+    notice: vi.fn(),
+    time: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    log: vi.fn(),
+  };
+
   return {
-    get: jest.fn().mockReturnThis(),
-    getLogger: jest.fn().mockReturnThis(),
-    default: jest.fn(),
-    error: jest.fn(),
-    warning: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    trace: jest.fn(),
-    emergency: jest.fn(),
-    alert: jest.fn(),
-    critical: jest.fn(),
-    notice: jest.fn(),
-    time: jest.fn().mockReturnThis(),
-    end: jest.fn(),
-    log: jest.fn(),
+    default: {
+      getLogger: () => logger,
+    }
   }
 });
 
@@ -29,12 +35,14 @@ describe('Instance', () => {
     test('should create instance with definition and operations', () => {
       const mockDefinition = {} as Definition<Item<'test'>, 'test'>;
       const mockOperations = {} as Operations<Item<'test'>, 'test'>;
+      const mockRegistry = {} as Registry;
 
-      const instance = createInstance(mockDefinition, mockOperations);
+      const instance = createInstance(mockDefinition, mockOperations, mockRegistry);
 
       expect(instance).toBeDefined();
       expect(instance.definition).toBe(mockDefinition);
       expect(instance.operations).toBe(mockOperations);
+      expect(instance.registry).toBe(mockRegistry);
     });
   });
 
@@ -42,7 +50,8 @@ describe('Instance', () => {
     test('should return true for valid instance', () => {
       const mockInstance = {
         definition: {},
-        operations: {}
+        operations: {},
+        registry: {}
       };
 
       expect(isInstance(mockInstance)).toBe(true);

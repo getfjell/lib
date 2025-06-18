@@ -11,12 +11,13 @@ import { Definition } from "@/Definition";
 import { CreateValidationError, HookError } from "@/errors";
 import LibLogger from "@/logger";
 import { Operations } from "@/Operations";
+import { Registry } from "@/Registry";
 
 const logger = LibLogger.get("library", "ops", "create");
 
 export const wrapCreateOperation = <
-V extends Item<S, L1, L2, L3, L4, L5>,
-S extends string,
+  V extends Item<S, L1, L2, L3, L4, L5>,
+  S extends string,
   L1 extends string = never,
   L2 extends string = never,
   L3 extends string = never,
@@ -25,6 +26,8 @@ S extends string,
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
     definition: Definition<V, S, L1, L2, L3, L4, L5>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    registry: Registry,
   ) => {
 
   const libOptions = definition.options;
@@ -45,7 +48,7 @@ S extends string,
 
     itemToCreate = await runPreCreateHook(itemToCreate, options);
     await validateCreate(itemToCreate, options);
-    
+
     let createdItem = await toWrap.create(itemToCreate, options);
     createdItem = await runPostCreateHook(createdItem);
 

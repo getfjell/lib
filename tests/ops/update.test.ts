@@ -1,38 +1,67 @@
+import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { createCoordinate } from '@/Coordinate';
 import { createDefinition } from '@/Definition';
 import { HookError, UpdateError, UpdateValidationError } from '@/errors';
 import { Operations } from '@/Operations';
 import { wrapUpdateOperation } from '@/ops/update';
+import { createRegistry } from '@/Registry';
 import { Item, PriKey, TypesProperties } from '@fjell/core';
 import { randomUUID } from 'crypto';
 
-jest.mock('@fjell/logging', () => {
+vi.mock('@fjell/logging', () => {
+  const logger = {
+    get: vi.fn().mockReturnThis(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    trace: vi.fn(),
+    emergency: vi.fn(),
+    default: vi.fn(),
+    alert: vi.fn(),
+    critical: vi.fn(),
+    notice: vi.fn(),
+    time: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    log: vi.fn(),
+  };
+
   return {
-    get: jest.fn().mockReturnThis(),
-    getLogger: jest.fn().mockReturnThis(),
-    default: jest.fn(),
-    error: jest.fn(),
-    warning: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    trace: jest.fn(),
-    emergency: jest.fn(),
-    alert: jest.fn(),
-    critical: jest.fn(),
-    notice: jest.fn(),
-    time: jest.fn().mockReturnThis(),
-    end: jest.fn(),
-    log: jest.fn(),
-  }
+    default: {
+      getLogger: () => logger,
+    },
+  };
+});
+
+vi.mock('@/logger', () => {
+  const logger = {
+    get: vi.fn().mockReturnThis(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    trace: vi.fn(),
+    emergency: vi.fn(),
+    default: vi.fn(),
+    alert: vi.fn(),
+    critical: vi.fn(),
+    notice: vi.fn(),
+    time: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    log: vi.fn(),
+  };
+  return {
+    default: logger,
+  };
 });
 
 describe('Update Operation', () => {
   let operations: Operations<Item<'test'>, 'test'>;
-  let updateMethodMock: jest.Mock;
+  let updateMethodMock: Mock;
   let coordinate: ReturnType<typeof createCoordinate>;
-  
+
   beforeEach(() => {
-    updateMethodMock = jest.fn();
+    updateMethodMock = vi.fn();
     operations = {
       update: updateMethodMock,
     } as unknown as Operations<Item<'test'>, 'test'>;
@@ -44,11 +73,12 @@ describe('Update Operation', () => {
       const testItem = { name: 'test' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
       const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
-      
+      const registry = createRegistry();
+
       const definition = createDefinition(coordinate);
       updateMethodMock.mockResolvedValueOnce(testItem);
 
-      const update = wrapUpdateOperation(operations, definition);
+      const update = wrapUpdateOperation(operations, definition, registry);
       const result = await update(key, itemProperties);
 
       expect(result).toBe(testItem);
@@ -58,11 +88,11 @@ describe('Update Operation', () => {
     test('should throw UpdateError when update fails', async () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
       const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
-      
+      const registry = createRegistry();
       const definition = createDefinition(coordinate);
       updateMethodMock.mockRejectedValueOnce(new Error('Update failed'));
 
-      const update = wrapUpdateOperation(operations, definition);
+      const update = wrapUpdateOperation(operations, definition, registry);
       await expect(update(key, itemProperties)).rejects.toThrow(UpdateError);
     });
   });
@@ -72,8 +102,8 @@ describe('Update Operation', () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
       const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
       const modifiedItem = { name: 'modified' } as TypesProperties<Item<'test'>, 'test'>;
-      
-      const preUpdateMock = jest.fn().mockResolvedValueOnce(modifiedItem);
+      const registry = createRegistry();
+      const preUpdateMock = vi.fn().mockResolvedValueOnce(modifiedItem);
       const definition = createDefinition(coordinate, {
         hooks: {
           preUpdate: preUpdateMock
@@ -82,7 +112,7 @@ describe('Update Operation', () => {
 
       updateMethodMock.mockResolvedValueOnce(modifiedItem);
 
-      const update = wrapUpdateOperation(operations, definition);
+      const update = wrapUpdateOperation(operations, definition, registry);
       await update(key, itemProperties);
 
       expect(preUpdateMock).toHaveBeenCalledWith(key, itemProperties);
@@ -93,8 +123,8 @@ describe('Update Operation', () => {
       const testItem = { name: 'test' } as unknown as Item<'test'>;
       const modifiedItem = { name: 'modified' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      
-      const postUpdateMock = jest.fn().mockResolvedValueOnce(modifiedItem);
+      const registry = createRegistry();
+      const postUpdateMock = vi.fn().mockResolvedValueOnce(modifiedItem);
       const definition = createDefinition(coordinate, {
         hooks: {
           postUpdate: postUpdateMock
@@ -103,7 +133,7 @@ describe('Update Operation', () => {
 
       updateMethodMock.mockResolvedValueOnce(testItem);
 
-      const update = wrapUpdateOperation(operations, definition);
+      const update = wrapUpdateOperation(operations, definition, registry);
       const result = await update(key, testItem);
 
       expect(postUpdateMock).toHaveBeenCalledWith(testItem);
@@ -113,14 +143,15 @@ describe('Update Operation', () => {
     test('should throw HookError when preUpdate hook fails', async () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
       const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
-      
+
+      const registry = createRegistry();
       const definition = createDefinition(coordinate, {
         hooks: {
           preUpdate: async () => { throw new Error('Hook failed'); }
         }
       });
 
-      const update = wrapUpdateOperation(operations, definition);
+      const update = wrapUpdateOperation(operations, definition, registry);
       await expect(update(key, itemProperties)).rejects.toThrow(HookError);
     });
   });
@@ -129,8 +160,9 @@ describe('Update Operation', () => {
     test('should validate item before updating', async () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
       const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
-      
-      const validateMock = jest.fn().mockResolvedValueOnce(true);
+
+      const registry = createRegistry();
+      const validateMock = vi.fn().mockResolvedValueOnce(true);
       const definition = createDefinition(coordinate, {
         validators: {
           onUpdate: validateMock
@@ -139,7 +171,7 @@ describe('Update Operation', () => {
 
       updateMethodMock.mockResolvedValueOnce(itemProperties);
 
-      const update = wrapUpdateOperation(operations, definition);
+      const update = wrapUpdateOperation(operations, definition, registry);
       await update(key, itemProperties);
 
       expect(validateMock).toHaveBeenCalledWith(key, itemProperties);
@@ -148,14 +180,15 @@ describe('Update Operation', () => {
     test('should throw UpdateValidationError when validation fails', async () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
       const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
-      
+
+      const registry = createRegistry();
       const definition = createDefinition(coordinate, {
         validators: {
           onUpdate: async () => false
         }
       });
 
-      const update = wrapUpdateOperation(operations, definition);
+      const update = wrapUpdateOperation(operations, definition, registry);
       await expect(update(key, itemProperties)).rejects.toThrow(UpdateValidationError);
     });
   });

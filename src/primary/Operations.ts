@@ -3,6 +3,7 @@ import { Operations as AbstractOperations, wrapOperations as createAbstractOpera
 import { Item, ItemQuery, PriKey, TypesProperties } from "@fjell/core";
 
 import LibLogger from "@/logger";
+import { Registry } from "@/Registry";
 
 const logger = LibLogger.get("primary", "Operations");
 
@@ -65,9 +66,10 @@ export const wrapOperations = <
 >(
     toWrap: Operations<V, S>,
     definition: Definition<V, S>,
+    registry: Registry,
   ): Operations<V, S> => {
   logger.debug("wrapOperations", { toWrap, definition });
   return {
-    ...createAbstractOperations(toWrap, definition),
+    ...createAbstractOperations(toWrap, definition, registry),
   };
 }

@@ -1,24 +1,30 @@
+import { describe, expect, test, vi } from 'vitest';
 import { Definition } from "@/Definition";
 import { createReadOnlyOperations, Operations, wrapOperations } from "@/Operations";
+import { createRegistry } from "@/Registry";
 import { ComKey, Item, ItemQuery, LocKeyArray, PriKey, TypesProperties } from "@fjell/core";
 
-jest.mock('@fjell/logging', () => {
+vi.mock('@fjell/logging', () => {
+  const logger = {
+    get: vi.fn().mockReturnThis(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    trace: vi.fn(),
+    emergency: vi.fn(),
+    alert: vi.fn(),
+    critical: vi.fn(),
+    notice: vi.fn(),
+    time: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    log: vi.fn(),
+  };
+
   return {
-    get: jest.fn().mockReturnThis(),
-    getLogger: jest.fn().mockReturnThis(),
-    default: jest.fn(),
-    error: jest.fn(),
-    warning: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    trace: jest.fn(),
-    emergency: jest.fn(),
-    alert: jest.fn(),
-    critical: jest.fn(),
-    notice: jest.fn(),
-    time: jest.fn().mockReturnThis(),
-    end: jest.fn(),
-    log: jest.fn(),
+    default: {
+      getLogger: () => logger,
+    }
   }
 });
 
@@ -32,21 +38,22 @@ describe('Operations', () => {
 
   // Mock operations implementation
   const mockOperations: Operations<TestItem, 'test', 'loc1', 'loc2'> = {
-    all: jest.fn(),
-    one: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    upsert: jest.fn(),
-    get: jest.fn(),
-    remove: jest.fn(),
-    find: jest.fn()
+    all: vi.fn(),
+    one: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    upsert: vi.fn(),
+    get: vi.fn(),
+    remove: vi.fn(),
+    find: vi.fn()
   };
 
   // Mock definition
   const mockDefinition = {} as Definition<TestItem, 'test', 'loc1', 'loc2'>;
 
   describe('createOperations', () => {
-    const operations = wrapOperations(mockOperations, mockDefinition);
+    const registry = createRegistry();
+    const operations = wrapOperations(mockOperations, mockDefinition, registry);
 
     test('should create operations object with all methods', () => {
       expect(operations.all).toBeDefined();
@@ -65,8 +72,8 @@ describe('Operations', () => {
 
     test('should pass through read operations unchanged', async () => {
       const query = {} as ItemQuery;
-      const locations = [{kt: 'loc1', lk: '1'}, {kt: 'loc2', lk: '2'}] as LocKeyArray<'loc1', 'loc2'>;
-      
+      const locations = [{ kt: 'loc1', lk: '1' }, { kt: 'loc2', lk: '2' }] as LocKeyArray<'loc1', 'loc2'>;
+
       await readOnlyOps.all(query, locations);
       expect(mockOperations.all).toHaveBeenCalledWith(query, locations);
 
@@ -85,7 +92,7 @@ describe('Operations', () => {
     test('should return empty objects for write operations', async () => {
       const item = {} as TestItemProperties;
       const key = {} as PriKey<'test'>;
-      const locations = [{kt: 'loc1', lk: '1'}, {kt: 'loc2', lk: '2'}] as LocKeyArray<'loc1', 'loc2'>;
+      const locations = [{ kt: 'loc1', lk: '1' }, { kt: 'loc2', lk: '2' }] as LocKeyArray<'loc1', 'loc2'>;
 
       const createResult = await readOnlyOps.create(item, { locations });
       expect(createResult).toEqual({});

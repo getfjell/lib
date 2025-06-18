@@ -6,6 +6,7 @@ import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperati
 import { ItemQuery } from "@fjell/core";
 
 import { Definition } from "@/Definition";
+import { Registry } from "@/Registry";
 
 export interface Operations<
   V extends Item<S, L1, L2, L3, L4, L5>,
@@ -78,9 +79,10 @@ export const wrapOperations = <
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
     definition: Definition<V, S, L1, L2, L3, L4, L5>,
+    registry: Registry,
   ): Operations<V, S, L1, L2, L3, L4, L5> => {
 
-  const operations = wrapAbstractOperations(toWrap, definition);
+  const operations = wrapAbstractOperations(toWrap, definition, registry);
   return {
     ...operations
   };

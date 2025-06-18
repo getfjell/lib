@@ -1,6 +1,7 @@
 import { Definition } from "@/Definition";
 import { Instance as AbstractInstance, createInstance as createAbstractInstance } from "@/Instance";
 import { Operations } from "@/Operations";
+import { Registry } from "@/Registry";
 import { Item } from "@fjell/core";
 
 export interface Instance<
@@ -12,7 +13,7 @@ export interface Instance<
   L4 extends string = never,
   L5 extends string = never,
 > extends AbstractInstance<V, S, L1, L2, L3, L4, L5> {
-    parent?: AbstractInstance<Item<L1, L2, L3, L4, L5>, L1, L2, L3, L4, L5>;
+  parent?: AbstractInstance<Item<L1, L2, L3, L4, L5>, L1, L2, L3, L4, L5>;
 }
 
 export const createInstance = <
@@ -27,8 +28,9 @@ export const createInstance = <
     parent: AbstractInstance<Item<L1, L2, L3, L4, L5>, L1, L2, L3, L4, L5>,
     definition: Definition<V, S, L1, L2, L3, L4, L5>,
     operations: Operations<V, S, L1, L2, L3, L4, L5>,
+    registry: Registry,
   ): Instance<V, S, L1, L2, L3, L4, L5> => {
-  const instance: AbstractInstance<V, S, L1, L2, L3, L4, L5> = createAbstractInstance(definition, operations);
+  const instance: AbstractInstance<V, S, L1, L2, L3, L4, L5> = createAbstractInstance(definition, operations, registry);
   return {
     ...instance,
     parent,

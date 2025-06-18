@@ -15,6 +15,7 @@ import { wrapUpdateOperation } from "./ops/update";
 import { wrapUpsertOperation } from "./ops/upsert";
 
 import LibLogger from '@/logger';
+import { Registry } from "./Registry";
 
 const logger = LibLogger.get('Operations');
 
@@ -120,17 +121,18 @@ export const wrapOperations = <
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
     definition: Definition<V, S, L1, L2, L3, L4, L5>,
+    registry: Registry,
   ): Operations<V, S, L1, L2, L3, L4, L5> => {
   const operations = {} as Operations<V, S, L1, L2, L3, L4, L5>;
 
-  operations.all = wrapAllOperation(toWrap, definition);
-  operations.one = wrapOneOperation(toWrap, definition);
-  operations.create = wrapCreateOperation(toWrap, definition);
-  operations.update = wrapUpdateOperation(toWrap, definition);
-  operations.get = wrapGetOperation(toWrap, definition);
-  operations.remove = wrapRemoveOperation(toWrap, definition);
-  operations.find = wrapFindOperation(toWrap, definition);
-  operations.upsert = wrapUpsertOperation(operations);
+  operations.all = wrapAllOperation(toWrap, definition, registry);
+  operations.one = wrapOneOperation(toWrap, definition, registry);
+  operations.create = wrapCreateOperation(toWrap, definition, registry);
+  operations.update = wrapUpdateOperation(toWrap, definition, registry);
+  operations.get = wrapGetOperation(toWrap, definition, registry);
+  operations.remove = wrapRemoveOperation(toWrap, definition, registry);
+  operations.find = wrapFindOperation(toWrap, definition, registry);
+  operations.upsert = wrapUpsertOperation(operations, registry);
 
   return operations;
 };
@@ -159,7 +161,7 @@ export const createReadOnlyOperations = <
       key?: never;
       locations: LocKeyArray<L1, L2, L3, L4, L5>,
     }
-  ): Promise<V> =>{
+  ): Promise<V> => {
     logger.warning('create', 'Cannot Create in a ReadOnly Library, Returning Empty Item');
     return {} as V;
   };
