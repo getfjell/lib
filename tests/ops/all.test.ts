@@ -1,25 +1,32 @@
+import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapAllOperation } from "@/ops/all";
 import { Definition } from "@/Definition";
 import { Operations } from "@/Operations";
+import { createRegistry } from "@/Registry";
 
-jest.mock('@fjell/logging', () => {
+vi.mock('@fjell/logging', () => {
+  const logger = {
+    get: vi.fn().mockReturnThis(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    trace: vi.fn(),
+    emergency: vi.fn(),
+    default: vi.fn(),
+    alert: vi.fn(),
+    critical: vi.fn(),
+    notice: vi.fn(),
+    time: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    log: vi.fn(),
+  };
+
   return {
-    get: jest.fn().mockReturnThis(),
-    getLogger: jest.fn().mockReturnThis(),
-    default: jest.fn(),
-    error: jest.fn(),
-    warning: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    trace: jest.fn(),
-    emergency: jest.fn(),
-    alert: jest.fn(),
-    critical: jest.fn(),
-    notice: jest.fn(),
-    time: jest.fn().mockReturnThis(),
-    end: jest.fn(),
-    log: jest.fn(),
+    default: {
+      getLogger: () => logger,
+    }
   }
 });
 
@@ -34,12 +41,13 @@ describe('getAllOperation', () => {
 
   beforeEach(() => {
     mockOperations = {
-      all: jest.fn(),
+      all: vi.fn(),
     } as unknown as Operations<TestItem, 'test', 'loc1', 'loc2'>;
 
+    const registry = createRegistry();
     mockDefinition = {} as Definition<TestItem, 'test', 'loc1', 'loc2'>;
 
-    allOperation = wrapAllOperation(mockOperations, mockDefinition);
+    allOperation = wrapAllOperation(mockOperations, mockDefinition, registry);
   });
 
   test('should call wrapped operations all with correct parameters', async () => {
@@ -53,7 +61,7 @@ describe('getAllOperation', () => {
       { name: 'test2' } as TestItem
     ];
 
-    (mockOperations.all as jest.Mock).mockResolvedValue(expectedItems);
+    (mockOperations.all as Mock).mockResolvedValue(expectedItems);
 
     const result = await allOperation(itemQuery, locations);
 
@@ -64,12 +72,12 @@ describe('getAllOperation', () => {
   test('should handle empty locations array', async () => {
     const itemQuery = { limit: 10, exclusiveStartKey: null };
     const locations: LocKeyArray<'loc1', 'loc2'> = [
-        { kt: 'loc1', lk: 'loc1-id' } as LocKey<'loc1'>,
-        { kt: 'loc2', lk: 'loc2-id' } as LocKey<'loc2'>
+      { kt: 'loc1', lk: 'loc1-id' } as LocKey<'loc1'>,
+      { kt: 'loc2', lk: 'loc2-id' } as LocKey<'loc2'>
     ];
     const expectedItems: TestItem[] = [];
 
-    (mockOperations.all as jest.Mock).mockResolvedValue(expectedItems);
+    (mockOperations.all as Mock).mockResolvedValue(expectedItems);
 
     const result = await allOperation(itemQuery, locations);
 
@@ -81,7 +89,7 @@ describe('getAllOperation', () => {
     const itemQuery = { limit: 10, exclusiveStartKey: null };
     const expectedItems: TestItem[] = [];
 
-    (mockOperations.all as jest.Mock).mockResolvedValue(expectedItems);
+    (mockOperations.all as Mock).mockResolvedValue(expectedItems);
 
     const result = await allOperation(itemQuery);
 

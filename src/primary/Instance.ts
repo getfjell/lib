@@ -3,6 +3,7 @@ import { Instance as AbstractInstance, createInstance as createAbstractInstance 
 import { Operations } from "@/Operations";
 import { Item } from "@fjell/core";
 import LibLogger from "@/logger";
+import { Registry } from "@/Registry";
 
 const logger = LibLogger.get("primary", "Instance");
 
@@ -19,12 +20,13 @@ export const createInstance = <
   S extends string
 >(
     definition: Definition<V, S>,
-    operations: Operations<V, S>
+    operations: Operations<V, S>,
+    registry: Registry
   ): Instance<V, S> => {
 
   logger.debug("createInstance", { definition, operations });
 
-  const instance: AbstractInstance<V, S> = createAbstractInstance(definition, operations);
+  const instance: AbstractInstance<V, S> = createAbstractInstance(definition, operations, registry);
   logger.debug("created instance", { instance });
   return {
     ...instance

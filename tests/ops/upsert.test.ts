@@ -1,46 +1,52 @@
+import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { createCoordinate } from '@/Coordinate';
-import { NotFoundError, Operations } from '@/index';
+import { createRegistry, NotFoundError, Operations } from '@/index';
 import { wrapUpsertOperation } from '@/ops/upsert';
 import { Item, PriKey, TypesProperties } from '@fjell/core';
 import { randomUUID } from 'crypto';
 
-jest.mock('@fjell/logging', () => {
+vi.mock('@fjell/logging', () => {
+  const logger = {
+    get: vi.fn().mockReturnThis(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    trace: vi.fn(),
+    emergency: vi.fn(),
+    default: vi.fn(),
+    alert: vi.fn(),
+    critical: vi.fn(),
+    notice: vi.fn(),
+    time: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    log: vi.fn(),
+  };
+
   return {
-    get: jest.fn().mockReturnThis(),
-    getLogger: jest.fn().mockReturnThis(),
-    default: jest.fn(),
-    error: jest.fn(),
-    warning: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    trace: jest.fn(),
-    emergency: jest.fn(),
-    alert: jest.fn(),
-    critical: jest.fn(),
-    notice: jest.fn(),
-    time: jest.fn().mockReturnThis(),
-    end: jest.fn(),
-    log: jest.fn(),
+    default: {
+      getLogger: () => logger,
+    }
   }
 });
-jest.mock('@/ops/create');
-jest.mock('@/ops/update');
+vi.mock('@/ops/create');
+vi.mock('@/ops/update');
 
 describe('upsert', () => {
-  jest.resetAllMocks();
+  vi.resetAllMocks();
   let operations: Operations<Item<'test'>, 'test'>;
-  let getMethodMock: jest.Mock;
-  let updateMethodMock: jest.Mock;
-  let createMethodMock: jest.Mock;
-  let oneMethodMock: jest.Mock;
-  let globalOneMethodMock: jest.Mock;
+  let getMethodMock: Mock;
+  let updateMethodMock: Mock;
+  let createMethodMock: Mock;
+  let oneMethodMock: Mock;
+  let globalOneMethodMock: Mock;
 
   beforeEach(() => {
-    getMethodMock = jest.fn();
-    updateMethodMock = jest.fn();
-    createMethodMock = jest.fn();
-    oneMethodMock = jest.fn();
-    globalOneMethodMock = jest.fn();
+    getMethodMock = vi.fn();
+    updateMethodMock = vi.fn();
+    createMethodMock = vi.fn();
+    oneMethodMock = vi.fn();
+    globalOneMethodMock = vi.fn();
     operations = {
       get: getMethodMock,
       update: updateMethodMock,
@@ -63,7 +69,8 @@ describe('upsert', () => {
       createMethodMock.mockResolvedValueOnce({ ...testItem, action: 'created' } as Item<'test'>);
       updateMethodMock.mockResolvedValueOnce({ ...testItem, action: 'updated' } as Item<'test'>);
 
-      const result = await wrapUpsertOperation(operations)(key, itemProperties);
+      const registry = createRegistry();
+      const result = await wrapUpsertOperation(operations, registry)(key, itemProperties);
       expect(result).toBeDefined();
       expect(result.action).toBe('updated');
       expect(getMethodMock).toHaveBeenCalled();
@@ -79,7 +86,8 @@ describe('upsert', () => {
       getMethodMock.mockResolvedValueOnce(testItem);
       updateMethodMock.mockResolvedValueOnce({ ...testItem, action: 'updated' } as Item<'test'>);
 
-      const result = await wrapUpsertOperation(operations)(key, itemProperties);
+      const registry = createRegistry();
+      const result = await wrapUpsertOperation(operations, registry)(key, itemProperties);
       expect(result).toBeDefined();
       expect(result.action).toBe('updated');
       expect(getMethodMock).toHaveBeenCalled();

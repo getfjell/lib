@@ -9,19 +9,22 @@ import {
 import LibLogger from "@/logger";
 import { NotFoundError } from "@/errors";
 import { Operations } from "@/Operations";
+import { Registry } from "@/Registry";
 
 const logger = LibLogger.get('ops', 'upsert');
 
 // TODO: Explore how you are using the this keyword.
 export const wrapUpsertOperation = <
-V extends Item<S, L1, L2, L3, L4, L5>,
-S extends string,
-L1 extends string = never,
-L2 extends string = never,
-L3 extends string = never,
-L4 extends string = never,
-L5 extends string = never>(
+  V extends Item<S, L1, L2, L3, L4, L5>,
+  S extends string,
+  L1 extends string = never,
+  L2 extends string = never,
+  L3 extends string = never,
+  L4 extends string = never,
+  L5 extends string = never>(
     ops: Operations<V, S, L1, L2, L3, L4, L5>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    registry: Registry,
   ) => {
 
   /**
@@ -39,7 +42,7 @@ L5 extends string = never>(
       logger.default('Retrieving Item by Key', { key });
       item = await ops.get(key);
     } catch (error) {
-      if(error instanceof NotFoundError) {
+      if (error instanceof NotFoundError) {
         logger.default('Item not found, creating new item', { key });
         item = await ops.create(itemProperties, { key });
       } else {
@@ -56,8 +59,8 @@ L5 extends string = never>(
   ): Promise<V> => {
 
     let item: V | null = null;
-    item = await retrieveOrCreateWithKey( key, itemProperties );
-    
+    item = await retrieveOrCreateWithKey(key, itemProperties);
+
     logger.debug('Updating Item', { key: item.key, itemProperties });
     item = await ops.update(item.key, itemProperties);
     logger.default("updated item: %j", { item });

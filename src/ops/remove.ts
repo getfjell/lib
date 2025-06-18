@@ -5,6 +5,7 @@ import { Definition } from "@/Definition";
 import { HookError, RemoveError, RemoveValidationError } from "@/errors";
 import LibLogger from "@/logger";
 import { Operations } from "@/Operations";
+import { Registry } from "@/Registry";
 
 const logger = LibLogger.get('library', 'ops', 'remove');
 
@@ -19,6 +20,8 @@ export const wrapRemoveOperation = <
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
     definition: Definition<V, S, L1, L2, L3, L4, L5>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    registry: Registry,
   ) => {
 
   const remove = async (
@@ -91,6 +94,6 @@ export const wrapRemoveOperation = <
       );
     }
   }
-  
+
   return remove;
 }

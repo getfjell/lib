@@ -1,25 +1,32 @@
+import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapFindOperation } from "@/ops/find";
 import { Definition } from "@/Definition";
 import { Operations } from "@/Operations";
+import { createRegistry } from "@/Registry";
 
-jest.mock('@fjell/logging', () => {
+vi.mock('@fjell/logging', () => {
+  const logger = {
+    get: vi.fn().mockReturnThis(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    trace: vi.fn(),
+    emergency: vi.fn(),
+    default: vi.fn(),
+    alert: vi.fn(),
+    critical: vi.fn(),
+    notice: vi.fn(),
+    time: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    log: vi.fn(),
+  };
+
   return {
-    get: jest.fn().mockReturnThis(),
-    getLogger: jest.fn().mockReturnThis(),
-    default: jest.fn(),
-    error: jest.fn(),
-    warning: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    trace: jest.fn(),
-    emergency: jest.fn(),
-    alert: jest.fn(),
-    critical: jest.fn(),
-    notice: jest.fn(),
-    time: jest.fn().mockReturnThis(),
-    end: jest.fn(),
-    log: jest.fn(),
+    default: {
+      getLogger: () => logger,
+    }
   }
 });
 
@@ -34,12 +41,13 @@ describe('getFindOperation', () => {
 
   beforeEach(() => {
     mockOperations = {
-      find: jest.fn(),
+      find: vi.fn(),
     } as unknown as Operations<TestItem, 'test', 'loc1', 'loc2'>;
 
+    const registry = createRegistry();
     mockDefinition = {} as Definition<TestItem, 'test', 'loc1', 'loc2'>;
 
-    findOperation = wrapFindOperation(mockOperations, mockDefinition);
+    findOperation = wrapFindOperation(mockOperations, mockDefinition, registry);
   });
 
   test('should call wrapped operations find with correct parameters', async () => {
@@ -54,7 +62,7 @@ describe('getFindOperation', () => {
       { name: 'test2' } as TestItem
     ];
 
-    (mockOperations.find as jest.Mock).mockResolvedValue(expectedItems);
+    (mockOperations.find as Mock).mockResolvedValue(expectedItems);
 
     const result = await findOperation(finder, finderParams, locations);
 
@@ -71,7 +79,7 @@ describe('getFindOperation', () => {
     ];
     const expectedItems: TestItem[] = [];
 
-    (mockOperations.find as jest.Mock).mockResolvedValue(expectedItems);
+    (mockOperations.find as Mock).mockResolvedValue(expectedItems);
 
     const result = await findOperation(finder, finderParams, locations);
 
@@ -84,7 +92,7 @@ describe('getFindOperation', () => {
     const finderParams = { param1: 'value1' };
     const expectedItems: TestItem[] = [];
 
-    (mockOperations.find as jest.Mock).mockResolvedValue(expectedItems);
+    (mockOperations.find as Mock).mockResolvedValue(expectedItems);
 
     const result = await findOperation(finder, finderParams);
 

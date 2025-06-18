@@ -1,42 +1,48 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Definition } from '@/Definition';
 import { Instance } from '@/Instance';
 import { Operations } from '@/Operations';
 import { createRegistry, Registry } from '@/Registry';
 import { Item } from '@fjell/core';
 
-jest.mock('@fjell/logging', () => {
+vi.mock('@fjell/logging', () => {
+  const logger = {
+    get: vi.fn().mockReturnThis(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    trace: vi.fn(),
+    emergency: vi.fn(),
+    alert: vi.fn(),
+    critical: vi.fn(),
+    notice: vi.fn(),
+    time: vi.fn().mockReturnThis(),
+    end: vi.fn(),
+    log: vi.fn(),
+  };
+
   return {
-    get: jest.fn().mockReturnThis(),
-    getLogger: jest.fn().mockReturnThis(),
-    default: jest.fn(),
-    error: jest.fn(),
-    warning: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    trace: jest.fn(),
-    emergency: jest.fn(),
-    alert: jest.fn(),
-    critical: jest.fn(),
-    notice: jest.fn(),
-    time: jest.fn().mockReturnThis(),
-    end: jest.fn(),
-    log: jest.fn(),
+    default: {
+      getLogger: () => logger,
+    }
   }
 });
-jest.mock('@/logger');
+vi.mock('@/logger');
 
 describe('LibRegistry', () => {
   let registry: Registry;
 
   beforeEach(() => {
     registry = createRegistry();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should register a library', () => {
     const lib = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     // @ts-expect-error
     registry.register(['testLib'], lib);
@@ -51,6 +57,7 @@ describe('LibRegistry', () => {
     const lib = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     // @ts-expect-error
     registry.register(['test', 'nested', 'lib'], lib);
@@ -61,6 +68,7 @@ describe('LibRegistry', () => {
     const lib = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     // @ts-expect-error
     registry.register(['test', 'nested', 'lib'], lib);
@@ -71,10 +79,12 @@ describe('LibRegistry', () => {
     const lib1 = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     const lib2 = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
 
     // @ts-expect-error
@@ -90,18 +100,22 @@ describe('LibRegistry', () => {
     const element = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     const container = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     const region = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     const nation = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
 
     // @ts-expect-error
@@ -123,18 +137,22 @@ describe('LibRegistry', () => {
     const element = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     const container = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     const region = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     const nation = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
 
     // @ts-expect-error
@@ -156,14 +174,17 @@ describe('LibRegistry', () => {
     const nationDefault = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     const nationFirestore = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     const nationSequelize = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
 
     // @ts-expect-error
@@ -183,48 +204,58 @@ describe('LibRegistry', () => {
       {
         definition: {} as Definition<Item<'test'>, 'test'>,
         operations: {} as Operations<Item<'test'>, 'test'>,
+        registry: {} as Registry,
       } as unknown as Instance<Item<'test'>, 'test'>;
     const elementSequelize1 =
       {
         definition: {} as Definition<Item<'test'>, 'test'>,
         operations: {} as Operations<Item<'test'>, 'test'>,
+        registry: {} as Registry,
       } as unknown as Instance<Item<'test'>, 'test'>;
     const elementSequelize2 =
       {
         definition: {} as Definition<Item<'test'>, 'test'>,
         operations: {} as Operations<Item<'test'>, 'test'>,
+        registry: {} as Registry,
       } as unknown as Instance<Item<'test'>, 'test'>;
     const elementFirestore2 =
       {
         definition: {} as Definition<Item<'test'>, 'test'>,
         operations: {} as Operations<Item<'test'>, 'test'>,
+        registry: {} as Registry,
       } as unknown as Instance<Item<'test'>, 'test'>;
     const elementSequelizeBlamo2 =
       {
         definition: {} as Definition<Item<'test'>, 'test'>,
         operations: {} as Operations<Item<'test'>, 'test'>,
+        registry: {} as Registry,
       } as unknown as Instance<Item<'test'>, 'test'>;
     const container = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     const containerFirestore =
       {
         definition: {} as Definition<Item<'test'>, 'test'>,
         operations: {} as Operations<Item<'test'>, 'test'>,
+        registry: {} as Registry,
       } as unknown as Instance<Item<'test'>, 'test'>;
     const containerSequelize =
       {
         definition: {} as Definition<Item<'test'>, 'test'>,
         operations: {} as Operations<Item<'test'>, 'test'>,
+        registry: {} as Registry,
       } as unknown as Instance<Item<'test'>, 'test'>;
     const region = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
     const nation = {
       definition: {} as Definition<Item<'test'>, 'test'>,
       operations: {} as Operations<Item<'test'>, 'test'>,
+      registry: {} as Registry,
     } as unknown as Instance<Item<'test'>, 'test'>;
 
     // @ts-expect-error

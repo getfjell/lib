@@ -5,8 +5,9 @@ import { ItemQuery } from "@fjell/core";
 import { Definition } from "@/Definition";
 import LibLogger from '@/logger';
 import { Operations } from "@/Operations";
+import { Registry } from "@/Registry";
 
-const logger = LibLogger.get('library', 'ops','one');
+const logger = LibLogger.get('library', 'ops', 'one');
 
 export const wrapOneOperation = <
   V extends Item<S, L1, L2, L3, L4, L5>,
@@ -18,8 +19,10 @@ export const wrapOneOperation = <
   L5 extends string = never
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
     definition: Definition<V, S, L1, L2, L3, L4, L5>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    registry: Registry,
   ) => {
 
   const one = async (

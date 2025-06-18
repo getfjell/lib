@@ -4,8 +4,9 @@ import { ComKey, Item, PriKey } from "@fjell/core";
 import { Definition } from "@/Definition";
 import LibLogger from '@/logger';
 import { Operations } from "@/Operations";
+import { Registry } from "@/Registry";
 
-const logger = LibLogger.get('library', 'ops','get');
+const logger = LibLogger.get('library', 'ops', 'get');
 
 export const wrapGetOperation = <
   V extends Item<S, L1, L2, L3, L4, L5>,
@@ -18,6 +19,8 @@ export const wrapGetOperation = <
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
     definition: Definition<V, S, L1, L2, L3, L4, L5>,
+   
+    registry: Registry,
   ) => {
 
   const get = async (
@@ -32,4 +35,3 @@ export const wrapGetOperation = <
   return get;
 
 }
-    
