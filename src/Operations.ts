@@ -8,6 +8,7 @@ import { Definition } from "./Definition";
 import { wrapAllOperation } from "./ops/all";
 import { wrapCreateOperation } from "./ops/create";
 import { wrapFindOperation } from "./ops/find";
+import { wrapFindOneOperation } from "./ops/findOne";
 import { wrapGetOperation } from "./ops/get";
 import { wrapOneOperation } from "./ops/one";
 import { wrapRemoveOperation } from "./ops/remove";
@@ -108,6 +109,12 @@ export interface Operations<
     finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | [],
   ): Promise<V[]>;
+
+  findOne(
+    finder: string,
+    finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | [],
+  ): Promise<V>;
 }
 
 export const wrapOperations = <
@@ -132,6 +139,7 @@ export const wrapOperations = <
   operations.get = wrapGetOperation(toWrap, definition, registry);
   operations.remove = wrapRemoveOperation(toWrap, definition, registry);
   operations.find = wrapFindOperation(toWrap, definition, registry);
+  operations.findOne = wrapFindOneOperation(toWrap, definition, registry);
   operations.upsert = wrapUpsertOperation(operations, registry);
 
   return operations;
