@@ -1,4 +1,4 @@
-import { ComKey, Item, TypesProperties } from "@fjell/core";
+import { ComKey, Item, PriKey, TypesProperties } from "@fjell/core";
 
 import { LocKeyArray } from "@fjell/core";
 
@@ -54,7 +54,7 @@ export interface Operations<
   ): Promise<V>;
 
   get(
-    key: ComKey<S, L1, L2, L3, L4, L5>,
+    key: ComKey<S, L1, L2, L3, L4, L5> | PriKey<S>,
   ): Promise<V>;
 
   remove(
