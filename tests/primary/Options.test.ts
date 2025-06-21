@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { Options } from '@/primary/Options';
 import { Item, PriKey, TypesProperties } from '@fjell/core';
 import { FinderParams } from '@/Options';
