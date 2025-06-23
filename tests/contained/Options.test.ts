@@ -244,9 +244,9 @@ describe('Contained Options', () => {
       const testKey = { kt: 'test', pk: '1' } as TestKey;
       const actionParams = { status: 'active', timestamp: new Date() };
 
-      const result = await options.actions?.activate?.(testKey, 'activate', actionParams);
+      const result = await options.actions?.activate?.(testKey, actionParams);
 
-      expect(actionMethod).toHaveBeenCalledWith(testKey, 'activate', actionParams);
+      expect(actionMethod).toHaveBeenCalledWith(testKey, actionParams);
       expect(result).toEqual(mockResult);
     });
 

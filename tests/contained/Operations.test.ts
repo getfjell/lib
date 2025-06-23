@@ -43,7 +43,11 @@ describe('Operations', () => {
       remove: vi.fn(),
       find: vi.fn(),
       findOne: vi.fn(),
-      action: vi.fn()
+      action: vi.fn(),
+      facet: vi.fn(),
+      facets: {},
+      finders: {},
+      actions: {}
     };
 
     mockDefinition = {} as Definition<TestItem, 'test', 'loc1', 'loc2'>;
@@ -60,7 +64,11 @@ describe('Operations', () => {
       remove: vi.fn(),
       find: vi.fn(),
       findOne: vi.fn(),
-      action: vi.fn()
+      action: vi.fn(),
+      facet: vi.fn(),
+      facets: {},
+      finders: {},
+      actions: {}
     };
 
     (wrapAbstractOperations as any).mockReturnValue(mockAbstractOperations);

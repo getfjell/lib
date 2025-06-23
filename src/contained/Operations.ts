@@ -66,12 +66,6 @@ export interface Operations<
     finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations: LocKeyArray<L1, L2, L3, L4, L5> | [],
   ): Promise<V[]>;
-
-  action(
-    key: ComKey<S, L1, L2, L3, L4, L5> | PriKey<S>,
-    actionKey: string,
-    actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-  ): Promise<V>;
 }
 
 export const wrapOperations = <

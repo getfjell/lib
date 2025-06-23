@@ -5,9 +5,9 @@ import LibLogger from "@/logger";
 import { Operations } from "@/Operations";
 import { Registry } from "@/Registry";
 
-const logger = LibLogger.get("library", "ops", "action");
+const logger = LibLogger.get("library", "ops", "facet");
 
-export const wrapActionOperation = <
+export const wrapFacetOperation = <
   V extends Item<S, L1, L2, L3, L4, L5>,
   S extends string,
   L1 extends string = never,
@@ -23,22 +23,22 @@ export const wrapActionOperation = <
     registry: Registry,
   ) => {
 
-  const { actions } = definition.options || {};
+  const { facets } = definition.options || {};
 
-  const action = async (
+  const facet = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    actionKey: string,
-    actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+    facetKey: string,
+    facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<V> => {
-    logger.debug("action", { key, actionKey, actionParams });
-    if (!actions?.[actionKey]) {
-      throw new Error(`Action ${actionKey} not found in definition`);
+    logger.debug("facet", { key, facetKey, facetParams });
+    if (!facets?.[facetKey]) {
+      throw new Error(`Facet ${facetKey} not found in definition for ${definition.coordinate.toString()}`);
     }
-    const actionMethod = actions[actionKey];
-    const actionResult = await actionMethod(key, actionParams);
-    logger.default("action result: %j", { actionResult });
-    return actionResult;
+    const facetMethod = facets[facetKey];
+    const facetResult = await facetMethod(key, facetParams);
+    logger.default("facet result: %j", { facetResult });
+    return facetResult;
   }
 
-  return action;
+  return facet;
 }

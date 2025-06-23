@@ -33,28 +33,28 @@ vi.mock('@fjell/logging', () => {
 });
 
 describe('One Operation', () => {
-  let operations: Operations<Item<'test'>, 'test'>;
+  let operations: Operations<Item<'test', 'container'>, 'test', 'container'>;
   let oneMethodMock: Mock;
-  let coordinate: Coordinate<'test'>;
+  let coordinate: Coordinate<'test', 'container'>;
 
   beforeEach(() => {
     oneMethodMock = vi.fn();
     operations = {
       one: oneMethodMock,
-    } as unknown as Operations<Item<'test'>, 'test'>;
-    coordinate = createCoordinate(['test'], ['scope1']);
+    } as unknown as Operations<Item<'test', 'container'>, 'test', 'container'>;
+    coordinate = createCoordinate(['test', 'container'], ['scope1']);
   });
 
   describe('basic one', () => {
     test('should return item successfully', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test'>;
+      const testItem = { name: 'test' } as unknown as Item<'test', 'container'>;
       const query = { name: 'test' } as ItemQuery;
       const registry = createRegistry();
 
-      const definition = createDefinition(coordinate);
+      const definition = createDefinition<Item<'test', 'container'>, 'test', 'container'>(coordinate);
       oneMethodMock.mockResolvedValueOnce(testItem);
 
-      const one = wrapOneOperation(operations, definition, registry);
+      const one = wrapOneOperation<Item<'test', 'container'>, 'test', 'container'>(operations, definition, registry);
       const result = await one(query);
 
       expect(result).toBe(testItem);
@@ -65,10 +65,10 @@ describe('One Operation', () => {
       const query = { name: 'test' } as ItemQuery;
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate);
+      const definition = createDefinition<Item<'test', 'container'>, 'test', 'container'>(coordinate);
       oneMethodMock.mockResolvedValueOnce(null);
 
-      const one = wrapOneOperation(operations, definition, registry);
+      const one = wrapOneOperation<Item<'test', 'container'>, 'test', 'container'>(operations, definition, registry);
       const result = await one(query);
 
       expect(result).toBeNull();

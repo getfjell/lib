@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapFindOperation } from "@/ops/find";
 import { Definition } from "@/Definition";
@@ -38,14 +38,28 @@ describe('getFindOperation', () => {
   let mockOperations: Operations<TestItem, 'test', 'loc1', 'loc2'>;
   let mockDefinition: Definition<TestItem, 'test', 'loc1', 'loc2'>;
   let findOperation: ReturnType<typeof wrapFindOperation<TestItem, 'test', 'loc1', 'loc2'>>;
+  let mockFinderMethod: any;
 
   beforeEach(() => {
     mockOperations = {
       find: vi.fn(),
     } as unknown as Operations<TestItem, 'test', 'loc1', 'loc2'>;
 
+    mockFinderMethod = vi.fn();
+
     const registry = createRegistry();
-    mockDefinition = {} as Definition<TestItem, 'test', 'loc1', 'loc2'>;
+    mockDefinition = {
+      coordinate: {
+        kta: ['test', 'loc1', 'loc2'],
+        scopes: ['test-scope'],
+        toString: () => 'test'
+      },
+      options: {
+        finders: {
+          testFinder: mockFinderMethod
+        }
+      }
+    } as unknown as Definition<TestItem, 'test', 'loc1', 'loc2'>;
 
     findOperation = wrapFindOperation(mockOperations, mockDefinition, registry);
   });
@@ -62,11 +76,11 @@ describe('getFindOperation', () => {
       { name: 'test2' } as TestItem
     ];
 
-    (mockOperations.find as Mock).mockResolvedValue(expectedItems);
+    mockFinderMethod.mockResolvedValue(expectedItems);
 
     const result = await findOperation(finder, finderParams, locations);
 
-    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, locations);
+    expect(mockFinderMethod).toHaveBeenCalledWith(finderParams, locations);
     expect(result).toEqual(expectedItems);
   });
 
@@ -79,11 +93,11 @@ describe('getFindOperation', () => {
     ];
     const expectedItems: TestItem[] = [];
 
-    (mockOperations.find as Mock).mockResolvedValue(expectedItems);
+    mockFinderMethod.mockResolvedValue(expectedItems);
 
     const result = await findOperation(finder, finderParams, locations);
 
-    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, locations);
+    expect(mockFinderMethod).toHaveBeenCalledWith(finderParams, locations);
     expect(result).toEqual(expectedItems);
   });
 
@@ -92,12 +106,12 @@ describe('getFindOperation', () => {
     const finderParams = { param1: 'value1' };
     const expectedItems: TestItem[] = [];
 
-    (mockOperations.find as Mock).mockResolvedValue(expectedItems);
+    mockFinderMethod.mockResolvedValue(expectedItems);
 
     const result = await findOperation(finder, finderParams);
 
     // eslint-disable-next-line no-undefined
-    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, undefined);
+    expect(mockFinderMethod).toHaveBeenCalledWith(finderParams, undefined);
     expect(result).toEqual(expectedItems);
   });
 });

@@ -83,15 +83,24 @@ describe('Get Operation', () => {
         loc: [{ kt: 'container', lk: randomUUID() }] as LocKeyArray<'container'>
       } as ComKey<'test', 'container'>;
 
+      const compositeGetMethodMock = vi.fn();
+      const compositeOperations = {
+        get: compositeGetMethodMock,
+      } as unknown as Operations<Item<'test', 'container'>, 'test', 'container'>;
+
       const registry = createRegistry();
       const definition = createDefinition<Item<'test', 'container'>, 'test', 'container'>(coordinate);
-      getMethodMock.mockResolvedValueOnce(testItem);
+      compositeGetMethodMock.mockResolvedValueOnce(testItem);
 
-      const get = wrapGetOperation<Item<'test', 'container'>, 'test', 'container'>(operations, definition, registry);
+      const get = wrapGetOperation<Item<'test', 'container'>, 'test', 'container'>(
+        compositeOperations,
+        definition,
+        registry
+      );
       const result = await get(key);
 
       expect(result).toBe(testItem);
-      expect(getMethodMock).toHaveBeenCalledWith(key);
+      expect(compositeGetMethodMock).toHaveBeenCalledWith(key);
     });
   });
 });
