@@ -44,6 +44,7 @@ describe('wrapActionOperation', () => {
     // Mock the operations object - this is what will be called, not the action methods directly
     mockOperations = {
       action: vi.fn(),
+      get: vi.fn(),
     } as any;
 
     // Mock definition with actions
@@ -85,13 +86,16 @@ describe('wrapActionOperation', () => {
       const testKey: PriKey<'test'> = 'primary-key' as unknown as PriKey<'test'>;
       const actionKey = 'testAction';
       const actionParams = { param1: 'value1', param2: 42, param3: true };
+      const actionResult = { id: '1', name: 'updated item' } as TestItem;
 
-      (mockOperations.action as MockedFunction<any>).mockResolvedValue(testItem);
+      (mockOperations.get as MockedFunction<any>).mockResolvedValue(testItem);
+      mockActionMethod.mockResolvedValue(actionResult);
 
       const result = await wrappedAction(testKey, actionKey, actionParams);
 
-      expect(mockOperations.action).toHaveBeenCalledWith(testKey, actionKey, actionParams);
-      expect(result).toBe(testItem);
+      expect(mockOperations.get).toHaveBeenCalledWith(testKey);
+      expect(mockActionMethod).toHaveBeenCalledWith(testItem, actionParams);
+      expect(result).toBe(actionResult);
     });
 
     it('should work with ComKey as well as PriKey', async () => {
@@ -99,22 +103,27 @@ describe('wrapActionOperation', () => {
       const testKey: ComKey<'test', 'level1'> = 'composite-key' as unknown as ComKey<'test', 'level1'>;
       const actionKey = 'testAction';
       const actionParams = { param1: 'value1' };
+      const actionResult = { id: '1', name: 'updated with composite key' } as TestItem;
 
-      (mockOperations.action as MockedFunction<any>).mockResolvedValue(testItem);
+      (mockOperations.get as MockedFunction<any>).mockResolvedValue(testItem);
+      mockActionMethod.mockResolvedValue(actionResult);
 
       const result = await wrappedAction(testKey, actionKey, actionParams);
 
-      expect(mockOperations.action).toHaveBeenCalledWith(testKey, actionKey, actionParams);
-      expect(result).toBe(testItem);
+      expect(mockOperations.get).toHaveBeenCalledWith(testKey);
+      expect(mockActionMethod).toHaveBeenCalledWith(testItem, actionParams);
+      expect(result).toBe(actionResult);
     });
 
     it('should log debug information before calling action', async () => {
       const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
+      const actionResult = { id: '1', name: 'updated item' } as TestItem;
       const testKey: PriKey<'test'> = 'primary-key' as unknown as PriKey<'test'>;
       const actionKey = 'testAction';
       const actionParams = { param1: 'value1', param2: 42 };
 
-      (mockOperations.action as MockedFunction<any>).mockResolvedValue(testItem);
+      (mockOperations.get as MockedFunction<any>).mockResolvedValue(testItem);
+      mockActionMethod.mockResolvedValue(actionResult);
 
       await wrappedAction(testKey, actionKey, actionParams);
 
@@ -125,19 +134,21 @@ describe('wrapActionOperation', () => {
       });
     });
 
-    it('should log the action result after successful execution', async () => {
+    it('should return the action result after successful execution', async () => {
       const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
       const testKey: PriKey<'test'> = 'primary-key' as unknown as PriKey<'test'>;
       const actionKey = 'testAction';
       const actionParams = {};
+      const actionResult = { id: '1', name: 'action completed' } as TestItem;
 
-      (mockOperations.action as MockedFunction<any>).mockResolvedValue(testItem);
+      (mockOperations.get as MockedFunction<any>).mockResolvedValue(testItem);
+      mockActionMethod.mockResolvedValue(actionResult);
 
-      await wrappedAction(testKey, actionKey, actionParams);
+      const result = await wrappedAction(testKey, actionKey, actionParams);
 
-      expect(mockLoggerDefault).toHaveBeenCalledWith('action result: %j', {
-        actionResult: testItem,
-      });
+      expect(mockOperations.get).toHaveBeenCalledWith(testKey);
+      expect(mockActionMethod).toHaveBeenCalledWith(testItem, actionParams);
+      expect(result).toBe(actionResult);
     });
 
     it('should handle complex action parameters including arrays and dates', async () => {
@@ -152,13 +163,16 @@ describe('wrapActionOperation', () => {
         dateParam: testDate,
         arrayParam: ['item1', 'item2', 123, true],
       };
+      const actionResult = { id: '1', name: 'complex processing completed' } as TestItem;
 
-      (mockOperations.action as MockedFunction<any>).mockResolvedValue(testItem);
+      (mockOperations.get as MockedFunction<any>).mockResolvedValue(testItem);
+      mockActionMethod.mockResolvedValue(actionResult);
 
       const result = await wrappedAction(testKey, actionKey, actionParams);
 
-      expect(mockOperations.action).toHaveBeenCalledWith(testKey, actionKey, actionParams);
-      expect(result).toBe(testItem);
+      expect(mockOperations.get).toHaveBeenCalledWith(testKey);
+      expect(mockActionMethod).toHaveBeenCalledWith(testItem, actionParams);
+      expect(result).toBe(actionResult);
       expect(mockLoggerDebug).toHaveBeenCalledWith('action', {
         key: testKey,
         actionKey,
@@ -167,24 +181,28 @@ describe('wrapActionOperation', () => {
     });
 
     it('should propagate errors from the wrapped action operation', async () => {
+      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
       const testKey: PriKey<'test'> = 'primary-key' as unknown as PriKey<'test'>;
       const actionKey = 'testAction';
       const actionParams = {};
       const testError = new Error('Action failed');
 
-      (mockOperations.action as MockedFunction<any>).mockRejectedValue(testError);
+      (mockOperations.get as MockedFunction<any>).mockResolvedValue(testItem);
+      mockActionMethod.mockRejectedValue(testError);
 
       await expect(wrappedAction(testKey, actionKey, actionParams)).rejects.toThrow('Action failed');
-      expect(mockOperations.action).toHaveBeenCalledWith(testKey, actionKey, actionParams);
+      expect(mockOperations.get).toHaveBeenCalledWith(testKey);
     });
 
     it('should still log debug information even when action fails', async () => {
+      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
       const testKey: PriKey<'test'> = 'primary-key' as unknown as PriKey<'test'>;
       const actionKey = 'testAction';
       const actionParams = { param1: 'value1' };
       const testError = new Error('Action failed');
 
-      (mockOperations.action as MockedFunction<any>).mockRejectedValue(testError);
+      (mockOperations.get as MockedFunction<any>).mockResolvedValue(testItem);
+      mockActionMethod.mockRejectedValue(testError);
 
       try {
         await wrappedAction(testKey, actionKey, actionParams);
@@ -199,26 +217,18 @@ describe('wrapActionOperation', () => {
       });
     });
 
-    it('should not log result when action fails', async () => {
+    it('should propagate errors when action method fails', async () => {
+      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
       const testKey: PriKey<'test'> = 'primary-key' as unknown as PriKey<'test'>;
       const actionKey = 'testAction';
       const actionParams = {};
       const testError = new Error('Action failed');
 
-      // Clear the mock first to ensure clean state
-      mockLoggerDefault.mockClear();
-      (mockOperations.action as MockedFunction<any>).mockRejectedValue(testError);
+      (mockOperations.get as MockedFunction<any>).mockResolvedValue(testItem);
+      mockActionMethod.mockRejectedValue(testError);
 
-      try {
-        await wrappedAction(testKey, actionKey, actionParams);
-        // Should not reach here
-        expect(true).toBe(false);
-      } catch (error) {
-        // Expected to throw
-        expect(error).toBe(testError);
-      }
-
-      expect(mockLoggerDefault).not.toHaveBeenCalled();
+      await expect(wrappedAction(testKey, actionKey, actionParams)).rejects.toThrow('Action failed');
+      expect(mockOperations.get).toHaveBeenCalledWith(testKey);
     });
 
     it('should throw error when action is not found in definition', async () => {

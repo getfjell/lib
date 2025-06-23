@@ -36,9 +36,9 @@ export const wrapFacetOperation = <
     }
     // We search for the method, but we throw the method call to the wrapped operations
     // This is because we want to make sure we're always invoking the appropriate key and event management logic.
-    const facetResult = await toWrap.facet(key, facetKey, facetParams);
-    logger.default("facet result: %j", { facetResult });
-    return facetResult;
+    const facetMethod = facets[facetKey];
+    const item = await toWrap.get(key);
+    return facetMethod(item, facetParams);
   }
 
   return facet;
