@@ -135,7 +135,7 @@ export interface Operations<
     facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<any>;
 
-  facets: Record<string, FacetMethod<S, L1, L2, L3, L4, L5>>;
+  facets: Record<string, FacetMethod<V, S, L1, L2, L3, L4, L5>>;
 }
 
 export const wrapOperations = <

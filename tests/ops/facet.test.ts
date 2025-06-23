@@ -47,7 +47,7 @@ describe('wrapFacetOperation', () => {
       toString: vi.fn().mockReturnValue('test-coordinate'),
     };
 
-    // Mock the operations object
+    // Mock the operations object - this is what will be called, not the facet methods directly
     mockOperations = {
       facet: vi.fn(),
     } as any;
@@ -86,17 +86,17 @@ describe('wrapFacetOperation', () => {
       wrappedFacet = wrapFacetOperation(mockOperations, mockDefinition, mockRegistry);
     });
 
-    it('should call the facet method from definition with correct parameters', async () => {
+    it('should forward calls to wrapped operations facet method with correct parameters', async () => {
       const facetResult = { data: 'test facet result', count: 42 };
       const testKey: PriKey<'test'> = 'primary-key' as unknown as PriKey<'test'>;
       const facetKey = 'testFacet';
       const facetParams = { param1: 'value1', param2: 42, param3: true };
 
-      mockFacetMethod.mockResolvedValue(facetResult);
+      (mockOperations.facet as MockedFunction<any>).mockResolvedValue(facetResult);
 
       const result = await wrappedFacet(testKey, facetKey, facetParams);
 
-      expect(mockFacetMethod).toHaveBeenCalledWith(testKey, facetParams);
+      expect(mockOperations.facet).toHaveBeenCalledWith(testKey, facetKey, facetParams);
       expect(result).toBe(facetResult);
     });
 
@@ -106,11 +106,11 @@ describe('wrapFacetOperation', () => {
       const facetKey = 'testFacet';
       const facetParams = { param1: 'value1' };
 
-      mockFacetMethod.mockResolvedValue(facetResult);
+      (mockOperations.facet as MockedFunction<any>).mockResolvedValue(facetResult);
 
       const result = await wrappedFacet(testKey, facetKey, facetParams);
 
-      expect(mockFacetMethod).toHaveBeenCalledWith(testKey, facetParams);
+      expect(mockOperations.facet).toHaveBeenCalledWith(testKey, facetKey, facetParams);
       expect(result).toBe(facetResult);
     });
 
@@ -120,7 +120,7 @@ describe('wrapFacetOperation', () => {
       const facetKey = 'testFacet';
       const facetParams = { param1: 'value1', param2: 42 };
 
-      mockFacetMethod.mockResolvedValue(facetResult);
+      (mockOperations.facet as MockedFunction<any>).mockResolvedValue(facetResult);
 
       await wrappedFacet(testKey, facetKey, facetParams);
 
@@ -137,7 +137,7 @@ describe('wrapFacetOperation', () => {
       const facetKey = 'testFacet';
       const facetParams = {};
 
-      mockFacetMethod.mockResolvedValue(facetResult);
+      (mockOperations.facet as MockedFunction<any>).mockResolvedValue(facetResult);
 
       await wrappedFacet(testKey, facetKey, facetParams);
 
@@ -159,11 +159,11 @@ describe('wrapFacetOperation', () => {
         arrayParam: ['item1', 'item2', 123, true],
       };
 
-      mockFacetMethod.mockResolvedValue(facetResult);
+      (mockOperations.facet as MockedFunction<any>).mockResolvedValue(facetResult);
 
       const result = await wrappedFacet(testKey, facetKey, facetParams);
 
-      expect(mockFacetMethod).toHaveBeenCalledWith(testKey, facetParams);
+      expect(mockOperations.facet).toHaveBeenCalledWith(testKey, facetKey, facetParams);
       expect(result).toBe(facetResult);
       expect(mockLoggerDebug).toHaveBeenCalledWith('facet', {
         key: testKey,
@@ -178,7 +178,7 @@ describe('wrapFacetOperation', () => {
       const facetKey = 'testFacet';
       const facetParams = {};
 
-      mockFacetMethod.mockResolvedValue(primitiveResult);
+      (mockOperations.facet as MockedFunction<any>).mockResolvedValue(primitiveResult);
 
       const result = await wrappedFacet(testKey, facetKey, facetParams);
 
@@ -193,7 +193,7 @@ describe('wrapFacetOperation', () => {
       const facetKey = 'testFacet';
       const facetParams = {};
 
-      mockFacetMethod.mockResolvedValue(null);
+      (mockOperations.facet as MockedFunction<any>).mockResolvedValue(null);
 
       const result = await wrappedFacet(testKey, facetKey, facetParams);
 
@@ -203,16 +203,16 @@ describe('wrapFacetOperation', () => {
       });
     });
 
-    it('should propagate errors from the facet method', async () => {
+    it('should propagate errors from the wrapped facet operation', async () => {
       const testKey: PriKey<'test'> = 'primary-key' as unknown as PriKey<'test'>;
       const facetKey = 'testFacet';
       const facetParams = {};
       const testError = new Error('Facet execution failed');
 
-      mockFacetMethod.mockRejectedValue(testError);
+      (mockOperations.facet as MockedFunction<any>).mockRejectedValue(testError);
 
       await expect(wrappedFacet(testKey, facetKey, facetParams)).rejects.toThrow('Facet execution failed');
-      expect(mockFacetMethod).toHaveBeenCalledWith(testKey, facetParams);
+      expect(mockOperations.facet).toHaveBeenCalledWith(testKey, facetKey, facetParams);
     });
 
     it('should still log debug information even when facet fails', async () => {
@@ -221,7 +221,7 @@ describe('wrapFacetOperation', () => {
       const facetParams = { param1: 'value1' };
       const testError = new Error('Facet failed');
 
-      mockFacetMethod.mockRejectedValue(testError);
+      (mockOperations.facet as MockedFunction<any>).mockRejectedValue(testError);
 
       try {
         await wrappedFacet(testKey, facetKey, facetParams);
@@ -244,7 +244,7 @@ describe('wrapFacetOperation', () => {
 
       // Clear the mock first to ensure clean state
       mockLoggerDefault.mockClear();
-      mockFacetMethod.mockRejectedValue(testError);
+      (mockOperations.facet as MockedFunction<any>).mockRejectedValue(testError);
 
       try {
         await wrappedFacet(testKey, facetKey, facetParams);
@@ -267,7 +267,7 @@ describe('wrapFacetOperation', () => {
         'Facet nonExistentFacet not found in definition for test-coordinate'
       );
 
-      expect(mockFacetMethod).not.toHaveBeenCalled();
+      expect(mockOperations.facet).not.toHaveBeenCalled();
       expect(mockCoordinate.toString).toHaveBeenCalled();
     });
 
@@ -289,6 +289,7 @@ describe('wrapFacetOperation', () => {
       );
 
       expect(mockCoordinate.toString).toHaveBeenCalled();
+      expect(mockOperations.facet).not.toHaveBeenCalled();
     });
 
     it('should throw error when definition has null options', async () => {
@@ -309,6 +310,7 @@ describe('wrapFacetOperation', () => {
       );
 
       expect(mockCoordinate.toString).toHaveBeenCalled();
+      expect(mockOperations.facet).not.toHaveBeenCalled();
     });
 
     it('should throw error when definition has undefined options', async () => {
@@ -333,6 +335,7 @@ describe('wrapFacetOperation', () => {
       );
 
       expect(mockCoordinate.toString).toHaveBeenCalled();
+      expect(mockOperations.facet).not.toHaveBeenCalled();
     });
 
     it('should handle empty facetParams object', async () => {
@@ -341,11 +344,11 @@ describe('wrapFacetOperation', () => {
       const facetKey = 'testFacet';
       const facetParams = {};
 
-      mockFacetMethod.mockResolvedValue(facetResult);
+      (mockOperations.facet as MockedFunction<any>).mockResolvedValue(facetResult);
 
       const result = await wrappedFacet(testKey, facetKey, facetParams);
 
-      expect(mockFacetMethod).toHaveBeenCalledWith(testKey, facetParams);
+      expect(mockOperations.facet).toHaveBeenCalledWith(testKey, facetKey, facetParams);
       expect(result).toBe(facetResult);
       expect(mockLoggerDebug).toHaveBeenCalledWith('facet', {
         key: testKey,
@@ -364,7 +367,7 @@ describe('wrapFacetOperation', () => {
       const facetKey = 'testFacet';
       const facetParams = { filter: 'active' };
 
-      mockFacetMethod.mockResolvedValue(facetResult);
+      (mockOperations.facet as MockedFunction<any>).mockResolvedValue(facetResult);
 
       const result = await wrappedFacet(testKey, facetKey, facetParams);
 

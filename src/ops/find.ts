@@ -35,8 +35,9 @@ export const wrapFindOperation = <
     if (!finders?.[finder]) {
       throw new Error(`Finder ${finder} not found in definition for ${coordinate.toString()}`);
     }
-    const finderMethod = finders[finder];
-    const foundItems = await finderMethod(finderParams, locations);
+    // We search for the method, but we throw the method call to the wrapped operations
+    // This is because we want to make sure we're always invoking the appropriate key and event management logic.
+    const foundItems = await toWrap.find(finder, finderParams, locations);
     logger.default("found items: %j", { foundItems });
     return foundItems;
   }

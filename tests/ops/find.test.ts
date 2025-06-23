@@ -64,7 +64,7 @@ describe('getFindOperation', () => {
     findOperation = wrapFindOperation(mockOperations, mockDefinition, registry);
   });
 
-  test('should call wrapped operations find with correct parameters', async () => {
+  test('should forward calls to wrapped operations find with correct parameters', async () => {
     const finder = 'testFinder';
     const finderParams = { param1: 'value1', param2: 123 };
     const locations: LocKeyArray<'loc1', 'loc2'> = [
@@ -76,11 +76,11 @@ describe('getFindOperation', () => {
       { name: 'test2' } as TestItem
     ];
 
-    mockFinderMethod.mockResolvedValue(expectedItems);
+    (mockOperations.find as any).mockResolvedValue(expectedItems);
 
     const result = await findOperation(finder, finderParams, locations);
 
-    expect(mockFinderMethod).toHaveBeenCalledWith(finderParams, locations);
+    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, locations);
     expect(result).toEqual(expectedItems);
   });
 
@@ -93,11 +93,11 @@ describe('getFindOperation', () => {
     ];
     const expectedItems: TestItem[] = [];
 
-    mockFinderMethod.mockResolvedValue(expectedItems);
+    (mockOperations.find as any).mockResolvedValue(expectedItems);
 
     const result = await findOperation(finder, finderParams, locations);
 
-    expect(mockFinderMethod).toHaveBeenCalledWith(finderParams, locations);
+    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, locations);
     expect(result).toEqual(expectedItems);
   });
 
@@ -106,12 +106,57 @@ describe('getFindOperation', () => {
     const finderParams = { param1: 'value1' };
     const expectedItems: TestItem[] = [];
 
-    mockFinderMethod.mockResolvedValue(expectedItems);
+    (mockOperations.find as any).mockResolvedValue(expectedItems);
 
     const result = await findOperation(finder, finderParams);
 
-    // eslint-disable-next-line no-undefined
-    expect(mockFinderMethod).toHaveBeenCalledWith(finderParams, undefined);
+    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, void 0);
     expect(result).toEqual(expectedItems);
+  });
+
+  test('should throw error when finder is not found in definition', async () => {
+    const finder = 'nonExistentFinder';
+    const finderParams = { param1: 'value1' };
+
+    await expect(findOperation(finder, finderParams)).rejects.toThrow(
+      'Finder nonExistentFinder not found in definition for test'
+    );
+
+    expect(mockOperations.find).not.toHaveBeenCalled();
+  });
+
+  test('should throw error when no finders are defined in definition', async () => {
+    const finder = 'testFinder';
+    const finderParams = { param1: 'value1' };
+
+    // Mock definition without finders
+    const definitionWithoutFinders = {
+      coordinate: {
+        kta: ['test', 'loc1', 'loc2'],
+        scopes: ['test-scope'],
+        toString: () => 'test'
+      },
+      options: {}
+    } as unknown as Definition<TestItem, 'test', 'loc1', 'loc2'>;
+
+    const registry = createRegistry();
+    const findOperationWithoutFinders = wrapFindOperation(mockOperations, definitionWithoutFinders, registry);
+
+    await expect(findOperationWithoutFinders(finder, finderParams)).rejects.toThrow(
+      'Finder testFinder not found in definition for test'
+    );
+
+    expect(mockOperations.find).not.toHaveBeenCalled();
+  });
+
+  test('should propagate errors from the wrapped find operation', async () => {
+    const finder = 'testFinder';
+    const finderParams = { param1: 'value1' };
+    const testError = new Error('Find operation failed');
+
+    (mockOperations.find as any).mockRejectedValue(testError);
+
+    await expect(findOperation(finder, finderParams)).rejects.toThrow('Find operation failed');
+    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, void 0);
   });
 });

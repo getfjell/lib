@@ -14,12 +14,13 @@ export interface ActionMethod<
   L5 extends string = never,
 > {
   (
-    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
+    item: V,
     actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<V>;
 }
 
 export interface FacetMethod<
+  V extends Item<S, L1, L2, L3, L4, L5>,
   S extends string,
   L1 extends string = never,
   L2 extends string = never,
@@ -28,7 +29,7 @@ export interface FacetMethod<
   L5 extends string = never,
 > {
   (
-    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
+    item: V,
     facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<any>;
 }
@@ -109,7 +110,7 @@ export interface Options<
   },
   finders?: Record<string, FinderMethod<V, S, L1, L2, L3, L4, L5>>,
   actions?: Record<string, ActionMethod<V, S, L1, L2, L3, L4, L5>>,
-  facets?: Record<string, FacetMethod<S, L1, L2, L3, L4, L5>>,
+  facets?: Record<string, FacetMethod<V, S, L1, L2, L3, L4, L5>>,
 }
 
 export const createDefaultOptions = <

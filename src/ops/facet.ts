@@ -34,8 +34,9 @@ export const wrapFacetOperation = <
     if (!facets?.[facetKey]) {
       throw new Error(`Facet ${facetKey} not found in definition for ${definition.coordinate.toString()}`);
     }
-    const facetMethod = facets[facetKey];
-    const facetResult = await facetMethod(key, facetParams);
+    // We search for the method, but we throw the method call to the wrapped operations
+    // This is because we want to make sure we're always invoking the appropriate key and event management logic.
+    const facetResult = await toWrap.facet(key, facetKey, facetParams);
     logger.default("facet result: %j", { facetResult });
     return facetResult;
   }

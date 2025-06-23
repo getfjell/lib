@@ -34,8 +34,9 @@ export const wrapActionOperation = <
     if (!actions?.[actionKey]) {
       throw new Error(`Action ${actionKey} not found in definition`);
     }
-    const actionMethod = actions[actionKey];
-    const actionResult = await actionMethod(key, actionParams);
+    // We search for the method, but we throw the method call to the wrapped operations
+    // This is because we want to make sure we're always invoking the appropriate key and event management logic.
+    const actionResult = await toWrap.action(key, actionKey, actionParams);
     logger.default("action result: %j", { actionResult });
     return actionResult;
   }

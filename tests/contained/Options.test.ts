@@ -241,12 +241,12 @@ describe('Contained Options', () => {
         }
       };
 
-      const testKey = { kt: 'test', pk: '1' } as TestKey;
+      const testItem = {} as TestItem;
       const actionParams = { status: 'active', timestamp: new Date() };
 
-      const result = await options.actions?.activate?.(testKey, actionParams);
+      const result = await options.actions?.activate?.(testItem, actionParams);
 
-      expect(actionMethod).toHaveBeenCalledWith(testKey, actionParams);
+      expect(actionMethod).toHaveBeenCalledWith(testItem, actionParams);
       expect(result).toEqual(mockResult);
     });
 
