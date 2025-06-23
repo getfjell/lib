@@ -7,6 +7,7 @@ import { wrapUpdateOperation } from '@/ops/update';
 import { createRegistry } from '@/Registry';
 import { Item, PriKey, TypesProperties } from '@fjell/core';
 import { randomUUID } from 'crypto';
+import type { Coordinate } from '@/Coordinate';
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -58,14 +59,14 @@ vi.mock('@/logger', () => {
 describe('Update Operation', () => {
   let operations: Operations<Item<'test'>, 'test'>;
   let updateMethodMock: Mock;
-  let coordinate: ReturnType<typeof createCoordinate>;
+  let coordinate: Coordinate<'test'>;
 
   beforeEach(() => {
     updateMethodMock = vi.fn();
     operations = {
       update: updateMethodMock,
     } as unknown as Operations<Item<'test'>, 'test'>;
-    coordinate = createCoordinate<'test'>(['test'], ['scope1']);
+    coordinate = createCoordinate<'test'>(['test'] as const, ['scope1']) as Coordinate<'test'>;
   });
 
   describe('basic update', () => {
@@ -75,7 +76,7 @@ describe('Update Operation', () => {
       const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
       const registry = createRegistry();
 
-      const definition = createDefinition(coordinate);
+      const definition = createDefinition<Item<'test'>, 'test'>(coordinate);
       updateMethodMock.mockResolvedValueOnce(testItem);
 
       const update = wrapUpdateOperation(operations, definition, registry);
@@ -89,7 +90,7 @@ describe('Update Operation', () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
       const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
       const registry = createRegistry();
-      const definition = createDefinition(coordinate);
+      const definition = createDefinition<Item<'test'>, 'test'>(coordinate);
       updateMethodMock.mockRejectedValueOnce(new Error('Update failed'));
 
       const update = wrapUpdateOperation(operations, definition, registry);
@@ -104,7 +105,7 @@ describe('Update Operation', () => {
       const modifiedItem = { name: 'modified' } as TypesProperties<Item<'test'>, 'test'>;
       const registry = createRegistry();
       const preUpdateMock = vi.fn().mockResolvedValueOnce(modifiedItem);
-      const definition = createDefinition(coordinate, {
+      const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
         hooks: {
           preUpdate: preUpdateMock
         }
@@ -125,7 +126,7 @@ describe('Update Operation', () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
       const registry = createRegistry();
       const postUpdateMock = vi.fn().mockResolvedValueOnce(modifiedItem);
-      const definition = createDefinition(coordinate, {
+      const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
         hooks: {
           postUpdate: postUpdateMock
         }
@@ -145,7 +146,7 @@ describe('Update Operation', () => {
       const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate, {
+      const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
         hooks: {
           preUpdate: async () => { throw new Error('Hook failed'); }
         }
@@ -163,7 +164,7 @@ describe('Update Operation', () => {
 
       const registry = createRegistry();
       const validateMock = vi.fn().mockResolvedValueOnce(true);
-      const definition = createDefinition(coordinate, {
+      const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
         validators: {
           onUpdate: validateMock
         }
@@ -182,7 +183,7 @@ describe('Update Operation', () => {
       const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate, {
+      const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
         validators: {
           onUpdate: async () => false
         }

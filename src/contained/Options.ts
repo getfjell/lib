@@ -1,4 +1,9 @@
-import { Options as AbstractOptions, createOptions as createAbstractOptions, FinderParams } from "@/Options";
+import {
+  Options as AbstractOptions,
+  ActionMethod,
+  createOptions as createAbstractOptions,
+  FinderParams,
+} from "@/Options";
 import { ComKey, Item, LocKeyArray, PriKey, TypesProperties } from "@fjell/core";
 
 // TODO: The codesmell here is that we're passing lib to all the hooks.  This might be better with a create pattern.
@@ -60,6 +65,7 @@ export interface Options<
       ) =>
         Promise<V[]>
     >,
+  actions?: Record<string, ActionMethod<V, S, L1, L2, L3, L4, L5>>,
 }
 
 export const createOptions = <

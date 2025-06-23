@@ -58,6 +58,18 @@ export interface Operations<
     finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<V[]>;
 
+  action(
+    key: PriKey<S>,
+    actionKey: string,
+    actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+  ): Promise<V>;
+
+  facet(
+    key: PriKey<S>,
+    facetKey: string,
+    facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+  ): Promise<any>;
+
 }
 
 export const wrapOperations = <

@@ -17,11 +17,14 @@ export const wrapFindOperation = <
   L5 extends string = never
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     definition: Definition<V, S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
   ) => {
+
+  const { coordinate, options } = definition;
+  const { finders } = options || {};
 
   const find = async (
     finder: string,
@@ -29,6 +32,11 @@ export const wrapFindOperation = <
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<V[]> => {
     logger.debug("find", { finder, finderParams, locations });
+    if (!finders?.[finder]) {
+      throw new Error(`Finder ${finder} not found in definition for ${coordinate.toString()}`);
+    }
+    // We search for the method, but we throw the method call to the wrapped operations
+    // This is because we want to make sure we're always invoking the appropriate key and event management logic.
     const foundItems = await toWrap.find(finder, finderParams, locations);
     logger.default("found items: %j", { foundItems });
     return foundItems;

@@ -4,6 +4,36 @@ import LibLogger from "@/logger";
 
 const logger = LibLogger.get("Options");
 
+export interface ActionMethod<
+  V extends Item<S, L1, L2, L3, L4, L5>,
+  S extends string,
+  L1 extends string = never,
+  L2 extends string = never,
+  L3 extends string = never,
+  L4 extends string = never,
+  L5 extends string = never,
+> {
+  (
+    item: V,
+    actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+  ): Promise<V>;
+}
+
+export interface FacetMethod<
+  V extends Item<S, L1, L2, L3, L4, L5>,
+  S extends string,
+  L1 extends string = never,
+  L2 extends string = never,
+  L3 extends string = never,
+  L4 extends string = never,
+  L5 extends string = never,
+> {
+  (
+    item: V,
+    facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+  ): Promise<any>;
+}
+
 export type FinderParams = Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>
 
 export type FinderMethod<
@@ -79,6 +109,8 @@ export interface Options<
     ) => Promise<boolean>;
   },
   finders?: Record<string, FinderMethod<V, S, L1, L2, L3, L4, L5>>,
+  actions?: Record<string, ActionMethod<V, S, L1, L2, L3, L4, L5>>,
+  facets?: Record<string, FacetMethod<V, S, L1, L2, L3, L4, L5>>,
 }
 
 export const createDefaultOptions = <
@@ -97,7 +129,7 @@ export const createDefaultOptions = <
     delete item.aggs;
     return item;
   }
-      
+
   return {
     hooks: {
       // TODO: "We need to figure out how to make this an array of hooks..."

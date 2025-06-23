@@ -78,7 +78,12 @@ describe('Primary Operations', () => {
         get: vi.fn(),
         remove: vi.fn(),
         find: vi.fn(),
-        findOne: vi.fn()
+        findOne: vi.fn(),
+        action: vi.fn(),
+        facet: vi.fn(),
+        facets: {},
+        finders: {},
+        actions: {}
       };
 
       mockDefinition = {
