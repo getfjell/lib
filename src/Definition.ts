@@ -30,7 +30,7 @@ export const createDefinition = <
   L5 extends string = never,
 >(
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
-    options?: Options<V, S, L1, L2, L3, L4, L5>
+    options?: Options<V, S, L1, L2, L3, L4, L5>,
   ): Definition<V, S, L1, L2, L3, L4, L5> => {
 
   logger.debug("createDefinition", { coordinate, options });

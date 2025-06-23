@@ -1,4 +1,4 @@
-import { Options as AbstractOptions, FinderParams } from "@/Options";
+import { Options as AbstractOptions, ActionMethod, FinderParams } from "@/Options";
 import { Item, PriKey, TypesProperties } from "@fjell/core";
 
 export interface Options<
@@ -54,4 +54,5 @@ export interface Options<
           ) =>
             Promise<V[]>
         >,
+      actions?: Record<string, ActionMethod<V, S>>,
     }

@@ -46,7 +46,8 @@ describe('Operations', () => {
     get: vi.fn(),
     remove: vi.fn(),
     find: vi.fn(),
-    findOne: vi.fn()
+    findOne: vi.fn(),
+    action: vi.fn()
   };
 
   // Mock definition

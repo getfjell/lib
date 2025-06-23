@@ -17,6 +17,7 @@ import { wrapUpsertOperation } from "./ops/upsert";
 
 import LibLogger from '@/logger';
 import { Registry } from "./Registry";
+import { wrapActionOperation } from "./ops/action";
 
 const logger = LibLogger.get('Operations');
 
@@ -115,6 +116,12 @@ export interface Operations<
     finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | [],
   ): Promise<V>;
+
+  action(
+    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
+    actionKey: string,
+    actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+  ): Promise<V>;
 }
 
 export const wrapOperations = <
@@ -141,6 +148,7 @@ export const wrapOperations = <
   operations.find = wrapFindOperation(toWrap, definition, registry);
   operations.findOne = wrapFindOneOperation(toWrap, definition, registry);
   operations.upsert = wrapUpsertOperation(operations, registry);
+  operations.action = wrapActionOperation(toWrap, definition, registry);
 
   return operations;
 };
