@@ -19,6 +19,21 @@ export interface ActionMethod<
   ): Promise<V>;
 }
 
+export interface AllActionMethod<
+  V extends Item<S, L1, L2, L3, L4, L5>,
+  S extends string,
+  L1 extends string = never,
+  L2 extends string = never,
+  L3 extends string = never,
+  L4 extends string = never,
+  L5 extends string = never,
+> {
+  (
+    allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
+  ): Promise<V[]>;
+}
+
 export interface FacetMethod<
   V extends Item<S, L1, L2, L3, L4, L5>,
   S extends string,
@@ -31,6 +46,19 @@ export interface FacetMethod<
   (
     item: V,
     facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+  ): Promise<any>;
+}
+
+export interface AllFacetMethod<
+  L1 extends string = never,
+  L2 extends string = never,
+  L3 extends string = never,
+  L4 extends string = never,
+  L5 extends string = never,
+> {
+  (
+    allFacetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<any>;
 }
 
@@ -111,6 +139,8 @@ export interface Options<
   finders?: Record<string, FinderMethod<V, S, L1, L2, L3, L4, L5>>,
   actions?: Record<string, ActionMethod<V, S, L1, L2, L3, L4, L5>>,
   facets?: Record<string, FacetMethod<V, S, L1, L2, L3, L4, L5>>,
+  allActions?: Record<string, AllActionMethod<V, S, L1, L2, L3, L4, L5>>,
+  allFacets?: Record<string, AllFacetMethod<L1, L2, L3, L4, L5>>,
 }
 
 export const createDefaultOptions = <
