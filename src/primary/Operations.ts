@@ -70,6 +70,15 @@ export interface Operations<
     facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<any>;
 
+  allAction(
+    allActionKey: string,
+    allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+  ): Promise<V[]>;
+
+  allFacet(
+    allFacetKey: string,
+    allFacetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+  ): Promise<any>;
 }
 
 export const wrapOperations = <

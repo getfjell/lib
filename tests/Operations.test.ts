@@ -49,6 +49,10 @@ describe('Operations', () => {
     findOne: vi.fn(),
     action: vi.fn(),
     facet: vi.fn(),
+    allAction: vi.fn(),
+    allFacet: vi.fn(),
+    allActions: {},
+    allFacets: {},
     facets: {},
     finders: {},
     actions: {}

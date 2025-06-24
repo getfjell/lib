@@ -18,8 +18,9 @@ import { wrapUpsertOperation } from "./ops/upsert";
 import LibLogger from '@/logger';
 import { Registry } from "./Registry";
 import { wrapActionOperation } from "./ops/action";
-import { ActionMethod, FacetMethod, FinderMethod } from "./Options";
+import { ActionMethod, AllActionMethod, AllFacetMethod, FacetMethod, FinderMethod } from "./Options";
 import { wrapFacetOperation } from "./ops/facet";
+import { wrapAllActionOperation } from "./ops/allAction";
 
 const logger = LibLogger.get('Operations');
 
@@ -136,6 +137,22 @@ export interface Operations<
   ): Promise<any>;
 
   facets: Record<string, FacetMethod<V, S, L1, L2, L3, L4, L5>>;
+
+  allAction(
+    allActionKey: string,
+    allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | [],
+  ): Promise<V[]>;
+
+  allActions: Record<string, AllActionMethod<V, S, L1, L2, L3, L4, L5>>;
+
+  allFacet(
+    allFacetKey: string,
+    allFacetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | [],
+  ): Promise<any>;
+
+  allFacets: Record<string, AllFacetMethod<L1, L2, L3, L4, L5>>;
 }
 
 export const wrapOperations = <
@@ -164,6 +181,7 @@ export const wrapOperations = <
   operations.upsert = wrapUpsertOperation(operations, registry);
   operations.action = wrapActionOperation(toWrap, definition, registry);
   operations.facet = wrapFacetOperation(toWrap, definition, registry);
+  operations.allAction = wrapAllActionOperation(toWrap, definition, registry);
 
   return operations;
 };
