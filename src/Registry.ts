@@ -157,20 +157,20 @@ export const createRegistry = (): Registry => {
             // eslint-disable-next-line max-depth
             if (!instance) {
               throw new Error(
-                `No Instance not found for kta: ${ktaArray.join('.')}, Scopes: ${options?.scopes?.join(', ')}`);
+                `No Instance not found for kta: ${JSON.stringify(ktaArray)}, Scopes: ${options?.scopes?.join(', ')}`);
             }
           } else {
-            throw new Error(`No Instance not found for kta: ${ktaArray.join('.')}, Last Key not a instance: ${kt}`);
+            throw new Error(`No Instance not found for kta: ${JSON.stringify(ktaArray)}, Last Key not a instance: ${kt}`);
           }
         } else {
           if (!currentTree[kt]) {
-            throw new Error(`Lib not found for kta: ${ktaArray.join('.')}, Subtree Not Found: ${kt}`);
+            throw new Error(`Lib not found for kta: ${JSON.stringify(ktaArray)}, Subtree Not Found: ${kt}`);
           } else {
             currentTree = currentTree[kt][1] as LibTree;
           }
         }
       } else {
-        throw new Error(`Invalid KTA containing an empty false or undefined kt: ${ktaArray.join('.')}`);
+        throw new Error(`Invalid KTA containing an empty false or undefined kt: ${JSON.stringify(ktaArray)}`);
       }
     }
     return instance;

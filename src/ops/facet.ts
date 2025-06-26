@@ -30,13 +30,14 @@ export const wrapFacetOperation = <
     facetKey: string,
     facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<V> => {
-    logger.debug("facet", { key, facetKey, facetParams });
+    logger.debug("facet for item key: %j, facet key: %s, params: %j", key, facetKey, facetParams);
     if (!facets?.[facetKey]) {
       throw new Error(`Facet ${facetKey} not found in definition for ${definition.coordinate.toString()}`);
     }
     // We search for the method, but we throw the method call to the wrapped operations
     // This is because we want to make sure we're always invoking the appropriate key and event management logic.
     const facetMethod = facets[facetKey];
+    logger.debug("Getting Item for Facet by key: %j", key);
     const item = await toWrap.get(key);
     return facetMethod(item, facetParams);
   }

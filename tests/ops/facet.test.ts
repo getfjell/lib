@@ -131,11 +131,7 @@ describe('wrapFacetOperation', () => {
 
       await wrappedFacet(testKey, facetKey, facetParams);
 
-      expect(mockLoggerDebug).toHaveBeenCalledWith('facet', {
-        key: testKey,
-        facetKey,
-        facetParams,
-      });
+      expect(mockLoggerDebug).toHaveBeenCalledWith('facet for item key: %j, facet key: %s, params: %j', testKey, facetKey, facetParams);
     });
 
     it('should return the facet result after successful execution', async () => {
@@ -177,11 +173,7 @@ describe('wrapFacetOperation', () => {
       expect(mockOperations.get).toHaveBeenCalledWith(testKey);
       expect(mockFacetMethod).toHaveBeenCalledWith(testItem, facetParams);
       expect(result).toBe(facetResult);
-      expect(mockLoggerDebug).toHaveBeenCalledWith('facet', {
-        key: testKey,
-        facetKey,
-        facetParams,
-      });
+      expect(mockLoggerDebug).toHaveBeenCalledWith('facet for item key: %j, facet key: %s, params: %j', testKey, facetKey, facetParams);
     });
 
     it('should handle facet methods that return different types', async () => {
@@ -247,11 +239,7 @@ describe('wrapFacetOperation', () => {
         // Expected to throw
       }
 
-      expect(mockLoggerDebug).toHaveBeenCalledWith('facet', {
-        key: testKey,
-        facetKey,
-        facetParams,
-      });
+      expect(mockLoggerDebug).toHaveBeenCalledWith('facet for item key: %j, facet key: %s, params: %j', testKey, facetKey, facetParams);
     });
 
     it('should propagate errors when facet method fails', async () => {
@@ -363,11 +351,7 @@ describe('wrapFacetOperation', () => {
       expect(mockOperations.get).toHaveBeenCalledWith(testKey);
       expect(mockFacetMethod).toHaveBeenCalledWith(testItem, facetParams);
       expect(result).toBe(facetResult);
-      expect(mockLoggerDebug).toHaveBeenCalledWith('facet', {
-        key: testKey,
-        facetKey,
-        facetParams: {},
-      });
+      expect(mockLoggerDebug).toHaveBeenCalledWith('facet for item key: %j, facet key: %s, params: %j', testKey, facetKey, facetParams);
     });
 
     it('should handle facet methods that return arrays', async () => {

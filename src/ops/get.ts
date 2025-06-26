@@ -19,14 +19,14 @@ export const wrapGetOperation = <
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
     definition: Definition<V, S, L1, L2, L3, L4, L5>,
-   
+
     registry: Registry,
   ) => {
 
   const get = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
   ): Promise<V> => {
-    logger.debug('get', { key });
+    logger.default('get', { key });
     const item = await toWrap.get(key);
     logger.default("get: %j", { item });
     return item;
