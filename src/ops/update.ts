@@ -1,4 +1,4 @@
-import { ComKey, Item, PriKey, TypesProperties } from "@fjell/core";
+import { ComKey, Item, PriKey } from "@fjell/core";
 
 import { Definition } from "@/Definition";
 import { HookError, UpdateError, UpdateValidationError } from "@/errors";
@@ -25,7 +25,7 @@ export const wrapUpdateOperation = <
 
   const update = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
   ): Promise<V> => {
 
     logger.debug('update', { key, item });
@@ -52,8 +52,8 @@ export const wrapUpdateOperation = <
 
   async function runPreUpdateHook(
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    itemToUpdate: TypesProperties<V, S, L1, L2, L3, L4, L5>
-  ): Promise<TypesProperties<V, S, L1, L2, L3, L4, L5>> {
+    itemToUpdate: Partial<Item<S, L1, L2, L3, L4, L5>>
+  ): Promise<Partial<Item<S, L1, L2, L3, L4, L5>>> {
     logger.debug('Running Pre Update Hook');
     if (definition.options?.hooks?.preUpdate) {
       try {
@@ -97,7 +97,7 @@ export const wrapUpdateOperation = <
 
   async function validateUpdate(
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    itemToUpdate: TypesProperties<V, S, L1, L2, L3, L4, L5>
+    itemToUpdate: Partial<Item<S, L1, L2, L3, L4, L5>>
   ) {
     logger.debug('Validating update');
     if (!definition.options?.validators?.onUpdate) {

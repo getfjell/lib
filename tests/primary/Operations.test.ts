@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { Definition } from "@/Definition";
 import { Operations, wrapOperations } from "@/primary/Operations";
 import { createRegistry, Registry } from "@/Registry";
-import { Item, ItemQuery, PriKey, TypesProperties } from "@fjell/core";
+import { Item, ItemQuery, PriKey } from "@fjell/core";
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -60,7 +60,7 @@ describe('Primary Operations', () => {
         value: number;
     }
 
-    type TestItemProperties = TypesProperties<TestItem, 'test'>;
+    type TestItemProperties = Partial<Item<'test'>>;
 
     let mockOperations: Operations<TestItem, 'test'>;
     let mockDefinition: Definition<TestItem, 'test'>;

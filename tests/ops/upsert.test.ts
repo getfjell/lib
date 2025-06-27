@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { createCoordinate } from '@/Coordinate';
 import { createRegistry, NotFoundError, Operations } from '@/index';
 import { wrapUpsertOperation } from '@/ops/upsert';
-import { Item, PriKey, TypesProperties } from '@fjell/core';
+import { Item, PriKey } from '@fjell/core';
 import { randomUUID } from 'crypto';
 
 vi.mock('@fjell/logging', () => {
@@ -60,7 +60,7 @@ describe('upsert', () => {
     test('should create new item if it does not exist', async () => {
       const testItem = { name: 'newItem' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'newItem' } as TypesProperties<Item<'test'>, 'test'>;
+      const itemProperties = { name: 'newItem' } as Partial<Item<'test'>>;
       const coordinate = createCoordinate<'test'>(['test'], []);
 
       getMethodMock.mockImplementation(() => {
@@ -81,7 +81,7 @@ describe('upsert', () => {
     test('should update new item if exists', async () => {
       const testItem = { name: 'newItem' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'newItem' } as TypesProperties<Item<'test'>, 'test'>;
+      const itemProperties = { name: 'newItem' } as Partial<Item<'test'>>;
 
       getMethodMock.mockResolvedValueOnce(testItem);
       updateMethodMock.mockResolvedValueOnce({ ...testItem, action: 'updated' } as Item<'test'>);

@@ -1,4 +1,4 @@
-import { ComKey, Item, PriKey, TypesProperties } from "@fjell/core";
+import { ComKey, Item, PriKey } from "@fjell/core";
 
 import { LocKeyArray } from "@fjell/core";
 
@@ -29,7 +29,7 @@ export interface Operations<
   ): Promise<V | null>;
 
   create(
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
     options?: {
       locations?: LocKeyArray<L1, L2, L3, L4, L5>,
     }
@@ -37,7 +37,7 @@ export interface Operations<
 
   update(
     key: ComKey<S, L1, L2, L3, L4, L5>,
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>
   ): Promise<V>;
 
   /**
@@ -50,7 +50,7 @@ export interface Operations<
    */
   upsert(
     key: ComKey<S, L1, L2, L3, L4, L5>,
-    itemProperties: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>,
   ): Promise<V>;
 
   get(

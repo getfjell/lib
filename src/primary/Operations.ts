@@ -1,6 +1,6 @@
 import { Definition } from "@/Definition";
 import { Operations as AbstractOperations, wrapOperations as createAbstractOperations } from "@/Operations";
-import { Item, ItemQuery, PriKey, TypesProperties } from "@fjell/core";
+import { Item, ItemQuery, PriKey } from "@fjell/core";
 
 import LibLogger from "@/logger";
 import { Registry } from "@/Registry";
@@ -21,7 +21,7 @@ export interface Operations<
   ): Promise<V | null>;
 
   create(
-    item: TypesProperties<V, S>,
+    item: Partial<Item<S>>,
     options?: {
       key: PriKey<S>,
     }
@@ -29,7 +29,7 @@ export interface Operations<
 
   update(
     key: PriKey<S>,
-    item: TypesProperties<V, S>
+    item: Partial<Item<S>>
   ): Promise<V>;
 
   /**
@@ -42,7 +42,7 @@ export interface Operations<
    */
   upsert(
     key: PriKey<S>,
-    itemProperties: TypesProperties<V, S>,
+    item: Partial<Item<S>>,
   ): Promise<V>;
 
   get(

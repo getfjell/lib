@@ -4,7 +4,6 @@ import {
   Item,
   LocKeyArray,
   PriKey,
-  TypesProperties
 } from "@fjell/core";
 
 import { Definition } from "@/Definition";
@@ -33,7 +32,7 @@ export const wrapCreateOperation = <
   const libOptions = definition.options;
 
   const create = async (
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
     options?: {
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
       locations?: never;
@@ -57,7 +56,7 @@ export const wrapCreateOperation = <
   }
 
   async function runPreCreateHook(
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
     options?: {
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
       locations?: never;
@@ -65,7 +64,7 @@ export const wrapCreateOperation = <
       key?: never;
       locations: LocKeyArray<L1, L2, L3, L4, L5>,
     }
-  ): Promise<TypesProperties<V, S, L1, L2, L3, L4, L5>> {
+  ): Promise<Partial<Item<S, L1, L2, L3, L4, L5>>> {
     let itemToCreate = item;
     if (libOptions?.hooks?.preCreate) {
       try {
@@ -107,7 +106,7 @@ export const wrapCreateOperation = <
   }
 
   async function validateCreate(
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
     options?: {
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
       locations?: never;

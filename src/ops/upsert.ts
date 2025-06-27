@@ -3,7 +3,6 @@ import {
   ComKey,
   Item,
   PriKey,
-  TypesProperties
 } from "@fjell/core";
 
 import LibLogger from "@/logger";
@@ -35,7 +34,7 @@ export const wrapUpsertOperation = <
    */
   const retrieveOrCreateWithKey = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    itemProperties: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>,
   ) => {
     let item: V | null = null;
     try {
@@ -55,7 +54,7 @@ export const wrapUpsertOperation = <
 
   const upsert = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    itemProperties: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>,
   ): Promise<V> => {
 
     let item: V | null = null;

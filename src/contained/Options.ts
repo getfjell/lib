@@ -4,7 +4,7 @@ import {
   createOptions as createAbstractOptions,
   FinderParams,
 } from "@/Options";
-import { ComKey, Item, LocKeyArray, PriKey, TypesProperties } from "@fjell/core";
+import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
 
 // TODO: The codesmell here is that we're passing lib to all the hooks.  This might be better with a create pattern.
 export interface Options<
@@ -18,32 +18,32 @@ export interface Options<
 > extends AbstractOptions<V, S, L1, L2, L3, L4, L5> {
   hooks?: {
     preCreate?: (
-      item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+      item: Partial<Item<S, L1, L2, L3, L4, L5>>,
       options?:
       {
         locations?: LocKeyArray<L1, L2, L3, L4, L5>,
       }
-    ) => Promise<TypesProperties<V, S, L1, L2, L3, L4, L5>>;
+    ) => Promise<Partial<Item<S, L1, L2, L3, L4, L5>>>;
     postCreate?: (
       item: V,
     ) => Promise<V>;
     preUpdate?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-      item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
-    ) => Promise<TypesProperties<V, S, L1, L2, L3, L4, L5>>;
+      item: Partial<Item<S, L1, L2, L3, L4, L5>>,
+    ) => Promise<Partial<Item<S, L1, L2, L3, L4, L5>>>;
     postUpdate?: (
       item: V,
     ) => Promise<V>;
     preRemove?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    ) => Promise<TypesProperties<V, S, L1, L2, L3, L4, L5>>;
+    ) => Promise<Partial<Item<S, L1, L2, L3, L4, L5>>>;
     postRemove?: (
       item: V,
     ) => Promise<V>;
   },
   validators?: {
     onCreate?: (
-      item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+      item: Partial<Item<S, L1, L2, L3, L4, L5>>,
       options?:
       {
         locations?: LocKeyArray<L1, L2, L3, L4, L5>,
@@ -51,7 +51,7 @@ export interface Options<
     ) => Promise<boolean>;
     onUpdate?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-      item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+      item: Partial<Item<S, L1, L2, L3, L4, L5>>,
     ) => Promise<boolean>;
     onRemove?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,

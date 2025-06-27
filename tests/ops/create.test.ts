@@ -1,6 +1,6 @@
 /* eslint-disable no-undefined */
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { ComKey, Item, LocKey, LocKeyArray, PriKey, TypesProperties } from "@fjell/core";
+import { ComKey, Item, LocKey, LocKeyArray, PriKey } from "@fjell/core";
 import { wrapCreateOperation } from "@/ops/create";
 import { Definition } from "@/Definition";
 import { Operations } from "@/Operations";
@@ -570,7 +570,7 @@ describe('getCreateOperation', () => {
 
   describe('type safety and parameter validation', () => {
     test('should maintain type safety with TypesProperties', async () => {
-      const item: TypesProperties<TestItem, 'test', 'loc1', 'loc2'> = { name: 'test1' };
+      const item: Partial<Item<'test', 'loc1', 'loc2'>> = { name: 'test1' };
       const expectedItem: TestItem = {
         name: 'test1',
         key: { kt: 'test', pk: 'test-id' }

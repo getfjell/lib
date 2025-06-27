@@ -1,4 +1,4 @@
-import { ComKey, Item, PriKey, TypesProperties } from "@fjell/core";
+import { ComKey, Item, PriKey } from "@fjell/core";
 
 import { LocKeyArray } from "@fjell/core";
 
@@ -71,7 +71,7 @@ export interface Operations<
    * to specify the primary key in key for a ComKey, you would just pass in the locations through the key.
    */
   create(
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
     options?: {
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
       locations?: never;
@@ -83,7 +83,7 @@ export interface Operations<
 
   update(
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>
   ): Promise<V>;
 
   /**
@@ -96,7 +96,7 @@ export interface Operations<
    */
   upsert(
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    itemProperties: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5>,
   ): Promise<V>;
 
@@ -201,7 +201,7 @@ export const createReadOnlyOperations = <
   logger.debug("createReadOnlyOperations", { toWrap });
   const create = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     options?: {
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
@@ -219,7 +219,7 @@ export const createReadOnlyOperations = <
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>
   ): Promise<V> => {
     logger.warning('update', 'Cannot Update in a ReadOnly Library, Returning Empty Item');
     return {} as V;
@@ -229,7 +229,7 @@ export const createReadOnlyOperations = <
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    itemProperties: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     locations?: LocKeyArray<L1, L2, L3, L4, L5>,
   ): Promise<V> => {

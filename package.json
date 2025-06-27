@@ -28,6 +28,7 @@
         "@fjell/logging": "^4.4.3",
         "@google-cloud/firestore": "^7.11.1",
         "@google-cloud/storage": "^7.16.0",
+        "core": "link:../core",
         "dayjs": "^1.11.13",
         "deepmerge": "^4.3.1",
         "multer": "2.0.1",
@@ -57,7 +58,7 @@
         "vite-plugin-node": "^5.0.1",
         "vitest": "^3.2.4"
     },
-    "packageManager": "pnpm@10.12.2",
+    "packageManager": "pnpm@10.12.4",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/getfjell/lib.git"

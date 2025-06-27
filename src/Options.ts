@@ -1,4 +1,4 @@
-import { ComKey, Item, ItemProperties, LocKeyArray, PriKey, TypesProperties } from "@fjell/core";
+import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
 import deepmerge from "deepmerge";
 import LibLogger from "@/logger";
 
@@ -89,7 +89,7 @@ export interface Options<
 > {
   hooks?: {
     preCreate?: (
-      item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+      item: Partial<Item<S, L1, L2, L3, L4, L5>>,
       options?:
       {
         key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
@@ -98,27 +98,27 @@ export interface Options<
         key?: never;
         locations: LocKeyArray<L1, L2, L3, L4, L5>,
       }
-    ) => Promise<TypesProperties<V, S, L1, L2, L3, L4, L5>>;
+    ) => Promise<Partial<Item<S, L1, L2, L3, L4, L5>>>;
     postCreate?: (
       item: V,
     ) => Promise<V>;
     preUpdate?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-      item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
-    ) => Promise<TypesProperties<V, S, L1, L2, L3, L4, L5>>;
+      item: Partial<Item<S, L1, L2, L3, L4, L5>>,
+    ) => Promise<Partial<Item<S, L1, L2, L3, L4, L5>>>;
     postUpdate?: (
       item: V,
     ) => Promise<V>;
     preRemove?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    ) => Promise<TypesProperties<V, S, L1, L2, L3, L4, L5>>;
+    ) => Promise<Partial<Item<S, L1, L2, L3, L4, L5>>>;
     postRemove?: (
       item: V,
     ) => Promise<V>;
   },
   validators?: {
     onCreate?: (
-      item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+      item: Partial<Item<S, L1, L2, L3, L4, L5>>,
       options?:
       {
         key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
@@ -130,7 +130,7 @@ export interface Options<
     ) => Promise<boolean>;
     onUpdate?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-      item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+      item: Partial<Item<S, L1, L2, L3, L4, L5>>,
     ) => Promise<boolean>;
     onRemove?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
@@ -154,8 +154,8 @@ export const createDefaultOptions = <
 >(): Options<V, S, L1, L2, L3, L4, L5> => {
   logger.debug("createDefaultOptions");
   function clearAggs(
-    item: ItemProperties<S, L1, L2, L3, L4, L5>
-  ): ItemProperties<S, L1, L2, L3, L4, L5> {
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>
+  ): Partial<Item<S, L1, L2, L3, L4, L5>> {
     delete item.aggs;
     return item;
   }
@@ -164,7 +164,7 @@ export const createDefaultOptions = <
     hooks: {
       // TODO: "We need to figure out how to make this an array of hooks..."
       preCreate: async (
-        item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+        item: Partial<Item<S, L1, L2, L3, L4, L5>>,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         options?:
         {
@@ -176,15 +176,15 @@ export const createDefaultOptions = <
         }
       ) => {
         const retItem = clearAggs(item);
-        return retItem as TypesProperties<V, S, L1, L2, L3, L4, L5>;
+        return retItem as Partial<Item<S, L1, L2, L3, L4, L5>>;
       },
       // TODO: "We need to figure out how to make this an array of hooks..."
       preUpdate: async (
         key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-        item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+        item: Partial<Item<S, L1, L2, L3, L4, L5>>,
       ) => {
         const retItem = clearAggs(item);
-        return retItem as TypesProperties<V, S, L1, L2, L3, L4, L5>;
+        return retItem as Partial<Item<S, L1, L2, L3, L4, L5>>;
       },
     }
   } as Options<V, S, L1, L2, L3, L4, L5>;

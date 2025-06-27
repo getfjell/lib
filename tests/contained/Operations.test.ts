@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ComKey, Item, ItemQuery, LocKeyArray, PriKey, TypesProperties } from "@fjell/core";
+import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/core";
 
 import { Operations, wrapOperations } from "@/contained/Operations";
 import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperations } from "@/Operations";
@@ -22,7 +22,7 @@ describe('Operations', () => {
   type TestLocArray = LocKeyArray<'loc1', 'loc2'>;
   type TestComKey = ComKey<'test', 'loc1', 'loc2'>;
   type TestPriKey = PriKey<'test'>;
-  type TestProperties = TypesProperties<TestItem, 'test', 'loc1', 'loc2'>;
+  type TestProperties = Partial<Item<'test', 'loc1', 'loc2'>>;
 
   let mockOperations: Operations<TestItem, 'test', 'loc1', 'loc2'>;
   let mockDefinition: Definition<TestItem, 'test', 'loc1', 'loc2'>;
