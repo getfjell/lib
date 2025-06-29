@@ -30,7 +30,7 @@ export const wrapAllFacetOperation = <
     allFacetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<any> => {
-    logger.default("allFacet", { allFacetKey, allFacetParams, locations });
+    logger.debug("allFacet", { allFacetKey, allFacetParams, locations });
     if (!allFacets?.[allFacetKey]) {
       throw new Error(`AllFacet ${allFacetKey} not found in definition`);
     }
