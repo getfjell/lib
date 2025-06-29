@@ -5,7 +5,7 @@ import { HookError, UpdateError, UpdateValidationError } from '@/errors';
 import { Operations } from '@/Operations';
 import { wrapUpdateOperation } from '@/ops/update';
 import { createRegistry } from '@/Registry';
-import { Item, PriKey, TypesProperties } from '@fjell/core';
+import { Item, PriKey } from '@fjell/core';
 import { randomUUID } from 'crypto';
 import type { Coordinate } from '@/Coordinate';
 
@@ -73,7 +73,7 @@ describe('Update Operation', () => {
     test('should update item successfully', async () => {
       const testItem = { name: 'test' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
+      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
       const registry = createRegistry();
 
       const definition = createDefinition<Item<'test'>, 'test'>(coordinate);
@@ -88,7 +88,7 @@ describe('Update Operation', () => {
 
     test('should throw UpdateError when update fails', async () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
+      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
       const registry = createRegistry();
       const definition = createDefinition<Item<'test'>, 'test'>(coordinate);
       updateMethodMock.mockRejectedValueOnce(new Error('Update failed'));
@@ -101,8 +101,8 @@ describe('Update Operation', () => {
   describe('hooks', () => {
     test('should run preUpdate hook before updating', async () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
-      const modifiedItem = { name: 'modified' } as TypesProperties<Item<'test'>, 'test'>;
+      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
+      const modifiedItem = { name: 'modified' } as Partial<Item<'test'>>;
       const registry = createRegistry();
       const preUpdateMock = vi.fn().mockResolvedValueOnce(modifiedItem);
       const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
@@ -143,7 +143,7 @@ describe('Update Operation', () => {
 
     test('should throw HookError when preUpdate hook fails', async () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
+      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
 
       const registry = createRegistry();
       const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
@@ -160,7 +160,7 @@ describe('Update Operation', () => {
   describe('validation', () => {
     test('should validate item before updating', async () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
+      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
 
       const registry = createRegistry();
       const validateMock = vi.fn().mockResolvedValueOnce(true);
@@ -180,7 +180,7 @@ describe('Update Operation', () => {
 
     test('should throw UpdateValidationError when validation fails', async () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as TypesProperties<Item<'test'>, 'test'>;
+      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
 
       const registry = createRegistry();
       const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {

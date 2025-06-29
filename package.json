@@ -1,6 +1,6 @@
 {
     "name": "@fjell/lib",
-    "version": "4.4.4",
+    "version": "4.4.5",
     "license": "Apache-2.0",
     "description": "Server-side Library for Fjell",
     "engines": {
@@ -18,16 +18,18 @@
     "type": "module",
     "scripts": {
         "build": "tsc --noEmit && vite build",
+        "dev": "concurrently \"tsc --watch --noEmit\" \"vite build --watch\"",
         "lint": "eslint . --ext .ts --fix",
         "clean": "rimraf dist",
         "test": "pnpm run lint && vitest run --coverage",
         "prepublishOnly": "pnpm run clean && pnpm run build"
     },
     "dependencies": {
-        "@fjell/core": "^4.4.3",
-        "@fjell/logging": "^4.4.3",
-        "@google-cloud/firestore": "^7.11.1",
+        "@fjell/core": "^4.4.4",
+        "@fjell/logging": "^4.4.4",
+        "@google-cloud/firestore": "^7.11.2",
         "@google-cloud/storage": "^7.16.0",
+        "core": "link:../core",
         "dayjs": "^1.11.13",
         "deepmerge": "^4.3.1",
         "multer": "2.0.1",
@@ -37,27 +39,27 @@
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.1",
-        "@eslint/js": "^9.29.0",
-        "@swc/core": "^1.12.5",
+        "@eslint/js": "^9.30.0",
+        "@swc/core": "^1.12.7",
         "@tsconfig/recommended": "^1.0.10",
         "@types/multer": "^1.4.13",
-        "@types/node": "^24.0.3",
+        "@types/node": "^24.0.7",
         "@typescript-eslint/eslint-plugin": "^8.35.0",
         "@typescript-eslint/parser": "^8.35.0",
         "@vitest/coverage-v8": "^3.2.4",
         "concurrently": "^9.2.0",
-        "eslint": "^9.29.0",
+        "eslint": "^9.30.0",
         "nodemon": "^3.1.10",
         "rimraf": "^6.0.1",
         "ts-node": "^10.9.2",
         "tsc-alias": "^1.8.16",
         "typescript": "^5.8.3",
-        "vite": "^6.3.5",
+        "vite": "^7.0.0",
         "vite-plugin-dts": "^4.5.4",
         "vite-plugin-node": "^5.0.1",
         "vitest": "^3.2.4"
     },
-    "packageManager": "pnpm@10.12.2",
+    "packageManager": "pnpm@10.12.4",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/getfjell/lib.git"

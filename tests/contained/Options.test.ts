@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { MockedFunction } from 'vitest';
 import { createOptions, Options } from '@/contained/Options';
 import { createOptions as createAbstractOptions } from '@/Options';
-import { ComKey, Item, LocKeyArray, PriKey, TypesProperties } from '@fjell/core';
+import { ComKey, Item, LocKeyArray, PriKey } from '@fjell/core';
 
 // Mock the logging module
 vi.mock('@fjell/logging', () => {
@@ -148,7 +148,7 @@ describe('Contained Options', () => {
         }
       };
 
-      const testItem = { name: 'test' } as TypesProperties<TestItem, 'test', 'loc1', 'loc2'>;
+      const testItem = { name: 'test' } as Partial<Item<'test', 'loc1', 'loc2'>>;
       const testKey = { kt: 'test', pk: '1' } as TestKey;
       const testCreatedItem = {} as TestItem;
       const testLocations = [] as unknown as TestLocations;
@@ -191,7 +191,7 @@ describe('Contained Options', () => {
         }
       };
 
-      const testItem = { name: 'test' } as TypesProperties<TestItem, 'test', 'loc1', 'loc2'>;
+      const testItem = { name: 'test' } as Partial<Item<'test', 'loc1', 'loc2'>>;
       const testKey = { kt: 'test', pk: '1' } as TestKey;
       const testLocations = [] as unknown as TestLocations;
 
@@ -264,7 +264,7 @@ describe('Contained Options', () => {
       };
 
       const testComKey = {} as TestComKey;
-      const testItem = { name: 'test' } as TypesProperties<TestItem, 'test', 'loc1', 'loc2'>;
+      const testItem = { name: 'test' } as Partial<Item<'test', 'loc1', 'loc2'>>;
 
       // Test with composite key
       await options.hooks?.preUpdate?.(testComKey, testItem);

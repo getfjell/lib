@@ -4,7 +4,6 @@ import {
   Item,
   LocKeyArray,
   PriKey,
-  TypesProperties
 } from "@fjell/core";
 
 import { Definition } from "@/Definition";
@@ -33,7 +32,7 @@ export const wrapCreateOperation = <
   const libOptions = definition.options;
 
   const create = async (
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
     options?: {
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
       locations?: never;
@@ -42,7 +41,7 @@ export const wrapCreateOperation = <
       locations: LocKeyArray<L1, L2, L3, L4, L5>,
     }
   ): Promise<V> => {
-    logger.debug("create", { item, options });
+    logger.default("create", { item, options });
 
     let itemToCreate = item;
 
@@ -57,7 +56,7 @@ export const wrapCreateOperation = <
   }
 
   async function runPreCreateHook(
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
     options?: {
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
       locations?: never;
@@ -65,11 +64,11 @@ export const wrapCreateOperation = <
       key?: never;
       locations: LocKeyArray<L1, L2, L3, L4, L5>,
     }
-  ): Promise<TypesProperties<V, S, L1, L2, L3, L4, L5>> {
+  ): Promise<Partial<Item<S, L1, L2, L3, L4, L5>>> {
     let itemToCreate = item;
     if (libOptions?.hooks?.preCreate) {
       try {
-        logger.debug('Running preCreate hook', { item: itemToCreate, options });
+        logger.default('Running preCreate hook', { item: itemToCreate, options });
         itemToCreate = await libOptions.hooks.preCreate(itemToCreate, options);
       } catch (error: unknown) {
         throw new HookError(
@@ -107,7 +106,7 @@ export const wrapCreateOperation = <
   }
 
   async function validateCreate(
-    item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
     options?: {
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
       locations?: never;
@@ -122,7 +121,7 @@ export const wrapCreateOperation = <
     }
 
     try {
-      logger.debug('Validating create', { item, options });
+      logger.default('Validating create', { item, options });
       const isValid = await libOptions.validators.onCreate(item, options);
       if (!isValid) {
         throw new CreateValidationError(

@@ -31,7 +31,7 @@ export const wrapFindOperation = <
     finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<V[]> => {
-    logger.debug("find", { finder, finderParams, locations });
+    logger.default("find", { finder, finderParams, locations });
     if (!finders?.[finder]) {
       throw new Error(`Finder ${finder} not found in definition for ${coordinate.toString()}`);
     }

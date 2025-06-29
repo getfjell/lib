@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { Definition } from "@/Definition";
 import { createReadOnlyOperations, Operations, wrapOperations } from "@/Operations";
 import { createRegistry } from "@/Registry";
-import { ComKey, Item, ItemQuery, LocKeyArray, PriKey, TypesProperties } from "@fjell/core";
+import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/core";
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -34,7 +34,7 @@ describe('Operations', () => {
     name: string;
   }
 
-  type TestItemProperties = TypesProperties<TestItem, 'test', 'loc1', 'loc2'>;
+  type TestItemProperties = Partial<Item<'test', 'loc1', 'loc2'>>;
 
   // Mock operations implementation
   const mockOperations: Operations<TestItem, 'test', 'loc1', 'loc2'> = {

@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 import { VitePluginNode } from 'vite-plugin-node';
 import dts from 'vite-plugin-dts';
 import path from 'path';
+import pkg from './package.json';
 
 export default defineConfig({
   test: {
@@ -60,6 +61,7 @@ export default defineConfig({
     target: 'esnext',
     outDir: 'dist',
     rollupOptions: {
+      external: Object.keys(pkg.dependencies || {}),
       input: 'src/index.ts',
       output: [
         {

@@ -60,8 +60,8 @@ describe('wrapFacetOperation', () => {
         facets: {
           testFacet: mockFacetMethod,
           complexFacet: mockFacetMethod,
-        }
-      }
+        },
+      },
     } as unknown as Definition<TestItem, 'test', 'level1'>;
 
     mockRegistry = {} as Registry;
@@ -122,20 +122,23 @@ describe('wrapFacetOperation', () => {
     });
 
     it('should log debug information before calling facet', async () => {
+      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
       const facetResult = { data: 'test' };
       const testKey: PriKey<'test'> = 'primary-key' as unknown as PriKey<'test'>;
       const facetKey = 'testFacet';
       const facetParams = { param1: 'value1', param2: 42 };
 
-      (mockOperations.facet as MockedFunction<any>).mockResolvedValue(facetResult);
+      (mockOperations.get as MockedFunction<any>).mockResolvedValue(testItem);
+      mockFacetMethod.mockResolvedValue(facetResult);
 
       await wrappedFacet(testKey, facetKey, facetParams);
 
-      expect(mockLoggerDebug).toHaveBeenCalledWith('facet', {
-        key: testKey,
+      expect(mockLoggerDebug).toHaveBeenCalledWith(
+        'facet for item key: %j, facet key: %s, params: %j',
+        testKey,
         facetKey,
-        facetParams,
-      });
+        facetParams
+      );
     });
 
     it('should return the facet result after successful execution', async () => {
@@ -177,11 +180,12 @@ describe('wrapFacetOperation', () => {
       expect(mockOperations.get).toHaveBeenCalledWith(testKey);
       expect(mockFacetMethod).toHaveBeenCalledWith(testItem, facetParams);
       expect(result).toBe(facetResult);
-      expect(mockLoggerDebug).toHaveBeenCalledWith('facet', {
-        key: testKey,
+      expect(mockLoggerDebug).toHaveBeenCalledWith(
+        'facet for item key: %j, facet key: %s, params: %j',
+        testKey,
         facetKey,
-        facetParams,
-      });
+        facetParams
+      );
     });
 
     it('should handle facet methods that return different types', async () => {
@@ -247,11 +251,12 @@ describe('wrapFacetOperation', () => {
         // Expected to throw
       }
 
-      expect(mockLoggerDebug).toHaveBeenCalledWith('facet', {
-        key: testKey,
+      expect(mockLoggerDebug).toHaveBeenCalledWith(
+        'facet for item key: %j, facet key: %s, params: %j',
+        testKey,
         facetKey,
-        facetParams,
-      });
+        facetParams
+      );
     });
 
     it('should propagate errors when facet method fails', async () => {
@@ -289,7 +294,7 @@ describe('wrapFacetOperation', () => {
       // Mock definition without facets
       const definitionWithoutFacets = {
         coordinate: mockCoordinate,
-        options: {}
+        options: {},
       } as unknown as Definition<TestItem, 'test', 'level1'>;
 
       const wrappedFacetWithoutFacets = wrapFacetOperation(mockOperations, definitionWithoutFacets, mockRegistry);
@@ -310,7 +315,7 @@ describe('wrapFacetOperation', () => {
       // Mock definition with null options
       const definitionWithNullOptions = {
         coordinate: mockCoordinate,
-        options: null
+        options: null,
       } as any as Definition<TestItem, 'test', 'level1'>;
 
       const wrappedFacetWithNullOptions = wrapFacetOperation(mockOperations, definitionWithNullOptions, mockRegistry);
@@ -331,7 +336,7 @@ describe('wrapFacetOperation', () => {
       // Mock definition with undefined options
       const definitionWithUndefinedOptions = {
         coordinate: mockCoordinate,
-        options: void 0
+        options: void 0,
       } as any as Definition<TestItem, 'test', 'level1'>;
 
       const wrappedFacetWithUndefinedOptions = wrapFacetOperation(
@@ -363,11 +368,12 @@ describe('wrapFacetOperation', () => {
       expect(mockOperations.get).toHaveBeenCalledWith(testKey);
       expect(mockFacetMethod).toHaveBeenCalledWith(testItem, facetParams);
       expect(result).toBe(facetResult);
-      expect(mockLoggerDebug).toHaveBeenCalledWith('facet', {
-        key: testKey,
+      expect(mockLoggerDebug).toHaveBeenCalledWith(
+        'facet for item key: %j, facet key: %s, params: %j',
+        testKey,
         facetKey,
-        facetParams: {},
-      });
+        facetParams
+      );
     });
 
     it('should handle facet methods that return arrays', async () => {
@@ -375,7 +381,7 @@ describe('wrapFacetOperation', () => {
       const facetResult = [
         { id: 1, name: 'item1' },
         { id: 2, name: 'item2' },
-        { id: 3, name: 'item3' }
+        { id: 3, name: 'item3' },
       ];
       const testKey: PriKey<'test'> = 'primary-key' as unknown as PriKey<'test'>;
       const facetKey = 'testFacet';

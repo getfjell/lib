@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { Options } from '@/primary/Options';
-import { Item, PriKey, TypesProperties } from '@fjell/core';
+import { Item, PriKey } from '@fjell/core';
 import { FinderParams } from '@/Options';
 
 // Mock the logging module
@@ -34,7 +34,7 @@ interface TestItem extends Item<'test'> {
   value: number;
 }
 
-type TestProperties = TypesProperties<TestItem, 'test'>;
+type TestProperties = Partial<Item<'test'>>;
 
 describe('Primary Options Interface', () => {
   describe('Interface Structure', () => {

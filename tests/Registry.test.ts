@@ -5,9 +5,8 @@ import { Operations } from '@/Operations';
 import { createRegistry, Registry } from '@/Registry';
 import { Item } from '@fjell/core';
 
-vi.mock('@fjell/logging', () => {
+vi.mock('@/logger', () => {
   const logger = {
-    get: vi.fn().mockReturnThis(),
     error: vi.fn(),
     warning: vi.fn(),
     info: vi.fn(),
@@ -24,11 +23,10 @@ vi.mock('@fjell/logging', () => {
 
   return {
     default: {
-      getLogger: () => logger,
+      get: vi.fn(() => logger),
     }
   }
 });
-vi.mock('@/logger');
 
 describe('LibRegistry', () => {
   let registry: Registry;

@@ -39,9 +39,9 @@ describe('Options', () => {
 
     test('preCreate hook should clear aggregations', async () => {
       const options = createDefaultOptions<Item<'test'>, 'test'>();
-      const item = {
+      const item: Partial<Item<'test'>> = {
         name: 'test',
-        aggs: { count: 1 }
+        aggs: { count: 1 } as any
       };
 
       const result = await options.hooks?.preCreate?.(item);
@@ -54,9 +54,9 @@ describe('Options', () => {
     test('preUpdate hook should clear aggregations', async () => {
       const options = createDefaultOptions<Item<'test'>, 'test'>();
       const key = { kt: 'test', pk: '1' } as PriKey<'test'>;
-      const item = {
+      const item: Partial<Item<'test'>> = {
         name: 'test',
-        aggs: { count: 1 }
+        aggs: { count: 1 } as any
       };
 
       const result = await options.hooks?.preUpdate?.(key, item);

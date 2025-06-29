@@ -1,4 +1,4 @@
-import { ComKey, Item, LocKeyArray, PriKey, TypesProperties } from "@fjell/core";
+import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
 import { Coordinate } from "./Coordinate";
 
 export class LibError<
@@ -101,7 +101,6 @@ export class ValidationError<
 }
 
 export class CreateValidationError<
-  V extends Item<S, L1, L2, L3, L4, L5>,
   S extends string,
   L1 extends string,
   L2 extends string,
@@ -112,7 +111,7 @@ export class CreateValidationError<
 
   constructor(
     parameters: {
-      item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+      item: Partial<Item<S, L1, L2, L3, L4, L5>>,
       options?: {
         key?: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5> | undefined,
         locations?: LocKeyArray<L1, L2, L3, L4, L5> | [] | undefined,
@@ -133,7 +132,6 @@ export class CreateValidationError<
 }
 
 export class UpdateValidationError<
-  V extends Item<S, L1, L2, L3, L4, L5>,
   S extends string,
   L1 extends string,
   L2 extends string,
@@ -144,7 +142,7 @@ export class UpdateValidationError<
 
   constructor(
     parameters: {
-      item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+      item: Partial<Item<S, L1, L2, L3, L4, L5>>,
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5> | undefined,
     },
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
@@ -189,7 +187,6 @@ export class RemoveValidationError<
 }
 
 export class UpdateError<
-  V extends Item<S, L1, L2, L3, L4, L5>,
   S extends string,
   L1 extends string,
   L2 extends string,
@@ -199,7 +196,7 @@ export class UpdateError<
 > extends LibError<S, L1, L2, L3, L4, L5> {
   constructor(
     parameters: {
-      item: TypesProperties<V, S, L1, L2, L3, L4, L5>,
+        item: Partial<Item<S, L1, L2, L3, L4, L5>>,
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5> | undefined,
     },
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,

@@ -28,7 +28,7 @@ export const wrapFindOneOperation = <
     finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<V> => {
-    logger.debug("find", { finder, finderParams, locations });
+    logger.default("find", { finder, finderParams, locations });
     const foundItems = await toWrap.findOne(finder, finderParams, locations);
     logger.default("found items: %j", { foundItems });
     return foundItems;
