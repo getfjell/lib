@@ -22,7 +22,11 @@ fi
 echo "Running clean, lint, build, and test..."
 pnpm run clean && pnpm run lint && pnpm run build && pnpm run test
 
-./commit.sh
+if git diff --staged --quiet; then
+  echo "No changes to commit, skipping commit."
+else
+  ./commit.sh
+fi
 
 echo "Bumping version..."
 pnpm version patch
@@ -82,4 +86,4 @@ git checkout -b "release/v$NEXT_VERSION"
 git commit -m "feat: Start release v$NEXT_VERSION"
 git push -u origin "release/v$NEXT_VERSION"
 
-echo "Release process completed." 
+echo "Release process completed."
