@@ -30,7 +30,7 @@ export const wrapActionOperation = <
     actionKey: string,
     actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<V> => {
-    logger.debug("action", { key, actionKey, actionParams });
+    logger.default("action", { key, actionKey, actionParams });
     if (!actions?.[actionKey]) {
       throw new Error(`Action ${actionKey} not found in definition`);
     }

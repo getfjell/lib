@@ -30,7 +30,7 @@ export const wrapAllActionOperation = <
     allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<V[]> => {
-    logger.debug("allAction", { allActionKey, allActionParams, locations });
+    logger.default("allAction", { allActionKey, allActionParams, locations });
     if (!allActions?.[allActionKey]) {
       throw new Error(`AllAction ${allActionKey} not found in definition`);
     }

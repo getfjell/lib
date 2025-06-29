@@ -28,14 +28,14 @@ export const wrapUpdateOperation = <
     item: Partial<Item<S, L1, L2, L3, L4, L5>>,
   ): Promise<V> => {
 
-    logger.debug('update', { key, item });
+    logger.default('update', { key, item });
 
     let itemToUpdate = item;
     itemToUpdate = await runPreUpdateHook(key, itemToUpdate);
     await validateUpdate(key, itemToUpdate);
 
     try {
-      logger.debug('Updating item', { key, item: itemToUpdate });
+      logger.default('Updating item', { key, item: itemToUpdate });
       let updatedItem = await toWrap.update(key, itemToUpdate) as V;
       updatedItem = await runPostUpdateHook(updatedItem);
 
