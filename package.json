@@ -1,6 +1,12 @@
 {
     "name": "@fjell/lib",
     "version": "4.4.5",
+    "keywords": [
+        "library",
+        "persistence",
+        "database",
+        "fjell"
+    ],
     "license": "Apache-2.0",
     "description": "Server-side Library for Fjell",
     "engines": {
@@ -25,8 +31,8 @@
         "prepublishOnly": "pnpm run clean && pnpm run build"
     },
     "dependencies": {
-        "@fjell/core": "^4.4.4",
-        "@fjell/logging": "^4.4.4",
+        "@fjell/core": "^4.4.6",
+        "@fjell/logging": "^4.4.6",
         "@google-cloud/firestore": "^7.11.2",
         "@google-cloud/storage": "^7.16.0",
         "core": "link:../core",
@@ -38,7 +44,7 @@
         "winston": "^3.17.0"
     },
     "devDependencies": {
-        "@eslint/eslintrc": "^3.3.1",
+      "@eslint/eslintrc": "^3.3.1",
         "@eslint/js": "^9.30.0",
         "@swc/core": "^1.12.7",
         "@tsconfig/recommended": "^1.0.10",
@@ -59,7 +65,7 @@
         "vite-plugin-node": "^5.0.1",
         "vitest": "^3.2.4"
     },
-    "packageManager": "pnpm@10.12.4",
+    "packageManager": "pnpm@10.13.1",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/getfjell/lib.git"
