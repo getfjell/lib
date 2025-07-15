@@ -144,7 +144,7 @@ export const createRegistry = (): Registry => {
     let currentTree = libTree;
     let instance: Instance<V, S, L1, L2, L3, L4, L5> | null = null;
 
-    logger.debug(`Getting lib for KTA and scopes`, ktaArray, options?.scopes);
+    // logger.debug(`Getting lib for KTA and scopes`, ktaArray, options?.scopes);
 
     while (ktaArray.length > 0) {
       const kt = ktaArray.pop();
