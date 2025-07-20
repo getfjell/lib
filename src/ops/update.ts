@@ -1,6 +1,7 @@
 import { ComKey, Item, PriKey } from "@fjell/core";
+import { Coordinate } from "@fjell/registry";
 
-import { Definition } from "@/Definition";
+import { Options } from "@/Options";
 import { HookError, UpdateError, UpdateValidationError } from "@/errors";
 import LibLogger from '@/logger';
 import { Operations } from "@/Operations";
@@ -18,7 +19,8 @@ export const wrapUpdateOperation = <
   L5 extends string = never
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-    definition: Definition<V, S, L1, L2, L3, L4, L5>,
+    options: Options<V, S, L1, L2, L3, L4, L5>,
+    coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
   ) => {
@@ -44,7 +46,7 @@ export const wrapUpdateOperation = <
     } catch (error: unknown) {
       throw new UpdateError(
         { key, item: itemToUpdate },
-        definition.coordinate,
+        coordinate,
         { cause: error as Error }
       );
     }
@@ -55,15 +57,15 @@ export const wrapUpdateOperation = <
     itemToUpdate: Partial<Item<S, L1, L2, L3, L4, L5>>
   ): Promise<Partial<Item<S, L1, L2, L3, L4, L5>>> {
     logger.debug('Running Pre Update Hook');
-    if (definition.options?.hooks?.preUpdate) {
+    if (options?.hooks?.preUpdate) {
       try {
         logger.default('Running preUpdate hook', { key, item: itemToUpdate });
-        itemToUpdate = await definition.options.hooks.preUpdate(key, itemToUpdate);
+        itemToUpdate = await options.hooks.preUpdate(key, itemToUpdate);
       } catch (error: unknown) {
         throw new HookError(
           'Error in preUpdate',
           'update',
-          definition.coordinate,
+          coordinate,
           { cause: error as Error }
         );
       }
@@ -77,15 +79,15 @@ export const wrapUpdateOperation = <
     updatedItem: V
   ): Promise<V> {
     logger.debug('Running Post Update Hook');
-    if (definition.options?.hooks?.postUpdate) {
+    if (options?.hooks?.postUpdate) {
       try {
         logger.default('Running postUpdate hook', { item: updatedItem });
-        updatedItem = await definition.options.hooks.postUpdate(updatedItem);
+        updatedItem = await options.hooks.postUpdate(updatedItem);
       } catch (error: unknown) {
         throw new HookError(
           'Error in postUpdate',
           'update',
-          definition.coordinate,
+          coordinate,
           { cause: error as Error }
         );
       }
@@ -100,25 +102,25 @@ export const wrapUpdateOperation = <
     itemToUpdate: Partial<Item<S, L1, L2, L3, L4, L5>>
   ) {
     logger.debug('Validating update');
-    if (!definition.options?.validators?.onUpdate) {
+    if (!options?.validators?.onUpdate) {
       logger.default('No validator found for update, returning.');
       return;
     }
 
     try {
       logger.debug('Validating update', { key, item: itemToUpdate });
-      const isValid = await definition.options.validators.onUpdate(key, itemToUpdate);
+      const isValid = await options.validators.onUpdate(key, itemToUpdate);
       if (!isValid) {
         throw new UpdateValidationError(
           { key, item: itemToUpdate },
-          definition.coordinate,
+          coordinate,
           { cause: new Error('Invalid item') }
         );
       }
     } catch (error: unknown) {
       throw new UpdateValidationError(
         { key, item: itemToUpdate },
-        definition.coordinate,
+        coordinate,
         { cause: error as Error }
       );
     }

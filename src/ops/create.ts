@@ -5,8 +5,9 @@ import {
   LocKeyArray,
   PriKey,
 } from "@fjell/core";
+import { Coordinate } from "@fjell/registry";
 
-import { Definition } from "@/Definition";
+import { Options } from "@/Options";
 import { CreateValidationError, HookError } from "@/errors";
 import LibLogger from "@/logger";
 import { Operations } from "@/Operations";
@@ -24,12 +25,13 @@ export const wrapCreateOperation = <
   L5 extends string = never
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-    definition: Definition<V, S, L1, L2, L3, L4, L5>,
+    options: Options<V, S, L1, L2, L3, L4, L5>,
+    coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
   ) => {
 
-  const libOptions = definition.options;
+  const libOptions = options;
 
   const create = async (
     item: Partial<Item<S, L1, L2, L3, L4, L5>>,
@@ -74,7 +76,7 @@ export const wrapCreateOperation = <
         throw new HookError(
           'Error in preCreate',
           'create',
-          definition.coordinate,
+          coordinate,
           { cause: error as Error }
         );
       }
@@ -95,7 +97,7 @@ export const wrapCreateOperation = <
         throw new HookError(
           'Error in postCreate',
           'create',
-          definition.coordinate,
+          coordinate,
           { cause: error as Error }
         );
       }
@@ -126,14 +128,14 @@ export const wrapCreateOperation = <
       if (!isValid) {
         throw new CreateValidationError(
           { item, options },
-          definition.coordinate,
+          coordinate,
           { cause: new Error('Invalid item') }
         );
       }
     } catch (error: unknown) {
       throw new CreateValidationError(
         { item, options },
-        definition.coordinate,
+        coordinate,
         { cause: error as Error }
       );
     }

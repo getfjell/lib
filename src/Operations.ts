@@ -1,10 +1,10 @@
 import { ComKey, Item, PriKey } from "@fjell/core";
+import { Coordinate } from "@fjell/registry";
 
 import { LocKeyArray } from "@fjell/core";
 
 import { ItemQuery } from "@fjell/core";
 
-import { Definition } from "./Definition";
 import { wrapAllOperation } from "./ops/all";
 import { wrapCreateOperation } from "./ops/create";
 import { wrapFindOperation } from "./ops/find";
@@ -18,7 +18,7 @@ import { wrapUpsertOperation } from "./ops/upsert";
 import LibLogger from '@/logger';
 import { Registry } from "./Registry";
 import { wrapActionOperation } from "./ops/action";
-import { ActionMethod, AllActionMethod, AllFacetMethod, FacetMethod, FinderMethod } from "./Options";
+import { ActionMethod, AllActionMethod, AllFacetMethod, FacetMethod, FinderMethod, Options } from "./Options";
 import { wrapFacetOperation } from "./ops/facet";
 import { wrapAllActionOperation } from "./ops/allAction";
 
@@ -165,23 +165,24 @@ export const wrapOperations = <
   L5 extends string = never,
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-    definition: Definition<V, S, L1, L2, L3, L4, L5>,
+    options: Options<V, S, L1, L2, L3, L4, L5>,
+    coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
     registry: Registry,
   ): Operations<V, S, L1, L2, L3, L4, L5> => {
   const operations = {} as Operations<V, S, L1, L2, L3, L4, L5>;
 
-  operations.all = wrapAllOperation(toWrap, definition, registry);
-  operations.one = wrapOneOperation(toWrap, definition, registry);
-  operations.create = wrapCreateOperation(toWrap, definition, registry);
-  operations.update = wrapUpdateOperation(toWrap, definition, registry);
-  operations.get = wrapGetOperation(toWrap, definition, registry);
-  operations.remove = wrapRemoveOperation(toWrap, definition, registry);
-  operations.find = wrapFindOperation(toWrap, definition, registry);
-  operations.findOne = wrapFindOneOperation(toWrap, definition, registry);
+  operations.all = wrapAllOperation(toWrap, options, coordinate, registry);
+  operations.one = wrapOneOperation(toWrap, options, coordinate, registry);
+  operations.create = wrapCreateOperation(toWrap, options, coordinate, registry);
+  operations.update = wrapUpdateOperation(toWrap, options, coordinate, registry);
+  operations.get = wrapGetOperation(toWrap, options, coordinate, registry);
+  operations.remove = wrapRemoveOperation(toWrap, options, coordinate, registry);
+  operations.find = wrapFindOperation(toWrap, options, coordinate, registry);
+  operations.findOne = wrapFindOneOperation(toWrap, options, coordinate, registry);
   operations.upsert = wrapUpsertOperation(operations, registry);
-  operations.action = wrapActionOperation(toWrap, definition, registry);
-  operations.facet = wrapFacetOperation(toWrap, definition, registry);
-  operations.allAction = wrapAllActionOperation(toWrap, definition, registry);
+  operations.action = wrapActionOperation(toWrap, options, coordinate, registry);
+  operations.facet = wrapFacetOperation(toWrap, options, coordinate, registry);
+  operations.allAction = wrapAllActionOperation(toWrap, options, coordinate, registry);
 
   return operations;
 };
@@ -254,4 +255,3 @@ export const createReadOnlyOperations = <
   };
 
 };
-
