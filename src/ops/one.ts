@@ -1,8 +1,9 @@
 import { Item, LocKeyArray } from "@fjell/core";
+import { Coordinate } from "@fjell/registry";
 
 import { ItemQuery } from "@fjell/core";
 
-import { Definition } from "@/Definition";
+import { Options } from "@/Options";
 import LibLogger from '@/logger';
 import { Operations } from "@/Operations";
 import { Registry } from "@/Registry";
@@ -20,7 +21,9 @@ export const wrapOneOperation = <
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    definition: Definition<V, S, L1, L2, L3, L4, L5>,
+    options: Options<V, S, L1, L2, L3, L4, L5>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
   ) => {

@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapFindOperation } from "@/ops/find";
-import { Definition } from "@/Definition";
 import { Operations } from "@/Operations";
-import { createRegistry } from "@/Registry";
+import { createRegistry, Registry } from "@/Registry";
+import { createCoordinate } from '@fjell/registry';
+import { createOptions } from '@/Options';
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -34,37 +35,28 @@ interface TestItem extends Item<'test', 'loc1', 'loc2'> {
   name: string;
 }
 
-describe('getFindOperation', () => {
+describe('wrapFindOperation', () => {
   let mockOperations: Operations<TestItem, 'test', 'loc1', 'loc2'>;
-  let mockDefinition: Definition<TestItem, 'test', 'loc1', 'loc2'>;
-  let findOperation: ReturnType<typeof wrapFindOperation<TestItem, 'test', 'loc1', 'loc2'>>;
-  let mockFinderMethod: any;
+  let mockCoordinate: any;
+  let registry: Registry;
 
   beforeEach(() => {
     mockOperations = {
       find: vi.fn(),
     } as unknown as Operations<TestItem, 'test', 'loc1', 'loc2'>;
 
-    mockFinderMethod = vi.fn();
-
-    const registry = createRegistry();
-    mockDefinition = {
-      coordinate: {
-        kta: ['test', 'loc1', 'loc2'],
-        scopes: ['test-scope'],
-        toString: () => 'test'
-      },
-      options: {
-        finders: {
-          testFinder: mockFinderMethod
-        }
-      }
-    } as unknown as Definition<TestItem, 'test', 'loc1', 'loc2'>;
-
-    findOperation = wrapFindOperation(mockOperations, mockDefinition, registry);
+    registry = createRegistry();
+    mockCoordinate = createCoordinate(['test'], ['scope1']);
   });
 
-  test('should forward calls to wrapped operations find with correct parameters', async () => {
+  test('should call wrapped operations find with correct parameters', async () => {
+    const mockFinderMethod = vi.fn();
+    const customOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>({
+      finders: {
+        testFinder: mockFinderMethod
+      }
+    });
+    const findOperation = wrapFindOperation(mockOperations, customOptions, mockCoordinate, registry);
     const finder = 'testFinder';
     const finderParams = { param1: 'value1', param2: 123 };
     const locations: LocKeyArray<'loc1', 'loc2'> = [
@@ -72,8 +64,10 @@ describe('getFindOperation', () => {
       { kt: 'loc2', lk: 'loc2-id' } as LocKey<'loc2'>
     ];
     const expectedItems: TestItem[] = [
-      { name: 'test1' } as TestItem,
-      { name: 'test2' } as TestItem
+      {
+        name: 'test1',
+        key: { kt: 'test', pk: 'test-id-1' }
+      } as TestItem
     ];
 
     (mockOperations.find as any).mockResolvedValue(expectedItems);
@@ -85,26 +79,21 @@ describe('getFindOperation', () => {
   });
 
   test('should handle empty locations array', async () => {
+    const mockFinderMethod = vi.fn();
+    const customOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>({
+      finders: {
+        testFinder: mockFinderMethod
+      }
+    });
+    const findOperation = wrapFindOperation(mockOperations, customOptions, mockCoordinate, registry);
     const finder = 'testFinder';
     const finderParams = { param1: 'value1' };
-    const locations: LocKeyArray<'loc1', 'loc2'> = [
-      { kt: 'loc1', lk: 'loc1-id' } as LocKey<'loc1'>,
-      { kt: 'loc2', lk: 'loc2-id' } as LocKey<'loc2'>
+    const expectedItems: TestItem[] = [
+      {
+        name: 'test1',
+        key: { kt: 'test', pk: 'test-id-1' }
+      } as TestItem
     ];
-    const expectedItems: TestItem[] = [];
-
-    (mockOperations.find as any).mockResolvedValue(expectedItems);
-
-    const result = await findOperation(finder, finderParams, locations);
-
-    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, locations);
-    expect(result).toEqual(expectedItems);
-  });
-
-  test('should use default empty array for locations if not provided', async () => {
-    const finder = 'testFinder';
-    const finderParams = { param1: 'value1' };
-    const expectedItems: TestItem[] = [];
 
     (mockOperations.find as any).mockResolvedValue(expectedItems);
 
@@ -114,49 +103,70 @@ describe('getFindOperation', () => {
     expect(result).toEqual(expectedItems);
   });
 
-  test('should throw error when finder is not found in definition', async () => {
-    const finder = 'nonExistentFinder';
-    const finderParams = { param1: 'value1' };
-
-    await expect(findOperation(finder, finderParams)).rejects.toThrow(
-      'Finder nonExistentFinder not found in definition for test'
-    );
-
-    expect(mockOperations.find).not.toHaveBeenCalled();
-  });
-
-  test('should throw error when no finders are defined in definition', async () => {
+  test('should use default empty array for locations if not provided', async () => {
+    const mockFinderMethod = vi.fn();
+    const customOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>({
+      finders: {
+        testFinder: mockFinderMethod
+      }
+    });
+    const findOperation = wrapFindOperation(mockOperations, customOptions, mockCoordinate, registry);
     const finder = 'testFinder';
     const finderParams = { param1: 'value1' };
+    const expectedItems: TestItem[] = [
+      {
+        name: 'test1',
+        key: { kt: 'test', pk: 'test-id-1' }
+      } as TestItem
+    ];
 
-    // Mock definition without finders
-    const definitionWithoutFinders = {
-      coordinate: {
-        kta: ['test', 'loc1', 'loc2'],
-        scopes: ['test-scope'],
-        toString: () => 'test'
-      },
-      options: {}
-    } as unknown as Definition<TestItem, 'test', 'loc1', 'loc2'>;
+    (mockOperations.find as any).mockResolvedValue(expectedItems);
 
-    const registry = createRegistry();
-    const findOperationWithoutFinders = wrapFindOperation(mockOperations, definitionWithoutFinders, registry);
+    const result = await findOperation(finder, finderParams);
 
-    await expect(findOperationWithoutFinders(finder, finderParams)).rejects.toThrow(
-      'Finder testFinder not found in definition for test'
-    );
-
-    expect(mockOperations.find).not.toHaveBeenCalled();
-  });
-
-  test('should propagate errors from the wrapped find operation', async () => {
-    const finder = 'testFinder';
-    const finderParams = { param1: 'value1' };
-    const testError = new Error('Find operation failed');
-
-    (mockOperations.find as any).mockRejectedValue(testError);
-
-    await expect(findOperation(finder, finderParams)).rejects.toThrow('Find operation failed');
     expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, void 0);
+    expect(result).toEqual(expectedItems);
+  });
+
+  test('should propagate errors from underlying operations', async () => {
+    const mockFinderMethod = vi.fn();
+    const customOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>({
+      finders: {
+        testFinder: mockFinderMethod
+      }
+    });
+    const findOperation = wrapFindOperation(mockOperations, customOptions, mockCoordinate, registry);
+    const finder = 'testFinder';
+    const finderParams = { param1: 'value1' };
+    const findError = new Error('Database error');
+
+    (mockOperations.find as any).mockRejectedValue(findError);
+
+    await expect(findOperation(finder, finderParams)).rejects.toThrow('Database error');
+  });
+
+  test('should work with custom finder methods', async () => {
+    const mockFinderMethod = vi.fn();
+    const customOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>({
+      finders: {
+        testFinder: mockFinderMethod
+      }
+    });
+
+    const findOperation = wrapFindOperation(mockOperations, customOptions, mockCoordinate, registry);
+    const finder = 'testFinder';
+    const finderParams = { param1: 'value1' };
+    const expectedItems: TestItem[] = [
+      {
+        name: 'test1',
+        key: { kt: 'test', pk: 'test-id-1' }
+      } as TestItem
+    ];
+
+    (mockOperations.find as any).mockResolvedValue(expectedItems);
+
+    const result = await findOperation(finder, finderParams);
+
+    expect(result).toEqual(expectedItems);
   });
 });

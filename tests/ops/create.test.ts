@@ -2,10 +2,11 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { ComKey, Item, LocKey, LocKeyArray, PriKey } from "@fjell/core";
 import { wrapCreateOperation } from "@/ops/create";
-import { Definition } from "@/Definition";
 import { Operations } from "@/Operations";
 import { createRegistry } from "@/Registry";
 import { CreateValidationError, HookError } from "@/errors";
+import { createCoordinate } from '@fjell/registry';
+import { createOptions } from '@/Options';
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -38,7 +39,8 @@ interface TestItem extends Item<'test', 'loc1', 'loc2'> {
 
 describe('getCreateOperation', () => {
   let mockOperations: Operations<TestItem, 'test', 'loc1', 'loc2'>;
-  let mockDefinition: Definition<TestItem, 'test', 'loc1', 'loc2'>;
+  let mockDefinition: any;
+  let mockCoordinate: any;
   let registry: ReturnType<typeof createRegistry>;
 
   beforeEach(() => {
@@ -47,18 +49,12 @@ describe('getCreateOperation', () => {
     } as unknown as Operations<TestItem, 'test', 'loc1', 'loc2'>;
 
     registry = createRegistry();
-    mockDefinition = {
-      collectionNames: ['tests', 'loc1s', 'loc2s'],
-      coordinate: {
-        kta: ['test', 'loc1', 'loc2'],
-        scopes: [],
-      },
-      options: {}
-    } as Definition<TestItem, 'test', 'loc1', 'loc2'>;
+    mockDefinition = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+    mockCoordinate = createCoordinate(['test'], ['scope1']);
   });
 
   test('should call wrapped operations create with correct parameters', async () => {
-    const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+    const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
     const item: Partial<TestItem> = { name: 'test1' };
     const locations: LocKeyArray<'loc1', 'loc2'> = [
       { kt: 'loc1', lk: 'loc1-id' } as LocKey<'loc1'>,
@@ -78,7 +74,7 @@ describe('getCreateOperation', () => {
   });
 
   test('should handle empty locations array', async () => {
-    const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+    const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
     const item: Partial<TestItem> = { name: 'test1' };
     const expectedItem: TestItem = {
       name: 'test1',
@@ -94,7 +90,7 @@ describe('getCreateOperation', () => {
   });
 
   test('should use default empty array for locations if not provided', async () => {
-    const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+    const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
     const item: Partial<TestItem> = { name: 'test1' };
     const expectedItem: TestItem = {
       name: 'test1',
@@ -119,13 +115,11 @@ describe('getCreateOperation', () => {
       } as TestItem;
 
       const preCreateHook = vi.fn().mockResolvedValue(modifiedItem);
-      mockDefinition.options = {
-        hooks: {
-          preCreate: preCreateHook
-        }
+      mockDefinition.hooks = {
+        preCreate: preCreateHook
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
       const result = await createOperation(item);
@@ -148,13 +142,11 @@ describe('getCreateOperation', () => {
       } as TestItem;
 
       const preCreateHook = vi.fn().mockResolvedValue(item);
-      mockDefinition.options = {
-        hooks: {
-          preCreate: preCreateHook
-        }
+      mockDefinition.hooks = {
+        preCreate: preCreateHook
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
       await createOperation(item, options);
@@ -172,13 +164,11 @@ describe('getCreateOperation', () => {
       } as TestItem;
 
       const preCreateHook = vi.fn().mockResolvedValue(item);
-      mockDefinition.options = {
-        hooks: {
-          preCreate: preCreateHook
-        }
+      mockDefinition.hooks = {
+        preCreate: preCreateHook
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
       await createOperation(item, options);
@@ -191,20 +181,18 @@ describe('getCreateOperation', () => {
       const hookError = new Error('Hook failed');
       const preCreateHook = vi.fn().mockRejectedValue(hookError);
 
-      mockDefinition.options = {
-        hooks: {
-          preCreate: preCreateHook
-        }
+      mockDefinition.hooks = {
+        preCreate: preCreateHook
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
 
       await expect(createOperation(item)).rejects.toThrow(HookError);
       await expect(createOperation(item)).rejects.toThrow('Error in preCreate');
     });
 
     test('should not execute preCreate hook if not defined', async () => {
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       const item: Partial<TestItem> = { name: 'test1' };
       const expectedItem: TestItem = {
         name: 'test1',
@@ -212,7 +200,6 @@ describe('getCreateOperation', () => {
       } as TestItem;
 
       // No hooks defined
-      mockDefinition.options = {};
 
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
@@ -236,13 +223,11 @@ describe('getCreateOperation', () => {
       } as TestItem;
 
       const postCreateHook = vi.fn().mockResolvedValue(modifiedCreatedItem);
-      mockDefinition.options = {
-        hooks: {
-          postCreate: postCreateHook
-        }
+      mockDefinition.hooks = {
+        postCreate: postCreateHook
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(createdItem);
 
       const result = await createOperation(item);
@@ -260,13 +245,11 @@ describe('getCreateOperation', () => {
       const hookError = new Error('Post hook failed');
       const postCreateHook = vi.fn().mockRejectedValue(hookError);
 
-      mockDefinition.options = {
-        hooks: {
-          postCreate: postCreateHook
-        }
+      mockDefinition.hooks = {
+        postCreate: postCreateHook
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(createdItem);
 
       await expect(createOperation(item)).rejects.toThrow(HookError);
@@ -274,7 +257,7 @@ describe('getCreateOperation', () => {
     });
 
     test('should not execute postCreate hook if not defined', async () => {
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       const item: Partial<TestItem> = { name: 'test1' };
       const expectedItem: TestItem = {
         name: 'test1',
@@ -282,7 +265,6 @@ describe('getCreateOperation', () => {
       } as TestItem;
 
       // No hooks defined
-      mockDefinition.options = {};
 
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
@@ -301,13 +283,11 @@ describe('getCreateOperation', () => {
       } as TestItem;
 
       const onCreateValidator = vi.fn().mockResolvedValue(true);
-      mockDefinition.options = {
-        validators: {
-          onCreate: onCreateValidator
-        }
+      mockDefinition.validators = {
+        onCreate: onCreateValidator
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
       const result = await createOperation(item);
@@ -319,8 +299,8 @@ describe('getCreateOperation', () => {
     test('should execute onCreate validator with options', async () => {
       const item: Partial<TestItem> = { name: 'test1' };
       const locations: LocKeyArray<'loc1', 'loc2'> = [
-         { kt: 'loc1', lk: 'loc1-id' } as LocKey<'loc1'>,
-         { kt: 'loc2', lk: 'loc2-id' } as LocKey<'loc2'>
+        { kt: 'loc1', lk: 'loc1-id' } as LocKey<'loc1'>,
+        { kt: 'loc2', lk: 'loc2-id' } as LocKey<'loc2'>
       ];
       const options = { locations };
       const expectedItem: TestItem = {
@@ -329,13 +309,11 @@ describe('getCreateOperation', () => {
       } as TestItem;
 
       const onCreateValidator = vi.fn().mockResolvedValue(true);
-      mockDefinition.options = {
-        validators: {
-          onCreate: onCreateValidator
-        }
+      mockDefinition.validators = {
+        onCreate: onCreateValidator
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
       await createOperation(item, options);
@@ -347,13 +325,11 @@ describe('getCreateOperation', () => {
       const item: Partial<TestItem> = { name: 'test1' };
 
       const onCreateValidator = vi.fn().mockResolvedValue(false);
-      mockDefinition.options = {
-        validators: {
-          onCreate: onCreateValidator
-        }
+      mockDefinition.validators = {
+        onCreate: onCreateValidator
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
 
       await expect(createOperation(item)).rejects.toThrow(CreateValidationError);
     });
@@ -363,19 +339,17 @@ describe('getCreateOperation', () => {
       const validationError = new Error('Validation failed');
 
       const onCreateValidator = vi.fn().mockRejectedValue(validationError);
-      mockDefinition.options = {
-        validators: {
-          onCreate: onCreateValidator
-        }
+      mockDefinition.validators = {
+        onCreate: onCreateValidator
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
 
       await expect(createOperation(item)).rejects.toThrow(CreateValidationError);
     });
 
     test('should not execute onCreate validator if not defined', async () => {
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       const item: Partial<TestItem> = { name: 'test1' };
       const expectedItem: TestItem = {
         name: 'test1',
@@ -383,7 +357,6 @@ describe('getCreateOperation', () => {
       } as TestItem;
 
       // No validators defined
-      mockDefinition.options = {};
 
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
@@ -420,17 +393,15 @@ describe('getCreateOperation', () => {
         return finalItem;
       });
 
-      mockDefinition.options = {
-        hooks: {
-          preCreate: preCreateHook,
-          postCreate: postCreateHook
-        },
-        validators: {
-          onCreate: onCreateValidator
-        }
+      mockDefinition.hooks = {
+        preCreate: preCreateHook,
+        postCreate: postCreateHook
+      };
+      mockDefinition.validators = {
+        onCreate: onCreateValidator
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockImplementation(async () => {
         executionOrder.push('create');
         return createdItem;
@@ -454,17 +425,15 @@ describe('getCreateOperation', () => {
       const onCreateValidator = vi.fn().mockResolvedValue(false);
       const postCreateHook = vi.fn();
 
-      mockDefinition.options = {
-        hooks: {
-          preCreate: preCreateHook,
-          postCreate: postCreateHook
-        },
-        validators: {
-          onCreate: onCreateValidator
-        }
+      mockDefinition.hooks = {
+        preCreate: preCreateHook,
+        postCreate: postCreateHook
+      };
+      mockDefinition.validators = {
+        onCreate: onCreateValidator
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
 
       await expect(createOperation(item)).rejects.toThrow(CreateValidationError);
 
@@ -480,7 +449,7 @@ describe('getCreateOperation', () => {
       const item: Partial<TestItem> = { name: 'test1' };
       const createError = new Error('Database error');
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockRejectedValue(createError);
 
       await expect(createOperation(item)).rejects.toThrow('Database error');
@@ -492,14 +461,12 @@ describe('getCreateOperation', () => {
       const preCreateHook = vi.fn().mockResolvedValue(item);
       const postCreateHook = vi.fn();
 
-      mockDefinition.options = {
-        hooks: {
-          preCreate: preCreateHook,
-          postCreate: postCreateHook
-        }
+      mockDefinition.hooks = {
+        preCreate: preCreateHook,
+        postCreate: postCreateHook
       };
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockRejectedValue(createError);
 
       await expect(createOperation(item)).rejects.toThrow('Database error');
@@ -525,7 +492,7 @@ describe('getCreateOperation', () => {
         key
       } as TestItem;
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
       const result = await createOperation(item, options);
@@ -541,7 +508,7 @@ describe('getCreateOperation', () => {
         key: { kt: 'test', pk: 'test-id' }
       } as TestItem;
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
       const result = await createOperation(item, undefined);
@@ -557,7 +524,7 @@ describe('getCreateOperation', () => {
         key: { kt: 'test', pk: 'test-id' }
       } as TestItem;
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
       // @ts-expect-error Testing edge case with empty object
@@ -576,7 +543,7 @@ describe('getCreateOperation', () => {
         key: { kt: 'test', pk: 'test-id' }
       } as TestItem;
 
-      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, registry);
+      const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(expectedItem);
 
       const result = await createOperation(item);

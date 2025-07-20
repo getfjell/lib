@@ -10,6 +10,7 @@ vi.mock('@fjell/logging', () => {
     debug: vi.fn(),
     trace: vi.fn(),
     emergency: vi.fn(),
+    default: vi.fn(),
     alert: vi.fn(),
     critical: vi.fn(),
     notice: vi.fn(),
@@ -54,10 +55,11 @@ vi.mock('@/Operations', () => ({
 
 // Mock abstract instance
 vi.mock('@/Instance', () => ({
-  createInstance: vi.fn().mockImplementation(() => ({
-    definition: {},
-    operations: {},
-    registry: {}
+  createInstance: vi.fn().mockImplementation((registry, coordinate, operations, options) => ({
+    coordinate,
+    registry,
+    operations,
+    options
   }))
 }));
 
@@ -72,11 +74,10 @@ describe('Primary Index', () => {
 
     test('should createInstance function work correctly', async () => {
       const { createInstance } = await import('@/primary/index');
+      const { createCoordinate } = await import('@fjell/registry');
 
-      const mockDefinition = {
-        coordinate: { kta: ['test'], scopes: ['scope1'] },
-        options: {}
-      } as any;
+      const mockCoordinate = createCoordinate(['test'], ['scope1']);
+      const mockOptions = {};
       const mockOperations = {
         all: vi.fn(),
         one: vi.fn(),
@@ -93,10 +94,10 @@ describe('Primary Index', () => {
         libTree: {}
       } as any;
 
-      const instance = createInstance(mockDefinition, mockOperations, mockRegistry);
+      const instance = createInstance(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
       expect(instance).toBeDefined();
-      expect(instance.definition).toBeDefined();
+      expect(instance.coordinate).toBeDefined();
       expect(instance.operations).toBeDefined();
     });
   });
@@ -132,7 +133,7 @@ describe('Primary Index', () => {
         libTree: {}
       } as any;
 
-      const wrapped = wrapOperations(mockOperations, mockDefinition, mockRegistry);
+      const wrapped = wrapOperations(mockOperations, mockDefinition.options, mockDefinition.coordinate, mockRegistry);
 
       expect(wrapped).toBeDefined();
       expect(wrapped).toStrictEqual(mockOperations); // Our mock just returns the input

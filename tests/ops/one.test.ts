@@ -1,11 +1,11 @@
-import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { Coordinate, createCoordinate } from '@/Coordinate';
-import { createDefinition } from '@/Definition';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { createCoordinate } from '@fjell/registry';
 import { Operations } from '@/Operations';
 import { wrapOneOperation } from '@/ops/one';
-import { createRegistry } from '@/Registry';
+import { createOptions, Options } from '@/Options';
+import { createRegistry, Registry } from '@/Registry';
 import { Item, ItemQuery, LocKeyArray } from '@fjell/core';
-import { randomUUID } from 'crypto';
+import LibLogger from '@/logger';
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -32,61 +32,104 @@ vi.mock('@fjell/logging', () => {
   }
 });
 
-describe('One Operation', () => {
-  let operations: Operations<Item<'test', 'container'>, 'test', 'container'>;
-  let oneMethodMock: Mock;
-  let coordinate: Coordinate<'test', 'container'>;
+// Type definitions for test data
+interface TestItem extends Item<'test', 'level1'> {
+  id: string;
+  name: string;
+}
+
+describe('wrapOneOperation', () => {
+  let mockOperations: Operations<TestItem, 'test', 'level1'>;
+  let mockOptions: Options<TestItem, 'test', 'level1'>;
+  let mockCoordinate: any;
+  let mockRegistry: Registry;
 
   beforeEach(() => {
-    oneMethodMock = vi.fn();
-    operations = {
-      one: oneMethodMock,
-    } as unknown as Operations<Item<'test', 'container'>, 'test', 'container'>;
-    coordinate = createCoordinate(['test', 'container'], ['scope1']);
+    // Mock the operations object
+    mockOperations = {
+      one: vi.fn(),
+    } as any;
+
+    // Mock options
+    mockOptions = createOptions<TestItem, 'test', 'level1'>({});
+
+    mockCoordinate = createCoordinate(['test'], ['level1']);
+    mockRegistry = createRegistry();
   });
 
-  describe('basic one', () => {
+  describe('wrapOneOperation', () => {
+    test('should return a function when called', () => {
+      const result = wrapOneOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
+
+      expect(typeof result).toBe('function');
+    });
+
+    test('should call LibLogger.get with correct parameters', () => {
+      wrapOneOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
+
+      expect(LibLogger.get).toHaveBeenCalledWith('library', 'ops', 'one');
+    });
+  });
+
+  describe('wrapped one function', () => {
+    let wrappedOne: ReturnType<typeof wrapOneOperation<TestItem, 'test', 'level1'>>;
+
+    beforeEach(() => {
+      wrappedOne = wrapOneOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
+    });
+
     test('should return item successfully', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test', 'container'>;
+      const testItem = {
+        name: 'test',
+        id: 'test-id',
+        key: { kt: 'test', pk: 'test-pk' }
+      } as TestItem;
       const query = { name: 'test' } as ItemQuery;
-      const registry = createRegistry();
 
-      const definition = createDefinition<Item<'test', 'container'>, 'test', 'container'>(coordinate);
-      oneMethodMock.mockResolvedValueOnce(testItem);
+      (mockOperations.one as any).mockResolvedValueOnce(testItem);
 
-      const one = wrapOneOperation<Item<'test', 'container'>, 'test', 'container'>(operations, definition, registry);
-      const result = await one(query);
+      const result = await wrappedOne(query);
 
       expect(result).toBe(testItem);
-      expect(oneMethodMock).toHaveBeenCalledWith(query, []);
+      expect(mockOperations.one).toHaveBeenCalledWith(query, []);
     });
 
     test('should return null when no item found', async () => {
       const query = { name: 'test' } as ItemQuery;
 
-      const registry = createRegistry();
-      const definition = createDefinition<Item<'test', 'container'>, 'test', 'container'>(coordinate);
-      oneMethodMock.mockResolvedValueOnce(null);
+      (mockOperations.one as any).mockResolvedValueOnce(null);
 
-      const one = wrapOneOperation<Item<'test', 'container'>, 'test', 'container'>(operations, definition, registry);
-      const result = await one(query);
+      const result = await wrappedOne(query);
 
       expect(result).toBeNull();
-      expect(oneMethodMock).toHaveBeenCalledWith(query, []);
+      expect(mockOperations.one).toHaveBeenCalledWith(query, []);
     });
 
     test('should pass locations to underlying operation', async () => {
       const query = { name: 'test' } as ItemQuery;
-      const locations = [{ kt: 'container', lk: randomUUID() }] as LocKeyArray<'container'>;
+      const locations = [{ kt: 'level1', lk: 'loc-123' }] as LocKeyArray<'level1'>;
+      const testItem = {
+        name: 'test',
+        id: 'test-id',
+        key: { kt: 'test', pk: 'test-pk' }
+      } as TestItem;
 
-      const registry = createRegistry();
-      const definition = createDefinition<Item<'test', 'container'>, 'test', 'container'>(coordinate);
-      oneMethodMock.mockResolvedValueOnce(null);
+      (mockOperations.one as any).mockResolvedValueOnce(testItem);
 
-      const one = wrapOneOperation<Item<'test', 'container'>, 'test', 'container'>(operations, definition, registry);
-      await one(query, locations);
+      const result = await wrappedOne(query, locations);
 
-      expect(oneMethodMock).toHaveBeenCalledWith(query, locations);
+      expect(result).toBe(testItem);
+      expect(mockOperations.one).toHaveBeenCalledWith(query, locations);
+    });
+
+    test('should propagate errors from underlying operations', async () => {
+      const query = { name: 'test' } as ItemQuery;
+      const error = new Error('Database error');
+
+      (mockOperations.one as any).mockRejectedValueOnce(error);
+
+      await expect(wrappedOne(query)).rejects.toThrow('Database error');
+      expect(mockOperations.one).toHaveBeenCalledWith(query, []);
     });
   });
 });
