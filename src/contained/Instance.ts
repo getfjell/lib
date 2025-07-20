@@ -1,5 +1,5 @@
 import { Instance as AbstractInstance, createInstance as createAbstractInstance } from "@/Instance";
-import { Operations } from "@/Operations";
+import { Operations } from "./Operations";
 import { Registry } from "@/Registry";
 import { Item } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
@@ -15,6 +15,7 @@ export interface Instance<
   L5 extends string = never,
 > extends AbstractInstance<V, S, L1, L2, L3, L4, L5> {
   parent?: AbstractInstance<Item<L1, L2, L3, L4, L5>, L1, L2, L3, L4, L5>;
+  operations: Operations<V, S, L1, L2, L3, L4, L5>;
 }
 
 export const createInstance = <
