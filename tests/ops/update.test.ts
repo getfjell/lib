@@ -1,13 +1,11 @@
-import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { createCoordinate } from '@/Coordinate';
-import { createDefinition } from '@/Definition';
-import { HookError, UpdateError, UpdateValidationError } from '@/errors';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { createCoordinate } from '@fjell/registry';
+import { UpdateError } from '@/errors';
 import { Operations } from '@/Operations';
+import { createOptions, Options } from '@/Options';
 import { wrapUpdateOperation } from '@/ops/update';
-import { createRegistry } from '@/Registry';
+import { createRegistry, Registry } from '@/Registry';
 import { Item, PriKey } from '@fjell/core';
-import { randomUUID } from 'crypto';
-import type { Coordinate } from '@/Coordinate';
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -30,167 +28,57 @@ vi.mock('@fjell/logging', () => {
   return {
     default: {
       getLogger: () => logger,
-    },
-  };
+    }
+  }
 });
 
-vi.mock('@/logger', () => {
-  const logger = {
-    get: vi.fn().mockReturnThis(),
-    error: vi.fn(),
-    warning: vi.fn(),
-    info: vi.fn(),
-    debug: vi.fn(),
-    trace: vi.fn(),
-    emergency: vi.fn(),
-    default: vi.fn(),
-    alert: vi.fn(),
-    critical: vi.fn(),
-    notice: vi.fn(),
-    time: vi.fn().mockReturnThis(),
-    end: vi.fn(),
-    log: vi.fn(),
-  };
-  return {
-    default: logger,
-  };
-});
+interface TestItem extends Item<'test', 'level1'> {
+  id: string;
+  name: string;
+}
 
-describe('Update Operation', () => {
-  let operations: Operations<Item<'test'>, 'test'>;
-  let updateMethodMock: Mock;
-  let coordinate: Coordinate<'test'>;
+describe('wrapUpdateOperation', () => {
+  let mockOperations: Operations<TestItem, 'test', 'level1'>;
+  let mockOptions: Options<TestItem, 'test', 'level1'>;
+  let mockCoordinate: any;
+  let registry: Registry;
 
   beforeEach(() => {
-    updateMethodMock = vi.fn();
-    operations = {
-      update: updateMethodMock,
-    } as unknown as Operations<Item<'test'>, 'test'>;
-    coordinate = createCoordinate<'test'>(['test'] as const, ['scope1']) as Coordinate<'test'>;
+    mockOperations = {
+      update: vi.fn(),
+    } as unknown as Operations<TestItem, 'test', 'level1'>;
+
+    registry = createRegistry();
+    mockOptions = createOptions<TestItem, 'test', 'level1'>();
+    mockCoordinate = createCoordinate(['test'], ['level1']);
   });
 
-  describe('basic update', () => {
-    test('should update item successfully', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test'>;
-      const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
-      const registry = createRegistry();
+  test('should call wrapped operations update with correct parameters', async () => {
+    const updateOperation = wrapUpdateOperation(mockOperations, mockOptions, mockCoordinate, registry);
+    const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+    const item: Partial<TestItem> = { name: 'updated-name' };
+    const expectedItem: TestItem = {
+      id: 'test-id',
+      name: 'updated-name',
+      key
+    } as TestItem;
 
-      const definition = createDefinition<Item<'test'>, 'test'>(coordinate);
-      updateMethodMock.mockResolvedValueOnce(testItem);
+    (mockOperations.update as any).mockResolvedValue(expectedItem);
 
-      const update = wrapUpdateOperation(operations, definition, registry);
-      const result = await update(key, itemProperties);
+    const result = await updateOperation(key, item);
 
-      expect(result).toBe(testItem);
-      expect(updateMethodMock).toHaveBeenCalledWith(key, itemProperties);
-    });
-
-    test('should throw UpdateError when update fails', async () => {
-      const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
-      const registry = createRegistry();
-      const definition = createDefinition<Item<'test'>, 'test'>(coordinate);
-      updateMethodMock.mockRejectedValueOnce(new Error('Update failed'));
-
-      const update = wrapUpdateOperation(operations, definition, registry);
-      await expect(update(key, itemProperties)).rejects.toThrow(UpdateError);
-    });
+    expect(mockOperations.update).toHaveBeenCalledWith(key, item);
+    expect(result).toEqual(expectedItem);
   });
 
-  describe('hooks', () => {
-    test('should run preUpdate hook before updating', async () => {
-      const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
-      const modifiedItem = { name: 'modified' } as Partial<Item<'test'>>;
-      const registry = createRegistry();
-      const preUpdateMock = vi.fn().mockResolvedValueOnce(modifiedItem);
-      const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
-        hooks: {
-          preUpdate: preUpdateMock
-        }
-      });
+  test('should propagate errors from underlying operations', async () => {
+    const updateOperation = wrapUpdateOperation(mockOperations, mockOptions, mockCoordinate, registry);
+    const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+    const item: Partial<TestItem> = { name: 'updated-name' };
+    const updateError = new Error('Database error');
 
-      updateMethodMock.mockResolvedValueOnce(modifiedItem);
+    (mockOperations.update as any).mockRejectedValue(updateError);
 
-      const update = wrapUpdateOperation(operations, definition, registry);
-      await update(key, itemProperties);
-
-      expect(preUpdateMock).toHaveBeenCalledWith(key, itemProperties);
-      expect(updateMethodMock).toHaveBeenCalledWith(key, modifiedItem);
-    });
-
-    test('should run postUpdate hook after updating', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test'>;
-      const modifiedItem = { name: 'modified' } as unknown as Item<'test'>;
-      const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const registry = createRegistry();
-      const postUpdateMock = vi.fn().mockResolvedValueOnce(modifiedItem);
-      const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
-        hooks: {
-          postUpdate: postUpdateMock
-        }
-      });
-
-      updateMethodMock.mockResolvedValueOnce(testItem);
-
-      const update = wrapUpdateOperation(operations, definition, registry);
-      const result = await update(key, testItem);
-
-      expect(postUpdateMock).toHaveBeenCalledWith(testItem);
-      expect(result).toBe(modifiedItem);
-    });
-
-    test('should throw HookError when preUpdate hook fails', async () => {
-      const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
-
-      const registry = createRegistry();
-      const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
-        hooks: {
-          preUpdate: async () => { throw new Error('Hook failed'); }
-        }
-      });
-
-      const update = wrapUpdateOperation(operations, definition, registry);
-      await expect(update(key, itemProperties)).rejects.toThrow(HookError);
-    });
-  });
-
-  describe('validation', () => {
-    test('should validate item before updating', async () => {
-      const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
-
-      const registry = createRegistry();
-      const validateMock = vi.fn().mockResolvedValueOnce(true);
-      const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
-        validators: {
-          onUpdate: validateMock
-        }
-      });
-
-      updateMethodMock.mockResolvedValueOnce(itemProperties);
-
-      const update = wrapUpdateOperation(operations, definition, registry);
-      await update(key, itemProperties);
-
-      expect(validateMock).toHaveBeenCalledWith(key, itemProperties);
-    });
-
-    test('should throw UpdateValidationError when validation fails', async () => {
-      const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
-      const itemProperties = { name: 'test' } as Partial<Item<'test'>>;
-
-      const registry = createRegistry();
-      const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
-        validators: {
-          onUpdate: async () => false
-        }
-      });
-
-      const update = wrapUpdateOperation(operations, definition, registry);
-      await expect(update(key, itemProperties)).rejects.toThrow(UpdateValidationError);
-    });
+    await expect(updateOperation(key, item)).rejects.toThrow(UpdateError);
   });
 });

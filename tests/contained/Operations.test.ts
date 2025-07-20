@@ -3,8 +3,9 @@ import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/core";
 
 import { Operations, wrapOperations } from "@/contained/Operations";
 import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperations } from "@/Operations";
-import { Definition } from "@/Definition";
 import { Registry } from "@/Registry";
+import { createCoordinate } from '@fjell/registry';
+import { createOptions } from '@/Options';
 
 // Mock the abstract operations wrapper
 vi.mock("@/Operations", () => ({
@@ -25,7 +26,8 @@ describe('Operations', () => {
   type TestProperties = Partial<Item<'test', 'loc1', 'loc2'>>;
 
   let mockOperations: Operations<TestItem, 'test', 'loc1', 'loc2'>;
-  let mockDefinition: Definition<TestItem, 'test', 'loc1', 'loc2'>;
+  let mockOptions: any;
+  let mockCoordinate: any;
   let mockRegistry: Registry;
   let mockAbstractOperations: AbstractOperations<TestItem, 'test', 'loc1', 'loc2'>;
 
@@ -54,7 +56,8 @@ describe('Operations', () => {
       actions: {}
     };
 
-    mockDefinition = {} as Definition<TestItem, 'test', 'loc1', 'loc2'>;
+    mockOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+    mockCoordinate = createCoordinate(['test'], ['scope1']);
     mockRegistry = {} as Registry;
 
     // Mock the abstract operations that would be returned
@@ -84,25 +87,26 @@ describe('Operations', () => {
 
   describe('wrapOperations', () => {
     it('should call wrapAbstractOperations with correct parameters', () => {
-      const result = wrapOperations(mockOperations, mockDefinition, mockRegistry);
+      const result = wrapOperations(mockOperations, mockOptions, mockCoordinate, mockRegistry);
 
       expect(wrapAbstractOperations).toHaveBeenCalledWith(
         mockOperations,
-        mockDefinition,
+        mockOptions,
+        mockCoordinate,
         mockRegistry
       );
       expect(result).toBeDefined();
     });
 
     it('should return an operations object with all abstract operations methods', () => {
-      const result = wrapOperations(mockOperations, mockDefinition, mockRegistry);
+      const result = wrapOperations(mockOperations, mockOptions, mockCoordinate, mockRegistry);
 
       expect(result).toEqual(mockAbstractOperations);
       expect(result).toBeDefined();
     });
 
     it('should preserve all operations methods from abstract wrapper', () => {
-      const result = wrapOperations(mockOperations, mockDefinition, mockRegistry);
+      const result = wrapOperations(mockOperations, mockOptions, mockCoordinate, mockRegistry);
 
       expect(result.all).toBe(mockAbstractOperations.all);
       expect(result.one).toBe(mockAbstractOperations.one);

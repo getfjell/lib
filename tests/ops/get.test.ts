@@ -1,11 +1,10 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { Coordinate, createCoordinate } from '@/Coordinate';
-import { createDefinition } from '@/Definition';
+import { createCoordinate } from '@fjell/registry';
 import { Operations } from '@/Operations';
 import { wrapGetOperation } from '@/ops/get';
+import { createOptions } from '@/Options';
 import { createRegistry } from '@/Registry';
-import { ComKey, Item, LocKeyArray, PriKey } from '@fjell/core';
-import { randomUUID } from 'crypto';
+import { Item, PriKey } from '@fjell/core';
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -33,28 +32,27 @@ vi.mock('@fjell/logging', () => {
 });
 
 describe('Get Operation', () => {
-  let operations: Operations<Item<'test'>, 'test'>;
+  let operations: Operations<Item<'test', 'container'>, 'test', 'container'>;
   let getMethodMock: Mock;
-  let coordinate: Coordinate<'test'>;
 
   beforeEach(() => {
     getMethodMock = vi.fn();
     operations = {
       get: getMethodMock,
-    } as unknown as Operations<Item<'test'>, 'test'>;
-    coordinate = createCoordinate(['test'], ['scope1']);
+    } as any;
   });
 
   describe('basic get', () => {
     test('should get item successfully', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test'>;
-      const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
+      const testItem = { name: 'test' } as unknown as Item<'test', 'container'>;
+      const key = { kt: 'test', pk: 'test-id' } as PriKey<'test'>;
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate);
+      const coordinate = createCoordinate(['test'], ['scope1']);
+      const options = createOptions<Item<'test', 'container'>, 'test', 'container'>();
       getMethodMock.mockResolvedValueOnce(testItem);
 
-      const get = wrapGetOperation(operations, definition, registry);
+      const get = wrapGetOperation(operations, options, coordinate, registry);
       const result = await get(key);
 
       expect(result).toBe(testItem);
@@ -62,45 +60,39 @@ describe('Get Operation', () => {
     });
 
     test('should return null when item not found', async () => {
-      const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
+      const key = { kt: 'test', pk: 'test-id' } as PriKey<'test'>;
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate);
+      const coordinate = createCoordinate(['test'], ['scope1']);
+      const options = createOptions<Item<'test', 'container'>, 'test', 'container'>();
       getMethodMock.mockResolvedValueOnce(null);
 
-      const get = wrapGetOperation(operations, definition, registry);
+      const get = wrapGetOperation(operations, options, coordinate, registry);
       const result = await get(key);
 
       expect(result).toBeNull();
       expect(getMethodMock).toHaveBeenCalledWith(key);
     });
 
-    test('should handle composite keys', async () => {
+    test('should handle complex item queries', async () => {
       const testItem = { name: 'test' } as unknown as Item<'test', 'container'>;
-      const key = {
-        kt: 'test',
-        pk: randomUUID(),
-        loc: [{ kt: 'container', lk: randomUUID() }] as LocKeyArray<'container'>
-      } as ComKey<'test', 'container'>;
-
-      const compositeGetMethodMock = vi.fn();
-      const compositeOperations = {
-        get: compositeGetMethodMock,
-      } as unknown as Operations<Item<'test', 'container'>, 'test', 'container'>;
+      const key = { kt: 'test', pk: 'test-id' } as PriKey<'test'>;
 
       const registry = createRegistry();
-      const definition = createDefinition<Item<'test', 'container'>, 'test', 'container'>(coordinate);
-      compositeGetMethodMock.mockResolvedValueOnce(testItem);
+      const coordinate = createCoordinate(['test'], ['scope1']);
+      const options = createOptions<Item<'test', 'container'>, 'test', 'container'>();
+      getMethodMock.mockResolvedValueOnce(testItem);
 
       const get = wrapGetOperation<Item<'test', 'container'>, 'test', 'container'>(
-        compositeOperations,
-        definition,
+        operations,
+        options,
+        coordinate,
         registry
       );
       const result = await get(key);
 
       expect(result).toBe(testItem);
-      expect(compositeGetMethodMock).toHaveBeenCalledWith(key);
+      expect(getMethodMock).toHaveBeenCalledWith(key);
     });
   });
 });

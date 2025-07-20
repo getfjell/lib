@@ -1,8 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
-import { Definition } from "@/Definition";
 import { createReadOnlyOperations, Operations, wrapOperations } from "@/Operations";
 import { createRegistry } from "@/Registry";
 import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/core";
+import { createCoordinate } from '@fjell/registry';
+import { createOptions } from '@/Options';
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -58,12 +59,13 @@ describe('Operations', () => {
     actions: {}
   };
 
-  // Mock definition
-  const mockDefinition = {} as Definition<TestItem, 'test', 'loc1', 'loc2'>;
+  // Mock coordinate and options
+  const mockCoordinate = createCoordinate(['test'], ['scope1']);
+  const mockOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
 
   describe('createOperations', () => {
     const registry = createRegistry();
-    const operations = wrapOperations(mockOperations, mockDefinition, registry);
+    const operations = wrapOperations(mockOperations, mockOptions, mockCoordinate, registry);
 
     test('should create operations object with all methods', () => {
       expect(operations.all).toBeDefined();

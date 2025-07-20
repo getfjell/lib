@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { Coordinate, createCoordinate } from '@/Coordinate';
-import { createDefinition } from '@/Definition';
+import { Coordinate, createCoordinate } from '@fjell/registry';
+import { createOptions } from '@/Options';
 import { HookError, RemoveError, RemoveValidationError } from '@/errors';
 import { Operations } from '@/Operations';
 import { wrapRemoveOperation } from '@/ops/remove';
@@ -42,7 +42,7 @@ describe('Remove Operation', () => {
     removeMethodMock = vi.fn();
     operations = {
       remove: removeMethodMock,
-    } as unknown as Operations<Item<'test'>, 'test'>;
+    } as any;
     coordinate = createCoordinate(['test'], ['scope1']);
   });
 
@@ -52,10 +52,10 @@ describe('Remove Operation', () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate);
+      const options = createOptions<Item<'test'>, 'test'>();
       removeMethodMock.mockResolvedValueOnce(testItem);
 
-      const remove = wrapRemoveOperation(operations, definition, registry);
+      const remove = wrapRemoveOperation(operations, options, coordinate, registry);
       const result = await remove(key);
 
       expect(result).toBe(testItem);
@@ -66,10 +66,10 @@ describe('Remove Operation', () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate);
+      const options = createOptions<Item<'test'>, 'test'>();
       removeMethodMock.mockResolvedValueOnce(null);
 
-      const remove = wrapRemoveOperation(operations, definition, registry);
+      const remove = wrapRemoveOperation(operations, options, coordinate, registry);
       await expect(remove(key)).rejects.toThrow(RemoveError);
     });
   });
@@ -81,14 +81,14 @@ describe('Remove Operation', () => {
       const preRemoveMock = vi.fn();
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate, {
+      const options = createOptions<Item<'test'>, 'test'>({
         hooks: {
           preRemove: preRemoveMock
         }
       });
       removeMethodMock.mockResolvedValueOnce(testItem);
 
-      const remove = wrapRemoveOperation(operations, definition, registry);
+      const remove = wrapRemoveOperation(operations, options, coordinate, registry);
       await remove(key);
 
       expect(preRemoveMock).toHaveBeenCalledWith(key);
@@ -99,13 +99,13 @@ describe('Remove Operation', () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate, {
+      const options = createOptions<Item<'test'>, 'test'>({
         hooks: {
           preRemove: async () => { throw new Error('Hook failed'); }
         }
       });
 
-      const remove = wrapRemoveOperation(operations, definition, registry);
+      const remove = wrapRemoveOperation(operations, options, coordinate, registry);
       await expect(remove(key)).rejects.toThrow(HookError);
     });
 
@@ -115,14 +115,14 @@ describe('Remove Operation', () => {
       const postRemoveMock = vi.fn();
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate, {
+      const options = createOptions<Item<'test'>, 'test'>({
         hooks: {
           postRemove: postRemoveMock
         }
       });
       removeMethodMock.mockResolvedValueOnce(testItem);
 
-      const remove = wrapRemoveOperation(operations, definition, registry);
+      const remove = wrapRemoveOperation(operations, options, coordinate, registry);
       await remove(key);
 
       expect(postRemoveMock).toHaveBeenCalledWith(testItem);
@@ -133,14 +133,14 @@ describe('Remove Operation', () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
 
       const registry = createRegistry();
-      const definition = createDefinition<Item<'test'>, 'test'>(coordinate, {
+      const options = createOptions<Item<'test'>, 'test'>({
         hooks: {
           postRemove: async () => { throw new Error('Hook failed'); }
         }
       });
       removeMethodMock.mockResolvedValueOnce(testItem);
 
-      const remove = wrapRemoveOperation(operations, definition, registry);
+      const remove = wrapRemoveOperation(operations, options, coordinate, registry);
       await expect(remove(key)).rejects.toThrow(HookError);
     });
   });
@@ -152,14 +152,14 @@ describe('Remove Operation', () => {
       const validateMock = vi.fn().mockResolvedValueOnce(true);
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate, {
+      const options = createOptions<Item<'test'>, 'test'>({
         validators: {
           onRemove: validateMock
         }
       });
       removeMethodMock.mockResolvedValueOnce(testItem);
 
-      const remove = wrapRemoveOperation(operations, definition, registry);
+      const remove = wrapRemoveOperation(operations, options, coordinate, registry);
       await remove(key);
 
       expect(validateMock).toHaveBeenCalledWith(key);
@@ -169,13 +169,13 @@ describe('Remove Operation', () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate, {
+      const options = createOptions<Item<'test'>, 'test'>({
         validators: {
           onRemove: async () => false
         }
       });
 
-      const remove = wrapRemoveOperation(operations, definition, registry);
+      const remove = wrapRemoveOperation(operations, options, coordinate, registry);
       await expect(remove(key)).rejects.toThrow(RemoveValidationError);
     });
 
@@ -183,13 +183,13 @@ describe('Remove Operation', () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
 
       const registry = createRegistry();
-      const definition = createDefinition(coordinate, {
+      const options = createOptions<Item<'test'>, 'test'>({
         validators: {
           onRemove: async () => { throw new Error('Validation failed'); }
         }
       });
 
-      const remove = wrapRemoveOperation(operations, definition, registry);
+      const remove = wrapRemoveOperation(operations, options, coordinate, registry);
       await expect(remove(key)).rejects.toThrow(RemoveValidationError);
     });
   });

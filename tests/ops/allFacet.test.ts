@@ -16,10 +16,12 @@ vi.mock('@/logger', () => ({
 }));
 
 import { wrapAllFacetOperation } from '@/ops/allFacet';
-import { Definition } from '@/Definition';
+import { Options } from '@/Options';
 import { Operations } from '@/Operations';
 import { Registry } from '@/Registry';
 import LibLogger from '@/logger';
+import { createCoordinate } from '@fjell/registry';
+import { createOptions } from '@/Options';
 
 // Type definitions for test data
 interface TestItem extends Item<'test', 'level1', 'level2'> {
@@ -29,16 +31,17 @@ interface TestItem extends Item<'test', 'level1', 'level2'> {
 
 describe('wrapAllFacetOperation', () => {
   let mockOperations: Operations<TestItem, 'test', 'level1', 'level2'>;
-  let mockDefinition: Definition<TestItem, 'test', 'level1', 'level2'>;
+  let mockOptions: Options<TestItem, 'test', 'level1', 'level2'>;
+  let mockCoordinate: any;
   let mockRegistry: Registry;
   let mockFacetMethod: MockedFunction<any>;
 
   beforeEach(() => {
-    // Reset mocks
+    // Reset only specific mocks, not the logger get mock since it's called at module load time
     mockLoggerDebug.mockClear();
     mockLoggerDefault.mockClear();
 
-    // Create mock facet method
+    // Create mock all facet method
     mockFacetMethod = vi.fn();
 
     // Mock the operations object
@@ -46,29 +49,27 @@ describe('wrapAllFacetOperation', () => {
       all: vi.fn(),
     } as any;
 
-    // Mock definition with allFacets
-    mockDefinition = {
-      coordinate: {} as any,
-      options: {
-        allFacets: {
-          testFacet: mockFacetMethod,
-          complexFacet: mockFacetMethod,
-        }
+    // Mock options with allFacets
+    mockOptions = createOptions<TestItem, 'test', 'level1', 'level2'>({
+      allFacets: {
+        testFacet: mockFacetMethod,
+        complexFacet: mockFacetMethod,
       }
-    } as Definition<TestItem, 'test', 'level1', 'level2'>;
+    });
 
+    mockCoordinate = createCoordinate(['test'], ['level1', 'level2']);
     mockRegistry = {} as Registry;
   });
 
   describe('wrapAllFacetOperation', () => {
     it('should return a function when called', () => {
-      const result = wrapAllFacetOperation(mockOperations, mockDefinition, mockRegistry);
+      const result = wrapAllFacetOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
 
       expect(typeof result).toBe('function');
     });
 
     it('should call LibLogger.get with correct parameters', () => {
-      wrapAllFacetOperation(mockOperations, mockDefinition, mockRegistry);
+      wrapAllFacetOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
 
       expect(LibLogger.get).toHaveBeenCalledWith('library', 'ops', 'allFacet');
     });
@@ -78,7 +79,7 @@ describe('wrapAllFacetOperation', () => {
     let wrappedAllFacet: ReturnType<typeof wrapAllFacetOperation<TestItem, 'test', 'level1', 'level2'>>;
 
     beforeEach(() => {
-      wrappedAllFacet = wrapAllFacetOperation(mockOperations, mockDefinition, mockRegistry);
+      wrappedAllFacet = wrapAllFacetOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
     });
 
     it('should call facet method with correct parameters and return result', async () => {
@@ -205,29 +206,15 @@ describe('wrapAllFacetOperation', () => {
       });
     });
 
-    it('should throw error when facet is not found in definition', async () => {
-      const facetKey = 'nonExistentFacet';
-      const facetParams = {};
-
-      await expect(wrappedAllFacet(facetKey, facetParams)).rejects.toThrow(
-        'AllFacet nonExistentFacet not found in definition'
-      );
-
-      expect(mockFacetMethod).not.toHaveBeenCalled();
-    });
-
-    it('should throw error when no allFacets are defined in definition', async () => {
+    it('should throw error when allFacet is not found in definition', async () => {
       const facetKey = 'testFacet';
       const facetParams = {};
 
-      // Mock definition without allFacets
-      const definitionWithoutFacets = {
-        coordinate: {} as any,
-        options: {}
-      } as Definition<TestItem, 'test', 'level1', 'level2'>;
+      // Mock options without allFacets
+      const optionsWithoutFacets = createOptions<TestItem, 'test', 'level1', 'level2'>({});
 
       const wrappedAllFacetWithoutFacets = wrapAllFacetOperation(
-        mockOperations, definitionWithoutFacets, mockRegistry
+        mockOperations, optionsWithoutFacets, mockCoordinate, mockRegistry
       );
 
       await expect(wrappedAllFacetWithoutFacets(facetKey, facetParams)).rejects.toThrow(
@@ -241,13 +228,11 @@ describe('wrapAllFacetOperation', () => {
       const facetKey = 'testFacet';
       const facetParams = {};
 
-      // Mock definition without options
-      const definitionWithoutOptions = {
-        coordinate: {} as any,
-      } as Definition<TestItem, 'test', 'level1', 'level2'>;
+      // Mock options without allFacets
+      const optionsWithoutAllFacets = createOptions<TestItem, 'test', 'level1', 'level2'>({});
 
       const wrappedAllFacetWithoutOptions = wrapAllFacetOperation(
-        mockOperations, definitionWithoutOptions, mockRegistry
+        mockOperations, optionsWithoutAllFacets, mockCoordinate, mockRegistry
       );
 
       await expect(wrappedAllFacetWithoutOptions(facetKey, facetParams)).rejects.toThrow(

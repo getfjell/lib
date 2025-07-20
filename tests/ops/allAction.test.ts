@@ -16,10 +16,12 @@ vi.mock('@/logger', () => ({
 }));
 
 import { wrapAllActionOperation } from '@/ops/allAction';
-import { Definition } from '@/Definition';
+import { Options } from '@/Options';
 import { Operations } from '@/Operations';
 import { Registry } from '@/Registry';
 import LibLogger from '@/logger';
+import { createCoordinate } from '@fjell/registry';
+import { createOptions } from '@/Options';
 
 // Type definitions for test data
 interface TestItem extends Item<'test', 'level1', 'level2'> {
@@ -29,46 +31,45 @@ interface TestItem extends Item<'test', 'level1', 'level2'> {
 
 describe('wrapAllActionOperation', () => {
   let mockOperations: Operations<TestItem, 'test', 'level1', 'level2'>;
-  let mockDefinition: Definition<TestItem, 'test', 'level1', 'level2'>;
+  let mockOptions: Options<TestItem, 'test', 'level1', 'level2'>;
+  let mockCoordinate: any;
   let mockRegistry: Registry;
   let mockActionMethod: MockedFunction<any>;
 
   beforeEach(() => {
-    // Reset mocks
+    // Reset only specific mocks, not the logger get mock since it's called at module load time
     mockLoggerDebug.mockClear();
     mockLoggerDefault.mockClear();
 
-    // Create mock action method
+    // Create mock all action method
     mockActionMethod = vi.fn();
 
     // Mock the operations object
     mockOperations = {
-      all: vi.fn(),
+      allAction: vi.fn(),
     } as any;
 
-    // Mock definition with allActions
-    mockDefinition = {
-      coordinate: {} as any,
-      options: {
-        allActions: {
-          testAction: mockActionMethod,
-          complexAction: mockActionMethod,
-        }
+    // Mock options with allActions
+    mockOptions = createOptions<TestItem, 'test', 'level1', 'level2'>({
+      allActions: {
+        testAction: mockActionMethod,
+        complexAction: mockActionMethod,
       }
-    } as Definition<TestItem, 'test', 'level1', 'level2'>;
+    });
 
+    mockCoordinate = createCoordinate(['test'], ['level1', 'level2']);
     mockRegistry = {} as Registry;
   });
 
   describe('wrapAllActionOperation', () => {
     it('should return a function when called', () => {
-      const result = wrapAllActionOperation(mockOperations, mockDefinition, mockRegistry);
+      const result = wrapAllActionOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
 
       expect(typeof result).toBe('function');
     });
 
     it('should call LibLogger.get with correct parameters', () => {
-      wrapAllActionOperation(mockOperations, mockDefinition, mockRegistry);
+      wrapAllActionOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
 
       expect(LibLogger.get).toHaveBeenCalledWith('library', 'ops', 'allAction');
     });
@@ -78,7 +79,7 @@ describe('wrapAllActionOperation', () => {
     let wrappedAllAction: ReturnType<typeof wrapAllActionOperation<TestItem, 'test', 'level1', 'level2'>>;
 
     beforeEach(() => {
-      wrappedAllAction = wrapAllActionOperation(mockOperations, mockDefinition, mockRegistry);
+      wrappedAllAction = wrapAllActionOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
     });
 
     it('should call action method with correct parameters and return array result', async () => {
@@ -216,29 +217,15 @@ describe('wrapAllActionOperation', () => {
       });
     });
 
-    it('should throw error when action is not found in definition', async () => {
-      const actionKey = 'nonExistentAction';
-      const actionParams = {};
-
-      await expect(wrappedAllAction(actionKey, actionParams)).rejects.toThrow(
-        'AllAction nonExistentAction not found in definition'
-      );
-
-      expect(mockActionMethod).not.toHaveBeenCalled();
-    });
-
-    it('should throw error when no allActions are defined in definition', async () => {
+    it('should throw error when allAction is not found in definition', async () => {
       const actionKey = 'testAction';
       const actionParams = {};
 
-      // Mock definition without allActions
-      const definitionWithoutActions = {
-        coordinate: {} as any,
-        options: {}
-      } as Definition<TestItem, 'test', 'level1', 'level2'>;
+      // Mock options without allActions
+      const optionsWithoutActions = createOptions<TestItem, 'test', 'level1', 'level2'>({});
 
       const wrappedAllActionWithoutActions = wrapAllActionOperation(
-        mockOperations, definitionWithoutActions, mockRegistry
+        mockOperations, optionsWithoutActions, mockCoordinate, mockRegistry
       );
 
       await expect(wrappedAllActionWithoutActions(actionKey, actionParams)).rejects.toThrow(
@@ -252,13 +239,11 @@ describe('wrapAllActionOperation', () => {
       const actionKey = 'testAction';
       const actionParams = {};
 
-      // Mock definition without options
-      const definitionWithoutOptions = {
-        coordinate: {} as any,
-      } as Definition<TestItem, 'test', 'level1', 'level2'>;
+      // Mock options without allActions
+      const optionsWithoutAllActions = createOptions<TestItem, 'test', 'level1', 'level2'>({});
 
       const wrappedAllActionWithoutOptions = wrapAllActionOperation(
-        mockOperations, definitionWithoutOptions, mockRegistry
+        mockOperations, optionsWithoutAllActions, mockCoordinate, mockRegistry
       );
 
       await expect(wrappedAllActionWithoutOptions(actionKey, actionParams)).rejects.toThrow(

@@ -1,7 +1,8 @@
 
 import { ComKey, Item, PriKey } from "@fjell/core";
+import { Coordinate } from "@fjell/registry";
 
-import { Definition } from "@/Definition";
+import { Options } from "@/Options";
 import { HookError, RemoveError, RemoveValidationError } from "@/errors";
 import LibLogger from "@/logger";
 import { Operations } from "@/Operations";
@@ -19,7 +20,8 @@ export const wrapRemoveOperation = <
   L5 extends string = never
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-    definition: Definition<V, S, L1, L2, L3, L4, L5>,
+    options: Options<V, S, L1, L2, L3, L4, L5>,
+    coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
   ) => {
@@ -35,7 +37,7 @@ export const wrapRemoveOperation = <
     const item = await toWrap.remove(key);
 
     if (!item) {
-      throw new RemoveError({ key }, definition.coordinate);
+      throw new RemoveError({ key }, coordinate);
     }
 
     await runPostRemoveHook(item);
@@ -45,12 +47,12 @@ export const wrapRemoveOperation = <
   }
 
   async function runPreRemoveHook(key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>) {
-    if (definition.options?.hooks?.preRemove) {
+    if (options?.hooks?.preRemove) {
       try {
         logger.default('Running preRemove hook', { key });
-        await definition.options.hooks.preRemove(key);
+        await options.hooks.preRemove(key);
       } catch (error: unknown) {
-        throw new HookError('preRemove', 'remove', definition.coordinate, { cause: error as Error });
+        throw new HookError('preRemove', 'remove', coordinate, { cause: error as Error });
       }
     } else {
       logger.default('No preRemove hook found, returning.');
@@ -58,12 +60,12 @@ export const wrapRemoveOperation = <
   }
 
   async function runPostRemoveHook(item: V) {
-    if (definition.options?.hooks?.postRemove) {
+    if (options?.hooks?.postRemove) {
       try {
         logger.default('Running postRemove hook', { item });
-        await definition.options.hooks.postRemove(item);
+        await options.hooks.postRemove(item);
       } catch (error: unknown) {
-        throw new HookError('postRemove', 'remove', definition.coordinate, { cause: error as Error });
+        throw new HookError('postRemove', 'remove', coordinate, { cause: error as Error });
       }
     } else {
       logger.default('No postRemove hook found, returning.');
@@ -71,25 +73,25 @@ export const wrapRemoveOperation = <
   }
 
   async function validateRemove(key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>) {
-    if (!definition.options?.validators?.onRemove) {
+    if (!options?.validators?.onRemove) {
       logger.default('No validator found for remove, returning.');
       return;
     }
 
     try {
       logger.default('Validating remove', { key });
-      const isValid = await definition.options.validators.onRemove(key);
+      const isValid = await options.validators.onRemove(key);
       if (!isValid) {
         throw new RemoveValidationError(
           { key },
-          definition.coordinate,
+          coordinate,
           { cause: new Error('Error validating remove') }
         );
       }
     } catch (error: unknown) {
       throw new RemoveValidationError(
         { key },
-        definition.coordinate,
+        coordinate,
         { cause: error as Error }
       );
     }

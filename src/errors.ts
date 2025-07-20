@@ -1,5 +1,5 @@
 import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
-import { Coordinate } from "./Coordinate";
+import { Coordinate } from "@fjell/registry";
 
 export class LibError<
   S extends string,
@@ -196,7 +196,7 @@ export class UpdateError<
 > extends LibError<S, L1, L2, L3, L4, L5> {
   constructor(
     parameters: {
-        item: Partial<Item<S, L1, L2, L3, L4, L5>>,
+      item: Partial<Item<S, L1, L2, L3, L4, L5>>,
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5> | undefined,
     },
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,

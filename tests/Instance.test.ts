@@ -1,10 +1,11 @@
 /* eslint-disable no-undefined */
 import { describe, expect, test, vi } from 'vitest';
 import { createInstance, isInstance } from '@/Instance';
-import { Definition } from '@/Definition';
 import { Operations } from '@/Operations';
 import { Item } from '@fjell/core';
 import { Registry } from '@/Registry';
+import { createOptions } from '@/Options';
+import { createCoordinate } from '@fjell/registry';
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -33,24 +34,27 @@ vi.mock('@fjell/logging', () => {
 describe('Instance', () => {
   describe('createInstance', () => {
     test('should create instance with definition and operations', () => {
-      const mockDefinition = {} as Definition<Item<'test'>, 'test'>;
+      const mockCoordinate = createCoordinate(['test'], ['scope1']);
       const mockOperations = {} as Operations<Item<'test'>, 'test'>;
-      const mockRegistry = {} as Registry;
+      const mockRegistry = { type: 'lib' } as Registry;
+      const mockOptions = createOptions<Item<'test'>, 'test'>();
 
-      const instance = createInstance(mockDefinition, mockOperations, mockRegistry);
+      const instance = createInstance(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
       expect(instance).toBeDefined();
-      expect(instance.definition).toBe(mockDefinition);
+      expect(instance.coordinate).toBe(mockCoordinate);
       expect(instance.operations).toBe(mockOperations);
       expect(instance.registry).toBe(mockRegistry);
+      expect(instance.options).toBe(mockOptions);
     });
   });
 
   describe('isInstance', () => {
     test('should return true for valid instance', () => {
       const mockInstance = {
-        definition: {},
+        coordinate: {},
         operations: {},
+        options: {},
         registry: {}
       };
 

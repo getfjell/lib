@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapAllOperation } from "@/ops/all";
-import { Definition } from "@/Definition";
 import { Operations } from "@/Operations";
 import { createRegistry } from "@/Registry";
+import { createCoordinate } from '@fjell/registry';
+import { createOptions } from '@/Options';
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -36,7 +37,8 @@ interface TestItem extends Item<'test', 'loc1', 'loc2'> {
 
 describe('getAllOperation', () => {
   let mockOperations: Operations<TestItem, 'test', 'loc1', 'loc2'>;
-  let mockDefinition: Definition<TestItem, 'test', 'loc1', 'loc2'>;
+  let mockOptions: any;
+  let mockCoordinate: any;
   let allOperation: ReturnType<typeof wrapAllOperation<TestItem, 'test', 'loc1', 'loc2'>>;
 
   beforeEach(() => {
@@ -45,9 +47,10 @@ describe('getAllOperation', () => {
     } as unknown as Operations<TestItem, 'test', 'loc1', 'loc2'>;
 
     const registry = createRegistry();
-    mockDefinition = {} as Definition<TestItem, 'test', 'loc1', 'loc2'>;
+    mockOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+    mockCoordinate = createCoordinate(['test'], ['scope1']);
 
-    allOperation = wrapAllOperation(mockOperations, mockDefinition, registry);
+    allOperation = wrapAllOperation(mockOperations, mockOptions, mockCoordinate, registry);
   });
 
   test('should call wrapped operations all with correct parameters', async () => {

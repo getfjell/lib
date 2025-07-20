@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { MockedFunction } from 'vitest';
-import { createInstance, Instance } from '@/primary/Instance';
-import { createInstance as createAbstractInstance } from '@/Instance';
+import { createInstance } from '@/primary/Instance';
+import { createInstance as createAbstractInstance, Instance } from '@/Instance';
 
 // Mock the abstract Instance module
 vi.mock('@/Instance', () => ({
@@ -35,17 +35,24 @@ vi.mock('@fjell/logging', () => {
 });
 
 describe('Primary Instance', () => {
-  let mockDefinition: any;
-  let mockOperations: any;
   let mockRegistry: any;
+  let mockCoordinate: any;
+  let mockOperations: any;
+  let mockOptions: any;
   let mockAbstractInstance: any;
   let mockCreateAbstractInstance: MockedFunction<typeof createAbstractInstance>;
 
   beforeEach(() => {
-    // Create simple mock objects
-    mockDefinition = {
-      coordinate: { keyTypes: ['test'], scopes: ['scope1'] },
-      options: { hooks: { preCreate: vi.fn(), preUpdate: vi.fn() } }
+    // Create proper mock objects matching the expected interfaces
+    mockRegistry = {
+      register: vi.fn(),
+      get: vi.fn(),
+      libTree: {}
+    };
+
+    mockCoordinate = {
+      keyTypes: ['test'],
+      scopes: ['scope1']
     };
 
     mockOperations = {
@@ -59,15 +66,14 @@ describe('Primary Instance', () => {
       find: vi.fn()
     };
 
-    mockRegistry = {
-      register: vi.fn(),
-      get: vi.fn(),
-      libTree: {}
+    mockOptions = {
+      hooks: { preCreate: vi.fn(), preUpdate: vi.fn() }
     };
 
     mockAbstractInstance = {
-      definition: mockDefinition,
+      coordinate: mockCoordinate,
       operations: mockOperations,
+      options: mockOptions,
       registry: mockRegistry
     };
 
@@ -81,88 +87,100 @@ describe('Primary Instance', () => {
   });
 
   describe('createInstance', () => {
-    test('should create instance with definition and operations', () => {
-      const instance = createInstance(mockDefinition, mockOperations, mockRegistry);
+    test('should create instance with registry, coordinate, operations and options', () => {
+      const instance = createInstance(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
       expect(instance).toBeDefined();
-      expect(instance.definition).toBe(mockDefinition);
+      expect(instance.coordinate).toBe(mockCoordinate);
       expect(instance.operations).toBe(mockOperations);
+      expect(instance.options).toBe(mockOptions);
     });
 
     test('should call abstract createInstance with correct parameters', () => {
-      createInstance(mockDefinition, mockOperations, mockRegistry);
+      createInstance(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
       expect(mockCreateAbstractInstance).toHaveBeenCalledWith(
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
       expect(mockCreateAbstractInstance).toHaveBeenCalledTimes(1);
     });
 
     test('should return spread of abstract instance', () => {
-      const instance = createInstance(mockDefinition, mockOperations, mockRegistry);
+      const instance = createInstance(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
       // Should have all properties from the abstract instance
-      expect(instance.definition).toBe(mockAbstractInstance.definition);
+      expect(instance.coordinate).toBe(mockAbstractInstance.coordinate);
       expect(instance.operations).toBe(mockAbstractInstance.operations);
-      // Registry should be included in the spread but not in the interface
+      expect(instance.options).toBe(mockAbstractInstance.options);
+      // Registry should be included in the spread
       expect((instance as any).registry).toBe(mockAbstractInstance.registry);
     });
 
     test('should work with different mock objects', () => {
-      const anotherDefinition = {
-        coordinate: { keyTypes: ['another'], kta: ['another'], scopes: ['scope1'] },
-        options: { hooks: { preCreate: vi.fn(), preUpdate: vi.fn() } }
+      const anotherCoordinate = {
+        keyTypes: ['another'],
+        kta: ['another'],
+        scopes: ['scope1']
       } as any;
       const anotherOperations = { all: vi.fn(), create: vi.fn() } as any;
+      const anotherOptions = { hooks: { preCreate: vi.fn() } } as any;
 
       const anotherAbstractInstance = {
-        definition: anotherDefinition,
+        coordinate: anotherCoordinate,
         operations: anotherOperations,
+        options: anotherOptions,
         registry: mockRegistry
       } as any;
 
       mockCreateAbstractInstance.mockReturnValueOnce(anotherAbstractInstance);
 
-      const instance = createInstance(anotherDefinition, anotherOperations, mockRegistry);
+      const instance = createInstance(mockRegistry, anotherCoordinate, anotherOperations, anotherOptions);
 
       expect(instance).toBeDefined();
-      expect(instance.definition).toBe(anotherDefinition);
+      expect(instance.coordinate).toBe(anotherCoordinate);
       expect(instance.operations).toBe(anotherOperations);
+      expect(instance.options).toBe(anotherOptions);
     });
 
     test('should handle edge case with minimal mock objects', () => {
-      const minimalDefinition = {
-        coordinate: { keyTypes: ['minimal'], kta: ['minimal'], scopes: ['scope1'] },
-        options: { hooks: {} }
+      const minimalCoordinate = {
+        keyTypes: ['minimal'],
+        kta: ['minimal'],
+        scopes: ['scope1']
       } as any;
       const minimalOperations = {
         all: vi.fn(), one: vi.fn(), create: vi.fn(), update: vi.fn(),
         upsert: vi.fn(), get: vi.fn(), remove: vi.fn(), find: vi.fn()
       } as any;
+      const minimalOptions = { hooks: {} } as any;
       const minimalRegistry = { register: vi.fn(), get: vi.fn(), libTree: {} } as any;
 
       const minimalAbstractInstance = {
-        definition: minimalDefinition,
+        coordinate: minimalCoordinate,
         operations: minimalOperations,
+        options: minimalOptions,
         registry: minimalRegistry
       } as any;
 
       mockCreateAbstractInstance.mockReturnValueOnce(minimalAbstractInstance);
 
-      const instance = createInstance(minimalDefinition, minimalOperations, minimalRegistry);
+      const instance = createInstance(minimalRegistry, minimalCoordinate, minimalOperations, minimalOptions);
 
       expect(instance).toBeDefined();
-      expect(instance.definition).toBe(minimalDefinition);
+      expect(instance.coordinate).toBe(minimalCoordinate);
       expect(instance.operations).toBe(minimalOperations);
+      expect(instance.options).toBe(minimalOptions);
     });
 
     test('should preserve all properties from abstract instance through spread operator', () => {
       // Add extra properties to the abstract instance to test spreading
       const extendedAbstractInstance = {
-        definition: mockDefinition,
+        coordinate: mockCoordinate,
         operations: mockOperations,
+        options: mockOptions,
         registry: mockRegistry,
         extraProperty: 'test-value',
         anotherProperty: 42
@@ -170,10 +188,11 @@ describe('Primary Instance', () => {
 
       mockCreateAbstractInstance.mockReturnValueOnce(extendedAbstractInstance);
 
-      const instance = createInstance(mockDefinition, mockOperations, mockRegistry) as any;
+      const instance = createInstance(mockRegistry, mockCoordinate, mockOperations, mockOptions) as any;
 
-      expect(instance.definition).toBe(mockDefinition);
+      expect(instance.coordinate).toBe(mockCoordinate);
       expect(instance.operations).toBe(mockOperations);
+      expect(instance.options).toBe(mockOptions);
       expect(instance.registry).toBe(mockRegistry);
       expect(instance.extraProperty).toBe('test-value');
       expect(instance.anotherProperty).toBe(42);
@@ -182,39 +201,43 @@ describe('Primary Instance', () => {
     test('should handle null/undefined returns from abstract createInstance', () => {
       mockCreateAbstractInstance.mockReturnValueOnce(null as any);
 
-      const instance = createInstance(mockDefinition, mockOperations, mockRegistry);
+      const instance = createInstance(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
-      // When spreading null, we get an empty object
-      expect(instance).toEqual({});
+      // If abstract createInstance returns null, we return null
+      expect(instance).toBeNull();
     });
   });
 
   describe('Instance interface', () => {
     test('should have correct interface structure', () => {
-      const instance = createInstance(mockDefinition, mockOperations, mockRegistry);
+      const instance = createInstance(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
-      // Check that the interface only exposes definition and operations
-      expect(instance).toHaveProperty('definition');
+      // Check that the interface exposes coordinate, operations, and options
+      expect(instance).toHaveProperty('coordinate');
       expect(instance).toHaveProperty('operations');
+      expect(instance).toHaveProperty('options');
 
-      // Registry should be present in the actual object (due to spread) but not in the interface
+      // Registry should be present in the actual object (due to spread)
       expect((instance as any).registry).toBeDefined();
     });
 
     test('should satisfy Instance interface requirements', () => {
       const instance: Instance<any, any> = createInstance(
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
 
       // These should compile and be accessible
-      expect(instance.definition).toBeDefined();
+      expect(instance.coordinate).toBeDefined();
       expect(instance.operations).toBeDefined();
+      expect(instance.options).toBeDefined();
 
       // TypeScript should enforce the interface
-      expect(typeof instance.definition).toBe('object');
+      expect(typeof instance.coordinate).toBe('object');
       expect(typeof instance.operations).toBe('object');
+      expect(typeof instance.options).toBe('object');
     });
   });
 
@@ -226,39 +249,42 @@ describe('Primary Instance', () => {
       });
 
       expect(() => {
-        createInstance(mockDefinition, mockOperations, mockRegistry);
+        createInstance(mockRegistry, mockCoordinate, mockOperations, mockOptions);
       }).toThrow(errorMessage);
     });
   });
 
   describe('integration with abstract Instance', () => {
     test('should maintain compatibility with abstract Instance', () => {
-      const instance = createInstance(mockDefinition, mockOperations, mockRegistry);
+      const instance = createInstance(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
       // The returned instance should be compatible with the abstract instance
       expect(mockCreateAbstractInstance).toHaveBeenCalledWith(
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
 
       // All properties from abstract instance should be preserved
-      expect(instance.definition).toBe(mockAbstractInstance.definition);
+      expect(instance.coordinate).toBe(mockAbstractInstance.coordinate);
       expect(instance.operations).toBe(mockAbstractInstance.operations);
+      expect(instance.options).toBe(mockAbstractInstance.options);
     });
 
     test('should pass through abstract instance behavior', () => {
       // Test that the primary instance doesn't interfere with abstract instance behavior
       const customAbstractInstance = {
-        definition: mockDefinition,
+        coordinate: mockCoordinate,
         operations: mockOperations,
+        options: mockOptions,
         registry: mockRegistry,
         customMethod: vi.fn(() => 'custom-result')
       };
 
       mockCreateAbstractInstance.mockReturnValueOnce(customAbstractInstance);
 
-      const instance = createInstance(mockDefinition, mockOperations, mockRegistry) as any;
+      const instance = createInstance(mockRegistry, mockCoordinate, mockOperations, mockOptions) as any;
 
       expect(instance.customMethod).toBeDefined();
       expect(instance.customMethod()).toBe('custom-result');
