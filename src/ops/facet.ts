@@ -1,6 +1,7 @@
 import { ComKey, Item, PriKey } from "@fjell/core";
+import { Coordinate } from "@fjell/registry";
 
-import { Definition } from "@/Definition";
+import { Options } from "@/Options";
 import LibLogger from "@/logger";
 import { Operations } from "@/Operations";
 import { Registry } from "@/Registry";
@@ -17,13 +18,13 @@ export const wrapFacetOperation = <
   L5 extends string = never
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-
-    definition: Definition<V, S, L1, L2, L3, L4, L5>,
+    options: Options<V, S, L1, L2, L3, L4, L5>,
+    coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
   ) => {
 
-  const { facets } = definition.options || {};
+  const { facets } = options || {};
 
   const facet = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
@@ -32,7 +33,7 @@ export const wrapFacetOperation = <
   ): Promise<V> => {
     logger.debug("facet for item key: %j, facet key: %s, params: %j", key, facetKey, facetParams);
     if (!facets?.[facetKey]) {
-      throw new Error(`Facet ${facetKey} not found in definition for ${definition.coordinate.toString()}`);
+      throw new Error(`Facet ${facetKey} not found in definition for ${coordinate.toString()}`);
     }
     // We search for the method, but we throw the method call to the wrapped operations
     // This is because we want to make sure we're always invoking the appropriate key and event management logic.

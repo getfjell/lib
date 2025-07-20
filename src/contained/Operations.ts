@@ -5,8 +5,9 @@ import { LocKeyArray } from "@fjell/core";
 import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperations } from "@/Operations";
 import { ItemQuery } from "@fjell/core";
 
-import { Definition } from "@/Definition";
 import { Registry } from "@/Registry";
+import { Options } from "./Options";
+import { Coordinate } from "@fjell/registry";
 
 export interface Operations<
   V extends Item<S, L1, L2, L3, L4, L5>,
@@ -90,13 +91,14 @@ export const wrapOperations = <
   L5 extends string = never,
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-    definition: Definition<V, S, L1, L2, L3, L4, L5>,
+    options: Options<V, S, L1, L2, L3, L4, L5>,
+    coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
     registry: Registry,
+
   ): Operations<V, S, L1, L2, L3, L4, L5> => {
 
-  const operations = wrapAbstractOperations(toWrap, definition, registry);
+  const operations = wrapAbstractOperations(toWrap, options, coordinate, registry);
   return {
     ...operations
   };
 };
-
