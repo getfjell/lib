@@ -9,9 +9,10 @@ vi.mock("@/Instance", () => ({
 
 describe("contained/Instance", () => {
   let mockParent: any;
-  let mockDefinition: any;
+  let mockCoordinate: any;
   let mockOperations: any;
   let mockRegistry: any;
+  let mockOptions: any;
   let mockAbstractInstance: any;
 
   beforeEach(() => {
@@ -19,13 +20,10 @@ describe("contained/Instance", () => {
     vi.clearAllMocks();
 
     // Create simple mock objects
-    mockDefinition = {
-      coordinate: {
-        kta: ["test"],
-        scopes: [],
-        toString: () => "test",
-      },
-      options: {},
+    mockCoordinate = {
+      kta: ["test"],
+      scopes: [],
+      toString: () => "test",
     };
 
     mockOperations = {
@@ -45,23 +43,30 @@ describe("contained/Instance", () => {
       libTree: {},
     };
 
+    mockOptions = {
+      hooks: {},
+      validators: {},
+      finders: {},
+      actions: {},
+      facets: {},
+    };
+
     mockParent = {
-      definition: {
-        coordinate: {
-          kta: ["parent"],
-          scopes: [],
-          toString: () => "parent",
-        },
-        options: {},
+      coordinate: {
+        kta: ["parent"],
+        scopes: [],
+        toString: () => "parent",
       },
       operations: mockOperations,
       registry: mockRegistry,
+      options: mockOptions,
     };
 
     mockAbstractInstance = {
-      definition: mockDefinition,
+      coordinate: mockCoordinate,
       operations: mockOperations,
       registry: mockRegistry,
+      options: mockOptions,
     };
 
     // Mock the createAbstractInstance function
@@ -72,14 +77,15 @@ describe("contained/Instance", () => {
     test("should create an instance with parent property", () => {
       const result = createInstance(
         mockParent,
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
 
       expect(result).toBeDefined();
       expect(result.parent).toBe(mockParent);
-      expect(result.definition).toBe(mockDefinition);
+      expect(result.coordinate).toBe(mockCoordinate);
       expect(result.operations).toBe(mockOperations);
       expect(result.registry).toBe(mockRegistry);
     });
@@ -87,15 +93,17 @@ describe("contained/Instance", () => {
     test("should call createAbstractInstance with correct parameters", () => {
       createInstance(
         mockParent,
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
 
       expect(createAbstractInstance).toHaveBeenCalledWith(
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
       expect(createAbstractInstance).toHaveBeenCalledTimes(1);
     });
@@ -103,13 +111,14 @@ describe("contained/Instance", () => {
     test("should inherit all properties from abstract instance", () => {
       const result = createInstance(
         mockParent,
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
 
       // Verify all properties from abstract instance are present
-      expect(result.definition).toBe(mockAbstractInstance.definition);
+      expect(result.coordinate).toBe(mockAbstractInstance.coordinate);
       expect(result.operations).toBe(mockAbstractInstance.operations);
       expect(result.registry).toBe(mockAbstractInstance.registry);
     });
@@ -117,25 +126,27 @@ describe("contained/Instance", () => {
     test("should preserve parent reference", () => {
       const result = createInstance(
         mockParent,
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
 
       expect(result.parent).toBe(mockParent);
-      expect(result.parent?.definition.coordinate.kta).toEqual(["parent"]);
+      expect(result.parent?.coordinate.kta).toEqual(["parent"]);
     });
 
     test("should handle null parent", () => {
       const result = createInstance(
         null as any,
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
 
       expect(result.parent).toBeNull();
-      expect(result.definition).toBe(mockDefinition);
+      expect(result.coordinate).toBe(mockCoordinate);
       expect(result.operations).toBe(mockOperations);
       expect(result.registry).toBe(mockRegistry);
     });
@@ -143,13 +154,14 @@ describe("contained/Instance", () => {
     test("should handle undefined parent", () => {
       const result = createInstance(
         null as any, // Using null instead of undefined to avoid undefined usage
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
 
       expect(result.parent).toBeNull();
-      expect(result.definition).toBe(mockDefinition);
+      expect(result.coordinate).toBe(mockCoordinate);
       expect(result.operations).toBe(mockOperations);
       expect(result.registry).toBe(mockRegistry);
     });
@@ -163,9 +175,10 @@ describe("contained/Instance", () => {
       expect(() => {
         createInstance(
           mockParent,
-          mockDefinition,
+          mockRegistry,
+          mockCoordinate,
           mockOperations,
-          mockRegistry
+          mockOptions
         );
       }).toThrow("Abstract instance creation failed");
     });
@@ -175,13 +188,14 @@ describe("contained/Instance", () => {
     test("should have all required properties", () => {
       const instance = createInstance(
         mockParent,
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
 
       // Verify it has all AbstractInstance properties
-      expect(instance).toHaveProperty("definition");
+      expect(instance).toHaveProperty("coordinate");
       expect(instance).toHaveProperty("operations");
       expect(instance).toHaveProperty("registry");
 
@@ -192,14 +206,14 @@ describe("contained/Instance", () => {
     test("should allow optional parent property", () => {
       // Create instance without parent
       const instanceWithoutParent: any = {
-        definition: mockDefinition,
+        coordinate: mockCoordinate,
         operations: mockOperations,
         registry: mockRegistry,
       };
 
       // Create instance with parent
       const instanceWithParent = {
-        definition: mockDefinition,
+        coordinate: mockCoordinate,
         operations: mockOperations,
         registry: mockRegistry,
         parent: mockParent,
@@ -222,9 +236,10 @@ describe("contained/Instance", () => {
 
       const result = createInstance(
         mockParent,
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
 
       expect((result as any).customProperty).toBe(customProperty);
@@ -233,9 +248,10 @@ describe("contained/Instance", () => {
     test("should maintain proper object structure", () => {
       const result = createInstance(
         mockParent,
-        mockDefinition,
+        mockRegistry,
+        mockCoordinate,
         mockOperations,
-        mockRegistry
+        mockOptions
       );
 
       // Check that the result is a plain object with expected structure
