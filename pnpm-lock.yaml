@@ -15,8 +15,8 @@ importers:
         specifier: ^4.4.7
         version: 4.4.7
       '@fjell/registry':
-        specifier: ^4.4.6
-        version: 4.4.6
+        specifier: ^4.4.7
+        version: 4.4.7
       deepmerge:
         specifier: ^4.3.1
         version: 4.3.1
@@ -313,8 +313,8 @@ packages:
   '@fjell/logging@4.4.7':
     resolution: {integrity: sha512-ned1kfEpFZSDraH/KRaRodoozyBB7PwlrQuiAmBiUUadfBKx6mx56fZIFRlzb/XUHZIypw237I+4P/bsx7cEzg==}
 
-  '@fjell/registry@4.4.6':
-    resolution: {integrity: sha512-WukySHjeUyfs1k8E/MMi7kaRH/Vjj5ZJvLWX/0SaRvUlIUB2zqjMrtpWUrhyTCwL+DbG9tTpQqtiEftLWwdzWw==}
+  '@fjell/registry@4.4.7':
+    resolution: {integrity: sha512-3lbLO4P6WYHgBqiAU/UQRQ1goenlOqMLhqsovX/HyBJEDLlebZVLpktJoSOQVX56aIgHR9C30PeXBCEOkI3YAg==}
     engines: {node: '>=21'}
 
   '@humanfs/core@0.19.1':
@@ -2045,7 +2045,7 @@ snapshots:
 
   '@fjell/logging@4.4.7': {}
 
-  '@fjell/registry@4.4.6':
+  '@fjell/registry@4.4.7':
     dependencies:
       '@fjell/core': 4.4.7
       '@fjell/logging': 4.4.7
