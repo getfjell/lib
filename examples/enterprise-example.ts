@@ -777,7 +777,7 @@ async function runEnterpriseExample() {
   console.log(`      • Total Revenue: $${customerAnalytics.totalRevenue.toLocaleString()}`);
   console.log(`      • Average Revenue: $${customerAnalytics.averageRevenue.toLocaleString()}`);
   console.log(`      • Customers by Tier:`, customerAnalytics.customersByTier);
-  console.log(`      • Top Customers:`, customerAnalytics.topCustomers.map(c => c.companyName).join(', '));
+  console.log(`      • Top Customers:`, customerAnalytics.topCustomers.map((c: Customer) => c.companyName).join(', '));
 
   // Order operations with location hierarchy
   console.log('\n   📦 Order Management:');
