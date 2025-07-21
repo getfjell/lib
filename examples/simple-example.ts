@@ -386,6 +386,4 @@ async function runSimpleExample() {
 export { runSimpleExample };
 
 // Run the example
-if (require.main === module) {
-  runSimpleExample().catch(console.error);
-}
+runSimpleExample().catch(console.error);
