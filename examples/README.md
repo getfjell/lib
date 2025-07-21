@@ -2,7 +2,19 @@
 
 This directory contains examples demonstrating how to use fjell-lib for data operations and business logic with different patterns and complexity levels.
 
+> **🆕 New in v4.4.12+**: Fjell-lib now uses a new Library architecture that extends from fjell-registry.Instance. See `library-architecture-example.ts` for details on the new inheritance hierarchy.
+
 ## Examples
+
+### 0. `library-architecture-example.ts` 🆕 **New Architecture Guide**
+**Learn the new Library architecture!** Demonstrates the inheritance hierarchy introduced in v4.4.12+:
+- **fjell-registry.Instance**: Base coordination and registry functionality
+- **fjell-lib.Library**: Adds operations and options for data models
+- **fjell-lib-sequelize.SequelizeLibrary**: Adds Sequelize-specific database models
+- **fjell-lib-firestore.FirestoreLibrary**: Adds Firestore-specific database configuration
+- **Architecture benefits**: Type safety, extensibility, separation of concerns, clean APIs
+
+Essential for understanding the new library ecosystem and how the projects work together.
 
 ### 1. `simple-example.ts` ⭐ **Start Here!**
 **Perfect for beginners!** Demonstrates the simplest way to use fjell-lib for data operations:
@@ -37,8 +49,8 @@ Perfect for understanding how to build complete business applications with fjell
 
 ### Basic Data Operations (simple-example.ts)
 ```typescript
-// Import fjell-lib functionality
-import { createRegistry, createInstance, Operations } from '@fjell/lib';
+// Import fjell-lib functionality (Library architecture in v4.4.12+)
+import { createRegistry, createLibrary, Library, Operations } from '@fjell/lib';
 
 // Create a registry for data models
 const registry = createRegistry();
@@ -159,6 +171,9 @@ const analytics = await customerInstance.operations.facet({}, {
 ## Running Examples
 
 ```bash
+# Learn the new Library architecture (v4.4.12+)
+npx tsx examples/library-architecture-example.ts
+
 # Start with the simple example (recommended)
 npx tsx examples/simple-example.ts
 
@@ -169,6 +184,7 @@ npx tsx examples/multi-level-keys.ts
 npx tsx examples/enterprise-example.ts
 
 # Or with Node.js
+node -r esbuild-register examples/library-architecture-example.ts
 node -r esbuild-register examples/simple-example.ts
 ```
 
@@ -177,12 +193,13 @@ node -r esbuild-register examples/simple-example.ts
 All examples use the actual fjell-lib functionality! In production applications:
 
 ```typescript
-import { createRegistry, createInstance, Primary, Contained } from '@fjell/lib';
+// New Library architecture (v4.4.12+)
+import { createRegistry, createLibrary, Primary, Contained } from '@fjell/lib';
 
 // Simple data model setup
 const registry = createRegistry();
 
-const userInstance = createInstance(
+const userLibrary = createLibrary(
   registry,
   { keyType: 'user' },
   userOperations,
@@ -314,3 +331,29 @@ Fjell-lib is storage-agnostic. Examples show mock implementations, but in produc
 - Custom data sources
 
 This provides the foundation for building scalable, maintainable data applications with fjell-lib.
+
+## New Library Architecture (v4.4.12+)
+
+Fjell-lib now uses a cleaner inheritance hierarchy:
+
+```typescript
+// fjell-registry: Base coordination
+import { createRegistry, Instance } from '@fjell/registry';
+
+// fjell-lib: Data model operations
+import { createLibrary, Library } from '@fjell/lib';
+
+// fjell-lib-sequelize: Sequelize-specific implementation
+import { createSequelizeLibrary, SequelizeLibrary } from '@fjell/lib-sequelize';
+
+// fjell-lib-firestore: Firestore-specific implementation
+import { createFirestoreLibrary, FirestoreLibrary } from '@fjell/lib-firestore';
+```
+
+**Benefits:**
+- **Clear inheritance**: Each level adds specific functionality
+- **Type safety**: Full TypeScript support throughout
+- **Extensibility**: Easy to add new database implementations
+- **Separation of concerns**: Each library has a focused responsibility
+
+**Clean Architecture:** The new Library architecture provides a clear, consistent API across all data models and storage backends.
