@@ -5,10 +5,10 @@ import { Instance as BaseInstance, Coordinate, createInstance as createBaseInsta
 import { Operations } from "./Operations";
 import { Options } from "./Options";
 
-const logger = LibLogger.get("Instance");
+const logger = LibLogger.get("Library");
 
 /**
- * The Instance interface represents a data model instance that extends the base Instance
+ * The Library interface represents a data model library that extends the base Instance
  * from @fjell/registry and adds operations for interacting with the data model.
  *
  * The interface extends the base Instance (which provides coordinate and registry) with:
@@ -18,7 +18,7 @@ const logger = LibLogger.get("Instance");
  * @template S - The string literal type representing the model's key type
  * @template L1-L5 - Optional string literal types for location hierarchy levels
  */
-export interface Instance<
+export interface Library<
   V extends Item<S, L1, L2, L3, L4, L5>,
   S extends string,
   L1 extends string = never,
@@ -34,7 +34,7 @@ export interface Instance<
   options: Options<V, S, L1, L2, L3, L4, L5>;
 }
 
-export const createInstance = <
+export const createLibrary = <
   V extends Item<S, L1, L2, L3, L4, L5>,
   S extends string,
   L1 extends string = never,
@@ -47,17 +47,17 @@ export const createInstance = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
     operations: Operations<V, S, L1, L2, L3, L4, L5>,
     options?: Options<V, S, L1, L2, L3, L4, L5>
-  ): Instance<V, S, L1, L2, L3, L4, L5> => {
-  logger.debug("createInstance", { coordinate, operations, registry, options });
+  ): Library<V, S, L1, L2, L3, L4, L5> => {
+  logger.debug("createLibrary", { coordinate, operations, registry, options });
   const baseInstance = createBaseInstance(registry, coordinate);
   return { ...baseInstance, operations, options: options || {} };
 }
 
-export const isInstance = (instance: any): instance is Instance<any, any, any, any, any, any, any> => {
-  return instance !== null &&
-    instance !== undefined &&
-    instance.coordinate !== undefined &&
-    instance.operations !== undefined &&
-    instance.options !== undefined &&
-    instance.registry !== undefined;
+export const isLibrary = (library: any): library is Library<any, any, any, any, any, any, any> => {
+  return library !== null &&
+    library !== undefined &&
+    library.coordinate !== undefined &&
+    library.operations !== undefined &&
+    library.options !== undefined &&
+    library.registry !== undefined;
 }
