@@ -18,7 +18,7 @@
  */
 
 import { Item, ItemQuery, LocKeyArray } from '@fjell/core';
-import { createInstance } from '../src/Instance';
+import { createLibrary } from '../src/Library';
 import { Operations } from '../src/Operations';
 import { createOptions } from '../src/Options';
 import { createRegistry } from '../src/Registry';
@@ -633,7 +633,7 @@ async function runEnterpriseExample() {
   const customerOptions = createOptions<Customer, 'customer'>();
 
   registry.createInstance(['customer'], [], (coordinate, context) => {
-    return createInstance(context.registry, coordinate, customerOperations, customerOptions);
+    return createLibrary(context.registry, coordinate, customerOperations, customerOptions);
   });
 
   // Create Product instance
@@ -641,7 +641,7 @@ async function runEnterpriseExample() {
   const productOptions = createOptions<Product, 'product'>();
 
   registry.createInstance(['product'], [], (coordinate, context) => {
-    return createInstance(context.registry, coordinate, productOperations, productOptions);
+    return createLibrary(context.registry, coordinate, productOperations, productOptions);
   });
 
   // Create Order instance with location hierarchy
@@ -649,7 +649,7 @@ async function runEnterpriseExample() {
   const orderOptions = createOptions<Order, 'order', 'status', 'priority'>();
 
   registry.createInstance(['order'], ['status', 'priority'], (coordinate, context) => {
-    return createInstance(context.registry, coordinate, orderOperations as any, orderOptions as any);
+    return createLibrary(context.registry, coordinate, orderOperations as any, orderOptions as any);
   });
 
   // Create Support Ticket instance with location hierarchy
@@ -657,7 +657,7 @@ async function runEnterpriseExample() {
   const ticketOptions = createOptions<SupportTicket, 'ticket', 'severity', 'category'>();
 
   registry.createInstance(['ticket'], ['severity', 'category'], (coordinate, context) => {
-    return createInstance(context.registry, coordinate, ticketOperations as any, ticketOptions as any);
+    return createLibrary(context.registry, coordinate, ticketOperations as any, ticketOptions as any);
   });
 
   console.log('   ✅ All enterprise instances created and registered\n');
