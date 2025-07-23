@@ -13,10 +13,10 @@ importers:
         version: 4.4.13
       '@fjell/logging':
         specifier: ^4.4.13
-        version: 4.4.13
+        version: 4.4.17
       '@fjell/registry':
         specifier: ^4.4.11
-        version: 4.4.11
+        version: 4.4.16
       deepmerge:
         specifier: ^4.3.1
         version: 4.3.1
@@ -319,11 +319,11 @@ packages:
       eslint: ^9.0.0
       typescript: ^5.0.0
 
-  '@fjell/logging@4.4.13':
-    resolution: {integrity: sha512-0pZHeDT2dZAA0HH+cwu6ThlklJy4I93+Ynx2k1JA0/ebCZRxymJKacRhMmhWZyexH5+/o5yEf6p4fYhrzpkbKQ==}
+  '@fjell/logging@4.4.17':
+    resolution: {integrity: sha512-e6YnAB7/sVuVmUgtuAh0XIk70HewsoPxlQwmXHhXQYosxleW6zytIPvPUWpA8xL26HcUFyTy71aKkhIJ0ZM9VA==}
 
-  '@fjell/registry@4.4.11':
-    resolution: {integrity: sha512-GaVnDJGLWW7w2waVJb+NxatiopY2LyHqY3BfZSMP835i9ibj232NV34QBiBh3VSXIuWGrKdSAQkPz4F1DGjujg==}
+  '@fjell/registry@4.4.16':
+    resolution: {integrity: sha512-k24HEuCZKP36z7/wjfTBx4pGlrxOSGDKik2V0Nj5TeKwnL/wAizZwtenfDSBKe+H+Vc0wo+lgfyYga7pBQ8eFA==}
     engines: {node: '>=21'}
 
   '@humanfs/core@0.19.1':
@@ -2048,7 +2048,7 @@ snapshots:
 
   '@fjell/core@4.4.13':
     dependencies:
-      '@fjell/logging': 4.4.13
+      '@fjell/logging': 4.4.17
       deepmerge: 4.3.1
       luxon: 3.7.1
 
@@ -2063,12 +2063,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@fjell/logging@4.4.13': {}
+  '@fjell/logging@4.4.17': {}
 
-  '@fjell/registry@4.4.11':
+  '@fjell/registry@4.4.16':
     dependencies:
       '@fjell/core': 4.4.13
-      '@fjell/logging': 4.4.13
+      '@fjell/logging': 4.4.17
       deepmerge: 4.3.1
 
   '@humanfs/core@0.19.1': {}
