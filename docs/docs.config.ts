@@ -47,19 +47,19 @@ const config: DocsConfig = {
       id: 'overview',
       title: 'Foundation',
       subtitle: 'Core concepts & philosophy',
-      file: '/lib/README.md'
+      file: '/README.md'
     },
     {
       id: 'examples',
       title: 'Examples',
       subtitle: 'Code examples & usage patterns',
-      file: '/lib/examples-README.md'
+      file: '/examples-README.md'
     },
     {
       id: 'release-notes',
       title: 'Release Notes',
       subtitle: 'Latest updates & changes',
-      file: '/lib/RELEASE_NOTES.md'
+      file: '/RELEASE_NOTES.md'
     }
   ],
   filesToCopy: [
