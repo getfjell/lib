@@ -1,16 +1,3 @@
-:root {
-  --fjell-blue: #2563eb;
-  --fjell-blue-light: #3b82f6;
-  --fjell-gray: #374151;
-  --fjell-gray-light: #6b7280;
-  --fjell-background: #f9fafb;
-  --fjell-border: #e5e7eb;
-}
-
-* {
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -18,17 +5,27 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: var(--fjell-gray);
-  background-color: var(--fjell-background);
-  line-height: 1.6;
 }
 
 code {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  background-color: #f1f5f9;
-  padding: 0.125rem 0.25rem;
-  border-radius: 0.25rem;
-  font-size: 0.875em;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
-/* Removed conflicting pre code styles - handled in App.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
