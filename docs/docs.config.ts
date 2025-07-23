@@ -54,12 +54,6 @@ const config: DocsConfig = {
       title: 'Examples',
       subtitle: 'Code examples & usage patterns',
       file: '/examples-README.md'
-    },
-    {
-      id: 'release-notes',
-      title: 'Release Notes',
-      subtitle: 'Latest updates & changes',
-      file: '/RELEASE_NOTES.md'
     }
   ],
   filesToCopy: [
@@ -70,10 +64,6 @@ const config: DocsConfig = {
     {
       source: '../examples/README.md',
       destination: 'public/examples-README.md'
-    },
-    {
-      source: '../RELEASE_NOTES.md',
-      destination: 'public/RELEASE_NOTES.md'
     }
   ],
   plugins: [],
