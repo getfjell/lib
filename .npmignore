@@ -26,3 +26,6 @@ src/
 commit.sh
 pnpm-workspace.yaml.bak
 release.sh
+docs/
+examples/
+build.js
