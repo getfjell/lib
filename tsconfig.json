@@ -2,7 +2,7 @@
   "extends": "@tsconfig/recommended/tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "sourceMap": true,
+    "sourceMap": false,
     "outDir": "dist",
     "paths": {
       "@/*": [
@@ -10,16 +10,20 @@
       ]
     },
     "declaration": true,
+    "emitDeclarationOnly": true,
     "target": "es2022",
     "module": "es2022",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   },
   "include": [
-    "./src/**/*.ts",
-    "./tests/**/*.ts"
+    "./src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "metro.config.js"
+    "metro.config.js",
+    "tests",
+    "dist"
   ]
 }
