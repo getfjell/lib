@@ -34,73 +34,19 @@ jobs:
         uses: pnpm/action-setup@v4
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --strict-peer-dependencies
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
 
       - name: Build library
         run: pnpm run build
 
+      - name: Run tests
+        run: pnpm run test
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Build documentation site
-        run: |
-          # Change to docs directory and install dependencies
-          cd docs
-          pnpm install --no-frozen-lockfile
-
-          # Copy README.md to public directory so it can be fetched
-          mkdir -p public
-          # Create a main README from the package information
-          echo "# Fjell Lib" > public/README.md
-          echo "" >> public/README.md
-          echo "Server-side Library for Fjell - A powerful TypeScript data operations and business logic system." >> public/README.md
-          echo "" >> public/README.md
-          echo "## Installation" >> public/README.md
-          echo "" >> public/README.md
-          echo "\`\`\`bash" >> public/README.md
-          echo "npm install @fjell/lib" >> public/README.md
-          echo "\`\`\`" >> public/README.md
-          echo "" >> public/README.md
-          echo "## Quick Start" >> public/README.md
-          echo "" >> public/README.md
-          echo "\`\`\`typescript" >> public/README.md
-          echo "import { createRegistry, createLibrary } from '@fjell/lib'" >> public/README.md
-          echo "" >> public/README.md
-          echo "// Create a registry for your data models" >> public/README.md
-          echo "const registry = createRegistry('business-models')" >> public/README.md
-          echo "" >> public/README.md
-          echo "// Create a library instance for your data model" >> public/README.md
-          echo "const userLibrary = createLibrary(" >> public/README.md
-          echo "  registry," >> public/README.md
-          echo "  { keyType: 'user' }," >> public/README.md
-          echo "  userOperations," >> public/README.md
-          echo "  userOptions" >> public/README.md
-          echo ")" >> public/README.md
-          echo "" >> public/README.md
-          echo "// Perform data operations" >> public/README.md
-          echo "const user = await userLibrary.operations.create({" >> public/README.md
-          echo "  name: 'Alice Johnson'," >> public/README.md
-          echo "  email: 'alice@example.com'" >> public/README.md
-          echo "})" >> public/README.md
-          echo "" >> public/README.md
-          echo "const users = await userLibrary.operations.all({})" >> public/README.md
-          echo "\`\`\`" >> public/README.md
-
-          # Copy examples README as examples-README.md
-          cp ../examples/README.md public/examples-README.md
-
-          # Copy example files to public directory
-          mkdir -p public/examples
-          cp ../examples/*.ts public/examples/
-
-          # Copy RELEASE_NOTES.md for architecture section
-          cp ../RELEASE_NOTES.md public/ 2>/dev/null || echo "# Release Notes" > public/RELEASE_NOTES.md
-
-          # Copy package.json so version can be fetched
-          cp ../package.json public/
-
-          # Build the Vite documentation site
-          pnpm run build
+      - name: Build documentation
+        uses: ./.github/actions/build-docs
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
