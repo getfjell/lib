@@ -33,8 +33,8 @@
     "docs:test": "cd docs && pnpm run test"
   },
   "dependencies": {
-    "@fjell/core": "^4.4.21",
-    "@fjell/logging": "^4.4.25",
+    "@fjell/core": "^4.4.22",
+    "@fjell/logging": "^4.4.26",
     "@fjell/registry": "^4.4.17",
     "deepmerge": "^4.3.1"
   },
