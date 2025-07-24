@@ -1,6 +1,6 @@
 {
   "name": "@fjell/lib",
-  "version": "4.4.22",
+  "version": "4.4.23",
   "keywords": [
     "library",
     "persistence",
@@ -33,8 +33,8 @@
     "docs:test": "cd docs && pnpm run test"
   },
   "dependencies": {
-    "@fjell/core": "^4.4.18",
-    "@fjell/logging": "^4.4.19",
+    "@fjell/core": "^4.4.21",
+    "@fjell/logging": "^4.4.25",
     "@fjell/registry": "^4.4.17",
     "deepmerge": "^4.3.1"
   },
