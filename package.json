@@ -21,8 +21,8 @@
   },
   "type": "module",
   "scripts": {
-    "build": "tsc --project tsconfig.declarations.json && node esbuild.config.js",
-    "dev": "concurrently \"tsc --watch --project tsconfig.declarations.json\" \"node esbuild.config.js --watch\"",
+    "build": "tsc --project tsconfig.declarations.json && node build.js",
+    "dev": "concurrently \"tsc --watch --project tsconfig.declarations.json\" \"node build.js --watch\"",
     "lint": "eslint . --ext .ts --fix",
     "clean": "rimraf dist",
     "test": "pnpm run lint && vitest run --coverage",
