@@ -33,15 +33,15 @@
     "docs:test": "cd docs && pnpm run test"
   },
   "dependencies": {
-    "@fjell/core": "^4.4.22",
-    "@fjell/logging": "^4.4.26",
+    "@fjell/core": "^4.4.23",
+    "@fjell/logging": "^4.4.28",
     "@fjell/registry": "^4.4.17",
     "deepmerge": "^4.3.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.31.0",
-    "@fjell/eslint-config": "^1.0.5",
+    "@fjell/eslint-config": "^1.1.2",
     "@swc/core": "^1.13.2",
     "@tsconfig/recommended": "^1.0.10",
     "@types/multer": "^2.0.0",
