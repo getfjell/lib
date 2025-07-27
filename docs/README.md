@@ -7,17 +7,17 @@ This is the documentation website for [@fjell/lib](https://www.npmjs.com/package
 ### Prerequisites
 
 - Node.js 22+
-- pnpm
+- npm
 
 ### Setup
 
 ```bash
 # Install dependencies
 cd docs
-pnpm install
+npm install
 
 # Start development server
-pnpm run dev
+npm run dev
 ```
 
 The site will be available at `http://localhost:3002`
@@ -26,20 +26,20 @@ The site will be available at `http://localhost:3002`
 
 ```bash
 # Build for production
-pnpm run build
+npm run build
 
 # Preview production build
-pnpm run preview
+npm run preview
 ```
 
 ### Testing
 
 ```bash
 # Run tests
-pnpm run test
+npm run test
 
 # Run tests in watch mode
-pnpm run test:watch
+npm run test:watch
 ```
 
 ## Deployment
