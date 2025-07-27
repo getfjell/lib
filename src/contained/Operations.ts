@@ -8,6 +8,7 @@ import { ItemQuery } from "@fjell/core";
 import { Registry } from "@/Registry";
 import { Options } from "./Options";
 import { Coordinate } from "@fjell/registry";
+import { ActionMethod } from "@/Options";
 
 export interface Operations<
   V extends Item<S, L1, L2, L3, L4, L5>,
@@ -68,6 +69,26 @@ export interface Operations<
     locations: LocKeyArray<L1, L2, L3, L4, L5> | [],
   ): Promise<V[]>;
 
+  findOne(
+    finder: string,
+    finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+    locations: LocKeyArray<L1, L2, L3, L4, L5> | [],
+  ): Promise<V>;
+
+  action(
+    key: ComKey<S, L1, L2, L3, L4, L5>,
+    actionKey: string,
+    actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+  ): Promise<V>;
+
+  actions: Record<string, ActionMethod<V, S, L1, L2, L3, L4, L5>>;
+
+  facet(
+    key: ComKey<S, L1, L2, L3, L4, L5>,
+    facetKey: string,
+    facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+  ): Promise<any>;
+
   allAction(
     allActionKey: string,
     allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
@@ -79,6 +100,7 @@ export interface Operations<
     allFacetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations: LocKeyArray<L1, L2, L3, L4, L5> | [],
   ): Promise<any>;
+
 }
 
 export const wrapOperations = <

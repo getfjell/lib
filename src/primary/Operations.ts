@@ -59,6 +59,11 @@ export interface Operations<
     finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<V[]>;
 
+  findOne(
+    finder: string,
+    finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+  ): Promise<V>;
+
   action(
     key: PriKey<S>,
     actionKey: string,
