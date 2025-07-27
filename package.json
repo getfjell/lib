@@ -1,6 +1,6 @@
 {
   "name": "@fjell/lib",
-  "version": "4.4.26",
+  "version": "4.4.27",
   "keywords": [
     "library",
     "persistence",
@@ -25,12 +25,12 @@
     "dev": "concurrently \"tsc --watch --project tsconfig.declarations.json\" \"node build.js --watch\"",
     "lint": "eslint . --ext .ts --fix",
     "clean": "rimraf dist",
-    "test": "pnpm run lint && vitest run --coverage",
-    "prepublishOnly": "pnpm run clean && pnpm run build",
-    "docs:dev": "cd docs && pnpm run dev",
-    "docs:build": "cd docs && pnpm run build",
-    "docs:preview": "cd docs && pnpm run preview",
-    "docs:test": "cd docs && pnpm run test"
+    "test": "npm run lint && vitest run --coverage",
+    "prepublishOnly": "npm run clean && npm run build",
+    "docs:dev": "cd docs && npm run dev",
+    "docs:build": "cd docs && npm run build",
+    "docs:preview": "cd docs && npm run preview",
+    "docs:test": "cd docs && npm run test"
   },
   "dependencies": {
     "@fjell/core": "^4.4.25",
@@ -59,7 +59,6 @@
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   },
-  "packageManager": "pnpm@10.13.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/getfjell/lib.git"
