@@ -1,9 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
-import { createReadOnlyOperations, Operations, wrapOperations } from "@/Operations";
-import { createRegistry } from "@/Registry";
+import { createReadOnlyOperations, Operations, wrapOperations } from "../src/Operations";
+import { createRegistry } from "../src/Registry";
 import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/core";
 import { createCoordinate } from '@fjell/registry';
-import { createOptions } from '@/Options';
+import { createOptions } from '../src/Options';
 
 vi.mock('@fjell/logging', () => {
   const logger = {

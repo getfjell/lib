@@ -5,10 +5,10 @@ import {
   PriKey,
 } from "@fjell/core";
 
-import LibLogger from "@/logger";
-import { NotFoundError } from "@/errors";
-import { Operations } from "@/Operations";
-import { Registry } from "@/Registry";
+import LibLogger from "../logger";
+import { NotFoundError } from "../errors";
+import { Operations } from "../Operations";
+import { Registry } from "../Registry";
 
 const logger = LibLogger.get('ops', 'upsert');
 

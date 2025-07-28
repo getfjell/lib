@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { createLibraryFactory } from '@/LibraryFactory';
-import { Operations } from '@/Operations';
-import { Options } from '@/Options';
-import { createLibrary, Library } from '@/Library';
+import { createLibraryFactory } from '../src/LibraryFactory';
+import { Operations } from '../src/Operations';
+import { Options } from '../src/Options';
+import { createLibrary, Library } from '../src/Library';
 import { Item } from '@fjell/core';
 import { Coordinate, createCoordinate, Registry, RegistryHub } from '@fjell/registry';
 
@@ -30,7 +30,7 @@ vi.mock('@fjell/logging', () => {
   }
 });
 
-vi.mock('@/Library', () => ({
+vi.mock('../src/Library', () => ({
   createLibrary: vi.fn(),
   Library: {} // Mock the Library interface
 }));

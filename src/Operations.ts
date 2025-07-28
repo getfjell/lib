@@ -15,7 +15,7 @@ import { wrapRemoveOperation } from "./ops/remove";
 import { wrapUpdateOperation } from "./ops/update";
 import { wrapUpsertOperation } from "./ops/upsert";
 
-import LibLogger from '@/logger';
+import LibLogger from './logger';
 import { Registry } from "./Registry";
 import { wrapActionOperation } from "./ops/action";
 import { ActionMethod, AllActionMethod, AllFacetMethod, FacetMethod, FinderMethod, Options } from "./Options";

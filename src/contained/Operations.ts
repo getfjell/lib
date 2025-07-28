@@ -2,13 +2,13 @@ import { ComKey, Item, PriKey } from "@fjell/core";
 
 import { LocKeyArray } from "@fjell/core";
 
-import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperations } from "@/Operations";
+import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperations } from "../Operations";
 import { ItemQuery } from "@fjell/core";
 
-import { Registry } from "@/Registry";
+import { Registry } from "../Registry";
 import { Options } from "./Options";
 import { Coordinate } from "@fjell/registry";
-import { ActionMethod } from "@/Options";
+import { ActionMethod } from "../Options";
 
 export interface Operations<
   V extends Item<S, L1, L2, L3, L4, L5>,

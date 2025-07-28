@@ -4,24 +4,24 @@ import { Item, LocKey, LocKeyArray } from '@fjell/core';
 // Create mock logger functions that can be accessed by tests
 const mockLoggerDebug = vi.hoisted(() => vi.fn());
 const mockLoggerDefault = vi.hoisted(() => vi.fn());
+const mockLoggerGet = vi.hoisted(() => vi.fn());
 
 // Mock the logger
-vi.mock('@/logger', () => ({
+vi.mock('../../src/logger', () => ({
   default: {
-    get: vi.fn(() => ({
+    get: mockLoggerGet.mockReturnValue({
       debug: mockLoggerDebug,
       default: mockLoggerDefault,
-    })),
+    }),
   },
 }));
 
-import { wrapAllFacetOperation } from '@/ops/allFacet';
-import { Options } from '@/Options';
-import { Operations } from '@/Operations';
-import { Registry } from '@/Registry';
-import LibLogger from '@/logger';
+import { wrapAllFacetOperation } from '../../src/ops/allFacet';
+import { Options } from '../../src/Options';
+import { Operations } from '../../src/Operations';
+import { Registry } from '../../src/Registry';
 import { createCoordinate } from '@fjell/registry';
-import { createOptions } from '@/Options';
+import { createOptions } from '../../src/Options';
 
 // Type definitions for test data
 interface TestItem extends Item<'test', 'level1', 'level2'> {
@@ -71,7 +71,7 @@ describe('wrapAllFacetOperation', () => {
     it('should call LibLogger.get with correct parameters', () => {
       wrapAllFacetOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
 
-      expect(LibLogger.get).toHaveBeenCalledWith('library', 'ops', 'allFacet');
+      expect(mockLoggerGet).toHaveBeenCalledWith('library', 'ops', 'allFacet');
     });
   });
 

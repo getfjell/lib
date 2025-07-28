@@ -1,12 +1,12 @@
 /* eslint-disable no-undefined */
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { ComKey, Item, LocKey, LocKeyArray, PriKey } from "@fjell/core";
-import { wrapCreateOperation } from "@/ops/create";
-import { Operations } from "@/Operations";
-import { createRegistry } from "@/Registry";
-import { CreateValidationError, HookError } from "@/errors";
+import { wrapCreateOperation } from "../../src/ops/create";
+import { Operations } from "../../src/Operations";
+import { createRegistry } from "../../src/Registry";
+import { CreateValidationError, HookError } from "../../src/errors";
 import { createCoordinate } from '@fjell/registry';
-import { createOptions } from '@/Options';
+import { createOptions } from '../../src/Options';
 
 vi.mock('@fjell/logging', () => {
   const logger = {

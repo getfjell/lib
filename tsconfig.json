@@ -4,11 +4,6 @@
     "baseUrl": ".",
     "sourceMap": false,
     "outDir": "dist",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
     "declaration": true,
     "emitDeclarationOnly": true,
     "target": "es2022",

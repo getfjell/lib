@@ -1,4 +1,4 @@
-import { Options as AbstractOptions, ActionMethod, FinderParams } from "@/Options";
+import { Options as AbstractOptions, ActionMethod, FinderParams } from "../Options";
 import { Item, PriKey } from "@fjell/core";
 
 export interface Options<

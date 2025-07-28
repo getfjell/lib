@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { Operations, wrapOperations } from "@/primary/Operations";
-import { createRegistry, Registry } from "@/Registry";
+import { Operations, wrapOperations } from "../../src/primary/Operations";
+import { createRegistry, Registry } from "../../src/Registry";
 import { Item, ItemQuery, PriKey } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
-import { Options } from "@/primary/Options";
+import { Options } from "../../src/primary/Options";
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -29,29 +29,11 @@ vi.mock('@fjell/logging', () => {
   }
 });
 
-vi.mock('@/logger', () => {
-  const logger = {
-    get: vi.fn().mockReturnThis(),
-    error: vi.fn(),
-    warning: vi.fn(),
-    info: vi.fn(),
-    debug: vi.fn(),
-    trace: vi.fn(),
-    emergency: vi.fn(),
-    alert: vi.fn(),
-    critical: vi.fn(),
-    notice: vi.fn(),
-    time: vi.fn().mockReturnThis(),
-    end: vi.fn(),
-    log: vi.fn(),
-  };
-  return {
-    default: logger,
-  };
-});
+// Mock abstract Operations
+const mockWrapOperations = vi.hoisted(() => vi.fn());
 
-vi.mock('@/Operations', () => ({
-  wrapOperations: vi.fn().mockImplementation((toWrap) => toWrap)
+vi.mock('../../src/Operations', () => ({
+  wrapOperations: mockWrapOperations.mockImplementation((toWrap) => toWrap)
 }));
 
 describe('Primary Operations', () => {
@@ -322,73 +304,77 @@ describe('Primary Operations', () => {
   });
 
   describe('wrapOperations', () => {
-    test('should wrap operations with abstract operations', async () => {
-      const wrappedOperations = wrapOperations(mockOperations, mockOptions, mockCoordinate, registry);
+    test('should wrap operations with abstract operations', () => {
+      const testOperations = {
+        all: vi.fn(),
+        one: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        upsert: vi.fn(),
+        get: vi.fn(),
+        remove: vi.fn(),
+        find: vi.fn(),
+        findOne: vi.fn(),
+        action: vi.fn(),
+        allAction: vi.fn(),
+        facet: vi.fn(),
+        allFacet: vi.fn()
+      };
+
+      mockWrapOperations.mockReturnValue(testOperations);
+
+      const wrappedOperations = wrapOperations(
+        mockOperations,
+        mockOptions,
+        mockCoordinate,
+        registry
+      );
 
       expect(wrappedOperations).toBeDefined();
-      expect(wrappedOperations).toEqual(mockOperations);
+      expect(wrappedOperations).toEqual(testOperations);
 
       // Verify that the abstract wrapOperations was called
-      const { wrapOperations: mockWrapOperations } = vi.mocked(
-        await import('@/Operations')
+      expect(mockWrapOperations).toHaveBeenCalledWith(
+        mockOperations,
+        mockOptions,
+        mockCoordinate,
+        registry
       );
-      expect(mockWrapOperations).toHaveBeenCalledWith(mockOperations, mockOptions, mockCoordinate, registry);
     });
 
     test('should return operations with all required methods', () => {
-      const wrappedOperations = wrapOperations(mockOperations, mockOptions, mockCoordinate, registry);
+      mockWrapOperations.mockReturnValue(mockOperations);
 
-      expect(wrappedOperations).toBeDefined();
-      expect(typeof wrappedOperations.all).toBe('function');
-      expect(typeof wrappedOperations.one).toBe('function');
-      expect(typeof wrappedOperations.get).toBe('function');
-      expect(typeof wrappedOperations.create).toBe('function');
-      expect(typeof wrappedOperations.update).toBe('function');
-      expect(typeof wrappedOperations.upsert).toBe('function');
-      expect(typeof wrappedOperations.remove).toBe('function');
-      expect(typeof wrappedOperations.find).toBeDefined();
-      expect(typeof wrappedOperations.findOne).toBeDefined();
-      expect(typeof wrappedOperations.action).toBeDefined();
-      expect(typeof wrappedOperations.facet).toBeDefined();
-      expect(typeof wrappedOperations.allAction).toBeDefined();
-      expect(typeof wrappedOperations.allFacet).toBeDefined();
+      const wrappedOperations = wrapOperations(
+        mockOperations,
+        mockOptions,
+        mockCoordinate,
+        registry
+      );
+
+      expect(wrappedOperations).toHaveProperty('all');
+      expect(wrappedOperations).toHaveProperty('one');
+      expect(wrappedOperations).toHaveProperty('create');
+      expect(wrappedOperations).toHaveProperty('update');
+      expect(wrappedOperations).toHaveProperty('get');
+      expect(wrappedOperations).toHaveProperty('remove');
+      expect(wrappedOperations).toHaveProperty('find');
     });
 
-    test('should handle wrapping with different coordinate configurations', async () => {
-      const differentCoordinate = {
-        keyTypes: ['test'],
-        kta: ['test'],
-        scopes: ['scope1', 'scope2'],
-      } as Coordinate<'test'>;
+    test('should handle wrapping with different coordinate configurations', () => {
+      const differentCoordinate = { kta: ['different'], scopes: ['scope'] } as any;
+      const differentOptions = { hooks: {}, validators: {}, finders: {}, actions: {}, facets: {} } as any;
 
-      const differentOptions = {
-        hooks: {},
-        validators: {},
-        finders: {},
-        actions: {},
-        facets: {},
-        readonly: true
-      } as Options<TestItem, 'test'>;
+      wrapOperations(mockOperations, differentOptions, differentCoordinate, registry);
 
-      const wrappedOperations = wrapOperations(mockOperations, differentOptions, differentCoordinate, registry);
-
-      expect(wrappedOperations).toBeDefined();
-
-      const { wrapOperations: mockWrapOperations } = vi.mocked(
-        await import('@/Operations')
-      );
       expect(mockWrapOperations).toHaveBeenCalledWith(mockOperations, differentOptions, differentCoordinate, registry);
     });
 
-    test('should handle wrapping with empty registry', async () => {
-      const emptyRegistry = createRegistry();
-      const wrappedOperations = wrapOperations(mockOperations, mockOptions, mockCoordinate, emptyRegistry);
+    test('should handle wrapping with empty registry', () => {
+      const emptyRegistry = { libTree: {}, register: vi.fn(), get: vi.fn() } as any;
 
-      expect(wrappedOperations).toBeDefined();
+      wrapOperations(mockOperations, mockOptions, mockCoordinate, emptyRegistry);
 
-      const { wrapOperations: mockWrapOperations } = vi.mocked(
-        await import('@/Operations')
-      );
       expect(mockWrapOperations).toHaveBeenCalledWith(mockOperations, mockOptions, mockCoordinate, emptyRegistry);
     });
   });

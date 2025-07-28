@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { createCoordinate } from '@fjell/registry';
-import { HookError, UpdateError, UpdateValidationError } from '@/errors';
-import { Operations } from '@/Operations';
-import { createOptions, Options } from '@/Options';
-import { wrapUpdateOperation } from '@/ops/update';
-import { createRegistry, Registry } from '@/Registry';
+import { HookError, UpdateError, UpdateValidationError } from '../../src/errors';
+import { Operations } from '../../src/Operations';
+import { createOptions, Options } from '../../src/Options';
+import { wrapUpdateOperation } from '../../src/ops/update';
+import { createRegistry, Registry } from '../../src/Registry';
 import { ComKey, Item, PriKey } from '@fjell/core';
 
 vi.mock('@fjell/logging', () => {

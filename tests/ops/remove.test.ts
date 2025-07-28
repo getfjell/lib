@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { Coordinate, createCoordinate } from '@fjell/registry';
-import { createOptions } from '@/Options';
-import { HookError, RemoveError, RemoveValidationError } from '@/errors';
-import { Operations } from '@/Operations';
-import { wrapRemoveOperation } from '@/ops/remove';
-import { createRegistry } from '@/Registry';
+import { createOptions } from '../../src/Options';
+import { HookError, RemoveError, RemoveValidationError } from '../../src/errors';
+import { Operations } from '../../src/Operations';
+import { wrapRemoveOperation } from '../../src/ops/remove';
+import { createRegistry } from '../../src/Registry';
 import { Item, PriKey } from '@fjell/core';
 import { randomUUID } from 'crypto';
 

@@ -1,8 +1,8 @@
-import { Operations as AbstractOperations, wrapOperations as createAbstractOperations } from "@/Operations";
+import { Operations as AbstractOperations, wrapOperations as createAbstractOperations } from "../Operations";
 import { Item, ItemQuery, PriKey } from "@fjell/core";
 
-import LibLogger from "@/logger";
-import { Registry } from "@/Registry";
+import LibLogger from "../logger";
+import { Registry } from "../Registry";
 import { Coordinate } from "@fjell/registry";
 import { Options } from "./Options";
 

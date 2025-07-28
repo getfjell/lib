@@ -1,10 +1,10 @@
 import { Item, LocKeyArray } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 
-import { Options } from "@/Options";
-import LibLogger from '@/logger';
-import { Operations } from "@/Operations";
-import { Registry } from "@/Registry";
+import { Options } from "../Options";
+import LibLogger from '../logger';
+import { Operations } from "../Operations";
+import { Registry } from "../Registry";
 
 const logger = LibLogger.get('library', 'ops', 'one');
 

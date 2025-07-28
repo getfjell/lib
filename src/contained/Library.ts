@@ -1,6 +1,6 @@
-import { Library as AbstractLibrary, createLibrary as createAbstractLibrary } from "@/Library";
+import { Library as AbstractLibrary, createLibrary as createAbstractLibrary } from "../Library";
 import { Operations } from "./Operations";
-import { Registry } from "@/Registry";
+import { Registry } from "../Registry";
 import { Item } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 import { Options } from "./Options";

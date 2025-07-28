@@ -1,21 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/core";
 
-import { Operations, wrapOperations } from "@/contained/Operations";
-import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperations } from "@/Operations";
-import { Registry } from "@/Registry";
+import { Operations, wrapOperations } from "../../src/contained/Operations";
+import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperations } from "../../src/Operations";
+import { Registry } from "../../src/Registry";
 import { createCoordinate } from '@fjell/registry';
-import { createOptions } from '@/Options';
+import { createOptions } from '../../src/Options';
 
 // Mock the abstract operations wrapper
-vi.mock("@/Operations", () => ({
-  wrapOperations: vi.fn(),
+const mockWrapAbstractOperations = vi.hoisted(() => vi.fn());
+vi.mock("../../src/Operations", () => ({
+  wrapOperations: mockWrapAbstractOperations,
   Operations: {}
 }));
 
 // Mock dependencies
-vi.mock("@/Definition");
-vi.mock("@/Registry");
+vi.mock("../../src/Registry");
 
 describe('Operations', () => {
   // Define test types
@@ -82,7 +82,7 @@ describe('Operations', () => {
       actions: {}
     };
 
-    (wrapAbstractOperations as any).mockReturnValue(mockAbstractOperations);
+    mockWrapAbstractOperations.mockReturnValue(mockAbstractOperations);
   });
 
   describe('wrapOperations', () => {
@@ -246,14 +246,14 @@ describe('Operations', () => {
         expect(mockOperations.action).toHaveBeenCalledWith(comKey, actionKey, actionParams);
       });
 
-      it('should validate action method accepts PriKey', async () => {
-        const priKey = {} as TestPriKey;
+      it('should validate action method accepts ComKey only', async () => {
+        const comKey = {} as TestComKey;
         const actionKey = 'testAction';
         const actionParams = { param1: 'value1' };
 
-        await mockOperations.action(priKey, actionKey, actionParams);
+        await mockOperations.action(comKey, actionKey, actionParams);
 
-        expect(mockOperations.action).toHaveBeenCalledWith(priKey, actionKey, actionParams);
+        expect(mockOperations.action).toHaveBeenCalledWith(comKey, actionKey, actionParams);
       });
     });
 

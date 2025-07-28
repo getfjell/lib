@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createRegistry, createRegistryFactory, Registry } from '@/Registry';
+import { createRegistry, createRegistryFactory, Registry } from '../src/Registry';
 import { createCoordinate } from '@fjell/registry';
-import LibLogger from '@/logger';
+import LibLogger from '../src/logger';
 
 // Mock the logger module
 
-vi.mock('@/logger', () => {
+vi.mock('../src/logger', () => {
   return {
     default: {
       get: vi.fn().mockReturnValue({
