@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { createCoordinate } from '@fjell/registry';
-import { Operations } from '@/Operations';
-import { wrapGetOperation } from '@/ops/get';
-import { createOptions } from '@/Options';
-import { createRegistry } from '@/Registry';
+import { Operations } from '../../src/Operations';
+import { wrapGetOperation } from '../../src/ops/get';
+import { createOptions } from '../../src/Options';
+import { createRegistry } from '../../src/Registry';
 import { Item, PriKey } from '@fjell/core';
 
 vi.mock('@fjell/logging', () => {

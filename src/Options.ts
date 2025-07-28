@@ -1,6 +1,6 @@
 import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
 import deepmerge from "deepmerge";
-import LibLogger from "@/logger";
+import LibLogger from "./logger";
 
 const logger = LibLogger.get("Options");
 

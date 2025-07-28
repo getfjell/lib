@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { Options } from '@/primary/Options';
+import { Options } from '../../src/primary/Options';
 import { Item, PriKey } from '@fjell/core';
-import { FinderParams } from '@/Options';
+import { FinderParams } from '../../src/Options';
 
 // Mock the logging module
 vi.mock('@fjell/logging', () => {
