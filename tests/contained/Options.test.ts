@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import type { MockedFunction } from 'vitest';
-import { createOptions, Options } from '@/contained/Options';
-import { createOptions as createAbstractOptions } from '@/Options';
+import { createOptions, Options } from '../../src/contained/Options';
 import { ComKey, Item, LocKeyArray, PriKey } from '@fjell/core';
 
 // Mock the logging module
@@ -30,11 +28,10 @@ vi.mock('@fjell/logging', () => {
 });
 
 // Mock the abstract Options module
-vi.mock('@/Options', () => ({
-  createOptions: vi.fn(),
+const mockCreateAbstractOptions = vi.hoisted(() => vi.fn());
+vi.mock('../../src/Options', () => ({
+  createOptions: mockCreateAbstractOptions,
 }));
-
-const mockCreateAbstractOptions = createAbstractOptions as MockedFunction<typeof createAbstractOptions>;
 
 // Test types
 type TestItem = Item<'test', 'loc1', 'loc2'>;
