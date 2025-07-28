@@ -4,23 +4,23 @@ import { ComKey, Item, PriKey } from '@fjell/core';
 // Create mock logger functions that can be accessed by tests
 const mockLoggerDebug = vi.hoisted(() => vi.fn());
 const mockLoggerDefault = vi.hoisted(() => vi.fn());
+const mockLoggerGet = vi.hoisted(() => vi.fn());
 
 // Mock the logger
-vi.mock('@/logger', () => ({
+vi.mock('../../src/logger', () => ({
   default: {
-    get: vi.fn(() => ({
+    get: mockLoggerGet.mockReturnValue({
       debug: mockLoggerDebug,
       default: mockLoggerDefault,
-    })),
+    }),
   },
 }));
 
-import { wrapActionOperation } from '@/ops/action';
-import { Operations } from '@/Operations';
-import { Registry } from '@/Registry';
-import LibLogger from '@/logger';
+import { wrapActionOperation } from '../../src/ops/action';
+import { Operations } from '../../src/Operations';
+import { Registry } from '../../src/Registry';
 import { createCoordinate } from '@fjell/registry';
-import { createOptions, Options } from '@/Options';
+import { createOptions, Options } from '../../src/Options';
 
 // Type definitions for test data
 interface TestItem extends Item<'test', 'level1'> {
@@ -70,7 +70,7 @@ describe('wrapActionOperation', () => {
 
     it('should call LibLogger.get with correct parameters', () => {
       // The logger is called at module load time with the correct parameters
-      expect(LibLogger.get).toHaveBeenCalledWith('library', 'ops', 'action');
+      expect(mockLoggerGet).toHaveBeenCalledWith('library', 'ops', 'action');
     });
   });
 
