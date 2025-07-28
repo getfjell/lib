@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { createCoordinate } from '@fjell/registry';
-import { createRegistry, NotFoundError, Operations } from '@/index';
-import { wrapUpsertOperation } from '@/ops/upsert';
+import { createRegistry, NotFoundError, Operations } from '../../src/index';
+import { wrapUpsertOperation } from '../../src/ops/upsert';
 import { Item, PriKey } from '@fjell/core';
 import { randomUUID } from 'crypto';
 
@@ -29,8 +29,8 @@ vi.mock('@fjell/logging', () => {
     }
   }
 });
-vi.mock('@/ops/create');
-vi.mock('@/ops/update');
+vi.mock('../src/ops/create');
+vi.mock('../src/ops/update');
 
 describe('upsert', () => {
   vi.resetAllMocks();

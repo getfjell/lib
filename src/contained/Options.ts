@@ -3,7 +3,7 @@ import {
   ActionMethod,
   createOptions as createAbstractOptions,
   FinderParams,
-} from "@/Options";
+} from "../Options";
 import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
 
 // TODO: The codesmell here is that we're passing lib to all the hooks.  This might be better with a create pattern.

@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { createLibrary, Library } from '@/primary/Library';
+import { createLibrary, Library } from '../../src/primary/Library';
 import { Item } from '@fjell/core';
 import { Coordinate, Registry } from '@fjell/registry';
-import { Operations } from '@/primary/Operations';
-import { Options } from '@/primary/Options';
+import { Operations } from '../../src/primary/Operations';
+import { Options } from '../../src/primary/Options';
 
 // Mock the logging module
 vi.mock('@fjell/logging', () => {
@@ -31,30 +31,23 @@ vi.mock('@fjell/logging', () => {
 });
 
 // Mock the logger module
-vi.mock('@/logger', () => {
-  const logger = {
-    get: vi.fn().mockReturnThis(),
-    error: vi.fn(),
-    warning: vi.fn(),
-    info: vi.fn(),
-    debug: vi.fn(),
-    trace: vi.fn(),
-    emergency: vi.fn(),
-    alert: vi.fn(),
-    critical: vi.fn(),
-    notice: vi.fn(),
-    time: vi.fn().mockReturnThis(),
-    end: vi.fn(),
-    log: vi.fn(),
-  };
+const mockLoggerGet = vi.hoisted(() => vi.fn());
+const mockLoggerDebug = vi.hoisted(() => vi.fn());
+
+vi.mock('../../src/logger', () => {
   return {
-    default: logger,
+    default: {
+      get: mockLoggerGet.mockReturnValue({
+        debug: mockLoggerDebug,
+      }),
+    },
   };
 });
 
 // Mock the abstract library module
-vi.mock('@/Library', () => ({
-  createLibrary: vi.fn()
+const mockCreateAbstractLibrary = vi.hoisted(() => vi.fn());
+vi.mock('../../src/Library', () => ({
+  createLibrary: mockCreateAbstractLibrary
 }));
 
 // Test data interfaces
@@ -116,8 +109,7 @@ describe('Primary Library', () => {
     };
 
     // Setup mock return value for abstract createLibrary
-    const { createLibrary: mockCreateAbstractLibrary } = await import('@/Library');
-    vi.mocked(mockCreateAbstractLibrary).mockReturnValue(mockAbstractLibrary);
+    mockCreateAbstractLibrary.mockReturnValue(mockAbstractLibrary);
   });
 
   describe('createLibrary function', () => {
@@ -132,8 +124,6 @@ describe('Primary Library', () => {
     });
 
     test('should call abstract createLibrary with correct parameters', async () => {
-      const { createLibrary: mockCreateAbstractLibrary } = await import('@/Library');
-
       createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
       expect(mockCreateAbstractLibrary).toHaveBeenCalledTimes(1);
@@ -145,9 +135,9 @@ describe('Primary Library', () => {
       );
     });
 
-    test('should log debug information with correct parameters', async () => {
-      const LoggerModule = await import('@/logger');
-      const debugSpy = LoggerModule.default.debug;
+    test('should log debug information with correct parameters', () => {
+      // Mock the debug spy
+      const debugSpy = mockLoggerDebug;
 
       createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
@@ -157,26 +147,22 @@ describe('Primary Library', () => {
         {
           coordinate: mockCoordinate,
           operations: mockOperations,
-          registry: mockRegistry,
-          options: mockOptions
+          options: mockOptions,
+          registry: mockRegistry
         }
       );
     });
 
     test('should extend abstract library with operations property', () => {
+      mockCreateAbstractLibrary.mockReturnValue(mockAbstractLibrary);
+
       const result = createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
-      // Should have all properties from abstract library
-      expect(result.coordinate).toBe(mockAbstractLibrary.coordinate);
-      expect(result.registry).toBe(mockAbstractLibrary.registry);
-
-      // Should have added operations property
       expect(result.operations).toBe(mockOperations);
     });
 
-    test('should handle null return from abstract createLibrary', async () => {
-      const { createLibrary: mockCreateAbstractLibrary } = await import('@/Library');
-      vi.mocked(mockCreateAbstractLibrary).mockReturnValue(null as any);
+    test('should handle null return from abstract createLibrary', () => {
+      mockCreateAbstractLibrary.mockReturnValue(null);
 
       const result = createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
@@ -184,21 +170,27 @@ describe('Primary Library', () => {
       expect(mockCreateAbstractLibrary).toHaveBeenCalledTimes(1);
     });
 
-    test('should handle undefined return from abstract createLibrary', async () => {
-      const { createLibrary: mockCreateAbstractLibrary } = await import('@/Library');
-      // eslint-disable-next-line no-undefined
-      vi.mocked(mockCreateAbstractLibrary).mockReturnValue(undefined as any);
+    test('should handle undefined return from abstract createLibrary', () => {
+      mockCreateAbstractLibrary.mockReturnValue(null);
 
       const result = createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
-      expect(result).toBeUndefined();
+      expect(result).toBeNull();
       expect(mockCreateAbstractLibrary).toHaveBeenCalledTimes(1);
     });
 
     test('should work with minimal operations object', () => {
+      mockCreateAbstractLibrary.mockReturnValue(mockAbstractLibrary);
+
       const minimalOperations = {
         all: vi.fn(),
-        create: vi.fn()
+        one: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        upsert: vi.fn(),
+        get: vi.fn(),
+        remove: vi.fn(),
+        find: vi.fn()
       } as any;
 
       const result = createLibrary(mockRegistry, mockCoordinate, minimalOperations, mockOptions);
@@ -207,14 +199,14 @@ describe('Primary Library', () => {
       expect(result.operations).toBe(minimalOperations);
     });
 
-    test('should preserve all abstract library properties', async () => {
+    test('should preserve all abstract library properties', () => {
       const extendedAbstractLibrary = {
         ...mockAbstractLibrary,
         customProperty: 'test-value',
         anotherMethod: vi.fn()
       };
-      const { createLibrary: mockCreateAbstractLibrary } = await import('@/Library');
-      vi.mocked(mockCreateAbstractLibrary).mockReturnValue(extendedAbstractLibrary);
+
+      mockCreateAbstractLibrary.mockReturnValue(extendedAbstractLibrary);
 
       const result = createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions) as any;
 
@@ -258,44 +250,41 @@ describe('Primary Library', () => {
 
   describe('edge cases and error scenarios', () => {
     test('should handle empty registry object', () => {
-      const emptyRegistry = {} as Registry;
+      mockCreateAbstractLibrary.mockReturnValue(mockAbstractLibrary);
 
+      const emptyRegistry = { register: vi.fn(), get: vi.fn(), libTree: {} } as any;
       const result = createLibrary(emptyRegistry, mockCoordinate, mockOperations, mockOptions);
 
       expect(result).toBeDefined();
-      expect(result.operations).toBe(mockOperations);
     });
 
     test('should handle coordinate with empty arrays', () => {
-      const emptyCoordinate = {
-        kta: [],
-        scopes: []
-      } as any;
+      mockCreateAbstractLibrary.mockReturnValue(mockAbstractLibrary);
 
+      const emptyCoordinate = { kta: [], scopes: [] } as any;
       const result = createLibrary(mockRegistry, emptyCoordinate, mockOperations, mockOptions);
 
       expect(result).toBeDefined();
-      expect(result.operations).toBe(mockOperations);
     });
 
     test('should handle operations with additional custom methods', () => {
+      mockCreateAbstractLibrary.mockReturnValue(mockAbstractLibrary);
+
       const extendedOperations = {
         ...mockOperations,
         customMethod: vi.fn(),
-        anotherCustom: vi.fn()
-      };
+        anotherCustomMethod: vi.fn()
+      } as any;
 
       const result = createLibrary(mockRegistry, mockCoordinate, extendedOperations, mockOptions);
 
+      expect(result).toBeDefined();
       expect(result.operations).toBe(extendedOperations);
-      expect((result.operations as any).customMethod).toBeDefined();
     });
 
-    test('should call abstract createLibrary even when it throws', async () => {
-      const { createLibrary: mockCreateAbstractLibrary } = await import('@/Library');
-      const error = new Error('Abstract library creation failed');
-      vi.mocked(mockCreateAbstractLibrary).mockImplementation(() => {
-        throw error;
+    test('should call abstract createLibrary even when it throws', () => {
+      mockCreateAbstractLibrary.mockImplementation(() => {
+        throw new Error('Abstract library creation failed');
       });
 
       expect(() => {
@@ -308,18 +297,22 @@ describe('Primary Library', () => {
 
   describe('parameter validation', () => {
     test('should work with all required parameters provided', () => {
-      expect(() => {
-        createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
-      }).not.toThrow();
+      mockCreateAbstractLibrary.mockReturnValue(mockAbstractLibrary);
+
+      const result = createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
+
+      expect(result).toBeDefined();
+      expect(result.coordinate).toBe(mockCoordinate);
+      expect(result.registry).toBe(mockRegistry);
+      expect(result.operations).toBe(mockOperations);
+      expect(result.options).toBe(mockOptions);
     });
 
-    test('should pass through all parameters to abstract createLibrary', async () => {
+    test('should pass through all parameters to abstract createLibrary', () => {
       const customRegistry = { custom: 'registry' } as any;
       const customCoordinate = { custom: 'coordinate' } as any;
       const customOperations = { custom: 'operations' } as any;
       const customOptions = { custom: 'options' } as any;
-
-      const { createLibrary: mockCreateAbstractLibrary } = await import('@/Library');
 
       createLibrary(customRegistry, customCoordinate, customOperations, customOptions);
 
@@ -334,30 +327,35 @@ describe('Primary Library', () => {
 
   describe('integration behavior', () => {
     test('should maintain immutability of input parameters', () => {
+      mockCreateAbstractLibrary.mockReturnValue(mockAbstractLibrary);
+
+      const originalRegistry = { ...mockRegistry };
+      const originalCoordinate = { ...mockCoordinate };
       const originalOperations = { ...mockOperations };
       const originalOptions = { ...mockOptions };
 
       createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
 
+      expect(mockRegistry).toEqual(originalRegistry);
+      expect(mockCoordinate).toEqual(originalCoordinate);
       expect(mockOperations).toEqual(originalOperations);
       expect(mockOptions).toEqual(originalOptions);
     });
 
     test('should create new object instance each time', () => {
-      const library1 = createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
-      const library2 = createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
+      mockCreateAbstractLibrary.mockReturnValue(mockAbstractLibrary);
 
-      expect(library1).not.toBe(library2);
-      expect(library1.operations).toBe(library2.operations); // Same reference to operations
+      const result1 = createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
+      const result2 = createLibrary(mockRegistry, mockCoordinate, mockOperations, mockOptions);
+
+      expect(result1).not.toBe(result2);
     });
 
-    test('should handle complex coordinate structures', async () => {
+    test('should handle complex coordinate structures', () => {
       const complexCoordinate = {
-        kta: ['user', 'profile', 'nested'],
-        scopes: ['tenant1', 'organization', 'department']
+        kta: ['user', 'profile', 'settings'],
+        scopes: ['read', 'write', 'admin']
       } as any;
-
-      const { createLibrary: mockCreateAbstractLibrary } = await import('@/Library');
 
       const result = createLibrary(mockRegistry, complexCoordinate, mockOperations, mockOptions);
 

@@ -27,7 +27,7 @@ vi.mock('@fjell/logging', () => {
 });
 
 // Mock the logger module
-vi.mock('@/logger', () => {
+vi.mock('../../src/logger', () => {
   const logger = {
     get: vi.fn().mockReturnThis(),
     error: vi.fn(),
@@ -49,12 +49,12 @@ vi.mock('@/logger', () => {
 });
 
 // Mock abstract operations
-vi.mock('@/Operations', () => ({
+vi.mock('../../src/Operations', () => ({
   wrapOperations: vi.fn().mockImplementation((toWrap) => toWrap)
 }));
 
 // Mock abstract library
-vi.mock('@/Library', () => ({
+vi.mock('../../src/Library', () => ({
   createLibrary: vi.fn().mockImplementation((registry, coordinate, operations, options) => ({
     coordinate,
     registry,
@@ -66,14 +66,14 @@ vi.mock('@/Library', () => ({
 describe('Primary Index', () => {
   describe('exports from Instance', () => {
     test('should export createLibrary function', async () => {
-      const { createLibrary } = await import('@/primary/index');
+      const { createLibrary } = await import('../../src/primary/index');
 
       expect(createLibrary).toBeDefined();
       expect(typeof createLibrary).toBe('function');
     });
 
     test('should createLibrary function work correctly', async () => {
-      const { createLibrary } = await import('@/primary/index');
+      const { createLibrary } = await import('../../src/primary/index');
       const { createCoordinate } = await import('@fjell/registry');
 
       const mockCoordinate = createCoordinate(['test'], ['scope1']);
@@ -104,14 +104,14 @@ describe('Primary Index', () => {
 
   describe('exports from Operations', () => {
     test('should export wrapOperations function', async () => {
-      const { wrapOperations } = await import('@/primary/index');
+      const { wrapOperations } = await import('../../src/primary/index');
 
       expect(wrapOperations).toBeDefined();
       expect(typeof wrapOperations).toBe('function');
     });
 
     test('should wrapOperations function work correctly', async () => {
-      const { wrapOperations } = await import('@/primary/index');
+      const { wrapOperations } = await import('../../src/primary/index');
 
       const mockOperations = {
         all: vi.fn(),
@@ -142,7 +142,7 @@ describe('Primary Index', () => {
 
   describe('complete export verification', () => {
     test('should have all expected exports', async () => {
-      const primaryIndex = await import('@/primary/index');
+      const primaryIndex = await import('../../src/primary/index');
 
       // Get all export names (functions will be defined, interfaces will be undefined)
       const exportNames = Object.keys(primaryIndex);
@@ -157,7 +157,7 @@ describe('Primary Index', () => {
     });
 
     test('should not have unexpected exports', async () => {
-      const primaryIndex = await import('@/primary/index') as any;
+      const primaryIndex = await import('../../src/primary/index') as any;
 
       // Get only the defined exports (runtime exports, not interfaces)
       const definedExports = Object.keys(primaryIndex).filter(key =>
@@ -176,16 +176,16 @@ describe('Primary Index', () => {
 
   describe('re-export integrity', () => {
     test('should re-export Instance module correctly', async () => {
-      const primaryIndex = await import('@/primary/index');
-      const instanceModule = await import('@/primary/Library');
+      const primaryIndex = await import('../../src/primary/index');
+      const instanceModule = await import('../../src/primary/Library');
 
       // Verify the re-exported functions are the same as the originals
       expect(primaryIndex.createLibrary).toBe(instanceModule.createLibrary);
     });
 
     test('should re-export Operations module correctly', async () => {
-      const primaryIndex = await import('@/primary/index');
-      const operationsModule = await import('@/primary/Operations');
+      const primaryIndex = await import('../../src/primary/index');
+      const operationsModule = await import('../../src/primary/Operations');
 
       // Verify the re-exported functions are the same as the originals
       expect(primaryIndex.wrapOperations).toBe(operationsModule.wrapOperations);
@@ -193,8 +193,8 @@ describe('Primary Index', () => {
 
     test('should maintain module references through re-export', async () => {
       // Import twice to ensure we get the same module instances
-      const primaryIndex1 = await import('@/primary/index');
-      const primaryIndex2 = await import('@/primary/index');
+      const primaryIndex1 = await import('../../src/primary/index');
+      const primaryIndex2 = await import('../../src/primary/index');
 
       expect(primaryIndex1.createLibrary).toBe(primaryIndex2.createLibrary);
       expect(primaryIndex1.wrapOperations).toBe(primaryIndex2.wrapOperations);
@@ -207,7 +207,7 @@ describe('Primary Index', () => {
       // TypeScript interface type checking is handled at compile time
 
       await expect(async () => {
-        await import('@/primary/index');
+        await import('../../src/primary/index');
       }).not.toThrow();
     });
   });

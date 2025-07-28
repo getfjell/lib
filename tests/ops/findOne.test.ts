@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { Item, LocKey, LocKeyArray } from "@fjell/core";
-import { wrapFindOneOperation } from "@/ops/findOne";
-import { Operations } from "@/Operations";
-import { createRegistry, Registry } from "@/Registry";
+import { wrapFindOneOperation } from "../../src/ops/findOne";
+import { Operations } from "../../src/Operations";
+import { createRegistry, Registry } from "../../src/Registry";
 import { createCoordinate } from '@fjell/registry';
-import { createOptions, Options } from '@/Options';
+import { createOptions, Options } from '../../src/Options';
 
 vi.mock('@fjell/logging', () => {
   const logger = {

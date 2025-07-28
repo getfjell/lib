@@ -1,21 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Item } from "@fjell/core";
-import { Registry } from "@/Registry";
+import { Registry } from "../../src/Registry";
 import { Coordinate, createCoordinate } from '@fjell/registry';
-import { Library as AbstractLibrary, createLibrary as createAbstractLibrary } from "@/Library";
+import { Library as AbstractLibrary, createLibrary as createAbstractLibrary } from "../../src/Library";
 
-import { createLibrary } from "@/contained/Library";
-import { Operations } from "@/contained/Operations";
-import { Options } from "@/contained/Options";
+import { createLibrary } from "../../src/contained/Library";
+import { Operations } from "../../src/contained/Operations";
+import { Options } from "../../src/contained/Options";
 
 // Mock the abstract library
-vi.mock("@/Library", () => ({
-  createLibrary: vi.fn(),
+const mockCreateAbstractLibrary = vi.hoisted(() => vi.fn());
+vi.mock("../../src/Library", () => ({
+  createLibrary: mockCreateAbstractLibrary,
   Library: {}
 }));
 
 // Mock dependencies
-vi.mock("@/Registry");
+vi.mock("../../src/Registry");
 
 describe('contained/Library', () => {
   // Define test types
@@ -88,7 +89,7 @@ describe('contained/Library', () => {
     } as any;
 
     // Mock the createAbstractLibrary function
-    vi.mocked(createAbstractLibrary).mockReturnValue(mockAbstractLibrary as any);
+    mockCreateAbstractLibrary.mockReturnValue(mockAbstractLibrary as any);
   });
 
   describe('createLibrary', () => {
