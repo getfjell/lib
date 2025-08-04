@@ -186,6 +186,13 @@ export const wrapOperations = <
   operations.allAction = wrapAllActionOperation(toWrap, options, coordinate, registry);
   operations.allFacet = wrapAllFacetOperation(toWrap, options, coordinate, registry);
 
+  // Copy collection properties from options and toWrap
+  operations.finders = { ...toWrap.finders, ...options.finders };
+  operations.actions = { ...toWrap.actions, ...options.actions };
+  operations.facets = { ...toWrap.facets, ...options.facets };
+  operations.allActions = { ...toWrap.allActions, ...options.allActions };
+  operations.allFacets = { ...toWrap.allFacets, ...options.allFacets };
+
   return operations;
 };
 
