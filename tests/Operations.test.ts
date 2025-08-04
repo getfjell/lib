@@ -119,4 +119,53 @@ describe('Operations', () => {
       expect(removeResult).toEqual({});
     });
   });
+
+  describe('allFacets after override', () => {
+    test('should have allFacets present after operations wrapping', () => {
+      const registry = createRegistry();
+
+      // Create test allFacets
+      const testAllFacets = {
+        testFacet: vi.fn().mockResolvedValue({ result: 'test data' }),
+        anotherFacet: vi.fn().mockResolvedValue({ count: 42 })
+      };
+
+      // Create options with allFacets
+      const optionsWithAllFacets = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+      optionsWithAllFacets.allFacets = testAllFacets;
+
+      // Wrap operations with the options containing allFacets
+      const operations = wrapOperations(mockOperations, optionsWithAllFacets, mockCoordinate, registry);
+
+      // Verify allFacets are present on the operations object
+      expect(operations.allFacets).toBeDefined();
+      expect(operations.allFacets.testFacet).toBeDefined();
+      expect(operations.allFacets.anotherFacet).toBeDefined();
+    });
+
+    test('should execute allFacet method successfully', async () => {
+      const registry = createRegistry();
+
+      // Create test allFacets
+      const testAllFacets = {
+        testFacet: vi.fn().mockResolvedValue({ result: 'success' })
+      };
+
+      // Create options with allFacets
+      const optionsWithAllFacets = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+      optionsWithAllFacets.allFacets = testAllFacets;
+
+      // Wrap operations with the options containing allFacets
+      const operations = wrapOperations(mockOperations, optionsWithAllFacets, mockCoordinate, registry);
+
+      // Execute allFacet and verify it works
+      const params = { testParam: 'value' };
+      const locations = [{ kt: 'loc1', lk: '1' }] as LocKeyArray<'loc1', 'loc2'>;
+
+      const result = await operations.allFacet('testFacet', params, locations);
+
+      expect(result).toEqual({ result: 'success' });
+      expect(testAllFacets.testFacet).toHaveBeenCalledWith(params, locations);
+    });
+  });
 });

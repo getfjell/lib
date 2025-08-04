@@ -21,6 +21,7 @@ import { wrapActionOperation } from "./ops/action";
 import { ActionMethod, AllActionMethod, AllFacetMethod, FacetMethod, FinderMethod, Options } from "./Options";
 import { wrapFacetOperation } from "./ops/facet";
 import { wrapAllActionOperation } from "./ops/allAction";
+import { wrapAllFacetOperation } from "./ops/allFacet";
 
 const logger = LibLogger.get('Operations');
 
@@ -183,6 +184,14 @@ export const wrapOperations = <
   operations.action = wrapActionOperation(toWrap, options, coordinate, registry);
   operations.facet = wrapFacetOperation(toWrap, options, coordinate, registry);
   operations.allAction = wrapAllActionOperation(toWrap, options, coordinate, registry);
+  operations.allFacet = wrapAllFacetOperation(toWrap, options, coordinate, registry);
+
+  // Copy collection properties from options and toWrap
+  operations.finders = { ...toWrap.finders, ...options.finders };
+  operations.actions = { ...toWrap.actions, ...options.actions };
+  operations.facets = { ...toWrap.facets, ...options.facets };
+  operations.allActions = { ...toWrap.allActions, ...options.allActions };
+  operations.allFacets = { ...toWrap.allFacets, ...options.allFacets };
 
   return operations;
 };
