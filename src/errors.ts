@@ -1,4 +1,4 @@
-import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
+import { abbrevIK, ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 
 export class LibError<
@@ -34,11 +34,11 @@ export class LibError<
 
 export class NotFoundError<
   S extends string,
-  L1 extends string,
-  L2 extends string,
-  L3 extends string,
-  L4 extends string,
-  L5 extends string,
+  L1 extends string = never,
+  L2 extends string = never,
+  L3 extends string = never,
+  L4 extends string = never,
+  L5 extends string = never,
 > extends LibError<S, L1, L2, L3, L4, L5> {
   private key: ComKey<S, L1, L2, L3, L4, L5> | PriKey<S>;
 
@@ -50,19 +50,19 @@ export class NotFoundError<
       cause?: Error
     }
   ) {
-    // Need to pass `options` as the second parameter to install the "cause" property.
-    super(`Item not found for key - ${key}`, operation, coordinate, options);
+    // Use abbrevIK to properly format the key instead of relying on object stringification
+    super(`Item not found for key - ${abbrevIK(key)}`, operation, coordinate, options);
     this.key = key;
   }
 }
 
 export class NotUpdatedError<
   S extends string,
-  L1 extends string,
-  L2 extends string,
-  L3 extends string,
-  L4 extends string,
-  L5 extends string,
+  L1 extends string = never,
+  L2 extends string = never,
+  L3 extends string = never,
+  L4 extends string = never,
+  L5 extends string = never,
 > extends LibError<S, L1, L2, L3, L4, L5> {
   private key: ComKey<S, L1, L2, L3, L4, L5> | PriKey<S>;
 
@@ -74,7 +74,8 @@ export class NotUpdatedError<
       cause?: Error
     }
   ) {
-    super(`Item not updated for key ${JSON.stringify(key)}`, operation, coordinate, options);
+    // Use abbrevIK to properly format the key instead of JSON.stringify
+    super(`Item not updated for key ${abbrevIK(key)}`, operation, coordinate, options);
     this.key = key;
   }
 }
@@ -161,11 +162,11 @@ export class UpdateValidationError<
 
 export class RemoveValidationError<
   S extends string,
-  L1 extends string,
-  L2 extends string,
-  L3 extends string,
-  L4 extends string,
-  L5 extends string,
+  L1 extends string = never,
+  L2 extends string = never,
+  L3 extends string = never,
+  L4 extends string = never,
+  L5 extends string = never,
 > extends ValidationError<S, L1, L2, L3, L4, L5> {
 
   constructor(
@@ -177,8 +178,9 @@ export class RemoveValidationError<
       cause?: Error
     }
   ) {
+    const keyInfo = parameters.key ? `key: ${abbrevIK(parameters.key)}` : 'key: undefined';
     super(
-      `Remove Validation Failed: ${JSON.stringify(parameters)}`,
+      `Remove Validation Failed: ${keyInfo}`,
       'remove',
       coordinate,
       options
@@ -188,11 +190,11 @@ export class RemoveValidationError<
 
 export class UpdateError<
   S extends string,
-  L1 extends string,
-  L2 extends string,
-  L3 extends string,
-  L4 extends string,
-  L5 extends string,
+  L1 extends string = never,
+  L2 extends string = never,
+  L3 extends string = never,
+  L4 extends string = never,
+  L5 extends string = never,
 > extends LibError<S, L1, L2, L3, L4, L5> {
   constructor(
     parameters: {
@@ -204,8 +206,9 @@ export class UpdateError<
       cause?: Error
     }
   ) {
+    const keyInfo = parameters.key ? `key: ${abbrevIK(parameters.key)}` : 'key: undefined';
     super(
-      `Update Failed: ${JSON.stringify(parameters)}`,
+      `Update Failed: ${keyInfo}`,
       'update',
       coordinate,
       options
@@ -215,11 +218,11 @@ export class UpdateError<
 
 export class RemoveError<
   S extends string,
-  L1 extends string,
-  L2 extends string,
-  L3 extends string,
-  L4 extends string,
-  L5 extends string,
+  L1 extends string = never,
+  L2 extends string = never,
+  L3 extends string = never,
+  L4 extends string = never,
+  L5 extends string = never,
 > extends LibError<S, L1, L2, L3, L4, L5> {
   constructor(
     parameters: {
@@ -230,8 +233,9 @@ export class RemoveError<
       cause?: Error
     }
   ) {
+    const keyInfo = parameters.key ? `key: ${abbrevIK(parameters.key)}` : 'key: undefined';
     super(
-      `Remove Failed: ${JSON.stringify(parameters)}`,
+      `Remove Failed: ${keyInfo}`,
       'remove',
       coordinate,
       options
