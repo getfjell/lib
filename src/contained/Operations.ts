@@ -9,6 +9,8 @@ import { Registry } from "../Registry";
 import { Options } from "./Options";
 import { Coordinate } from "@fjell/registry";
 import { ActionMethod } from "../Options";
+import { FacetMethod } from "../Options";
+import { AllActionMethod } from "../Options";
 
 export interface Operations<
   V extends Item<S, L1, L2, L3, L4, L5>,
@@ -79,7 +81,7 @@ export interface Operations<
     key: ComKey<S, L1, L2, L3, L4, L5>,
     actionKey: string,
     actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-  ): Promise<V>;
+  ): Promise<[V, Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
 
   actions: Record<string, ActionMethod<V, S, L1, L2, L3, L4, L5>>;
 
@@ -89,11 +91,15 @@ export interface Operations<
     facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<any>;
 
+  facets: Record<string, FacetMethod<V, S, L1, L2, L3, L4, L5>>;
+
   allAction(
     allActionKey: string,
     allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations: LocKeyArray<L1, L2, L3, L4, L5> | [],
-  ): Promise<V[]>;
+  ): Promise<[V[], Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
+
+  allActions: Record<string, AllActionMethod<V, S, L1, L2, L3, L4, L5>>;
 
   allFacet(
     allFacetKey: string,
