@@ -5,7 +5,8 @@
     "emitDeclarationOnly": true,
     "outDir": "dist",
     "skipLibCheck": true,
-    "isolatedModules": false
+    "isolatedModules": false,
+    "rootDir": "src"
   },
   "include": [
     "./src/**/*.ts"

@@ -19,8 +19,6 @@ vi.mock('../../src/logger', () => ({
 import { wrapAllActionOperation } from '../../src/ops/allAction';
 import { Options } from '../../src/Options';
 import { Operations } from '../../src/Operations';
-import { Registry } from '../../src/Registry';
-import { createCoordinate } from '@fjell/registry';
 import { createOptions } from '../../src/Options';
 
 // Type definitions for test data
@@ -32,8 +30,6 @@ interface TestItem extends Item<'test', 'level1', 'level2'> {
 describe('wrapAllActionOperation', () => {
   let mockOperations: Operations<TestItem, 'test', 'level1', 'level2'>;
   let mockOptions: Options<TestItem, 'test', 'level1', 'level2'>;
-  let mockCoordinate: any;
-  let mockRegistry: Registry;
   let mockActionMethod: MockedFunction<any>;
 
   beforeEach(() => {
@@ -56,20 +52,17 @@ describe('wrapAllActionOperation', () => {
         complexAction: mockActionMethod,
       }
     });
-
-    mockCoordinate = createCoordinate(['test'], ['level1', 'level2']);
-    mockRegistry = {} as Registry;
   });
 
   describe('wrapAllActionOperation', () => {
     it('should return a function when called', () => {
-      const result = wrapAllActionOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
+      const result = wrapAllActionOperation(mockOperations, mockOptions);
 
       expect(typeof result).toBe('function');
     });
 
     it('should call LibLogger.get with correct parameters', () => {
-      wrapAllActionOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
+      wrapAllActionOperation(mockOperations, mockOptions);
 
       expect(mockLoggerGet).toHaveBeenCalledWith('library', 'ops', 'allAction');
     });
@@ -79,7 +72,7 @@ describe('wrapAllActionOperation', () => {
     let wrappedAllAction: ReturnType<typeof wrapAllActionOperation<TestItem, 'test', 'level1', 'level2'>>;
 
     beforeEach(() => {
-      wrappedAllAction = wrapAllActionOperation(mockOperations, mockOptions, mockCoordinate, mockRegistry);
+      wrappedAllAction = wrapAllActionOperation(mockOperations, mockOptions);
     });
 
     it('should call action method with correct parameters and return array result', async () => {
@@ -93,14 +86,15 @@ describe('wrapAllActionOperation', () => {
         { id: '1', name: 'item1' } as TestItem,
         { id: '2', name: 'item2' } as TestItem
       ];
+      const affectedItems: Array<any> = [];
 
-      mockActionMethod.mockResolvedValue(expectedResult);
+      mockActionMethod.mockResolvedValue([expectedResult, affectedItems]);
 
       const result = await wrappedAllAction(actionKey, actionParams, locations);
 
       expect(mockActionMethod).toHaveBeenCalledWith(actionParams, locations);
-      expect(result).toBe(expectedResult);
-      expect(Array.isArray(result)).toBe(true);
+      expect(result).toEqual([expectedResult, affectedItems]);
+      expect(Array.isArray(result[0])).toBe(true);
     });
 
     it('should work without locations parameter', async () => {
@@ -109,14 +103,15 @@ describe('wrapAllActionOperation', () => {
       const expectedResult: TestItem[] = [
         { id: '1', name: 'item without locations' } as TestItem
       ];
+      const affectedItems: Array<any> = [];
 
-      mockActionMethod.mockResolvedValue(expectedResult);
+      mockActionMethod.mockResolvedValue([expectedResult, affectedItems]);
 
       const result = await wrappedAllAction(actionKey, actionParams);
 
       // eslint-disable-next-line no-undefined
       expect(mockActionMethod).toHaveBeenCalledWith(actionParams, undefined);
-      expect(result).toBe(expectedResult);
+      expect(result).toEqual([expectedResult, affectedItems]);
     });
 
     it('should work with empty locations array', async () => {
@@ -124,15 +119,16 @@ describe('wrapAllActionOperation', () => {
       const actionParams = { param1: 'value1' };
       const locations: LocKeyArray<'level1', 'level2'> | [] = [];
       const expectedResult: TestItem[] = [];
+      const affectedItems: Array<any> = [];
 
-      mockActionMethod.mockResolvedValue(expectedResult);
+      mockActionMethod.mockResolvedValue([expectedResult, affectedItems]);
 
       const result = await wrappedAllAction(actionKey, actionParams, locations);
 
       expect(mockActionMethod).toHaveBeenCalledWith(actionParams, locations);
-      expect(result).toBe(expectedResult);
-      expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBe(0);
+      expect(result).toEqual([expectedResult, affectedItems]);
+      expect(Array.isArray(result[0])).toBe(true);
+      expect(result[0].length).toBe(0);
     });
 
     it('should log debug information before calling action', async () => {
@@ -143,8 +139,9 @@ describe('wrapAllActionOperation', () => {
         { kt: 'level2', lk: 'level2-id' } as LocKey<'level2'>
       ];
       const expectedResult: TestItem[] = [];
+      const affectedItems: Array<any> = [];
 
-      mockActionMethod.mockResolvedValue(expectedResult);
+      mockActionMethod.mockResolvedValue([expectedResult, affectedItems]);
 
       await wrappedAllAction(actionKey, actionParams, locations);
 
@@ -168,14 +165,15 @@ describe('wrapAllActionOperation', () => {
       const expectedResult: TestItem[] = [
         { id: '1', name: 'complex processing completed' } as TestItem
       ];
+      const affectedItems: Array<any> = [];
 
-      mockActionMethod.mockResolvedValue(expectedResult);
+      mockActionMethod.mockResolvedValue([expectedResult, affectedItems]);
 
       const result = await wrappedAllAction(actionKey, actionParams);
 
       // eslint-disable-next-line no-undefined
       expect(mockActionMethod).toHaveBeenCalledWith(actionParams, undefined);
-      expect(result).toBe(expectedResult);
+      expect(result).toEqual([expectedResult, affectedItems]);
       expect(mockLoggerDebug).toHaveBeenCalledWith('allAction', {
         allActionKey: actionKey,
         allActionParams: actionParams,
@@ -225,7 +223,7 @@ describe('wrapAllActionOperation', () => {
       const optionsWithoutActions = createOptions<TestItem, 'test', 'level1', 'level2'>({});
 
       const wrappedAllActionWithoutActions = wrapAllActionOperation(
-        mockOperations, optionsWithoutActions, mockCoordinate, mockRegistry
+        mockOperations, optionsWithoutActions
       );
 
       await expect(wrappedAllActionWithoutActions(actionKey, actionParams)).rejects.toThrow(
@@ -243,7 +241,7 @@ describe('wrapAllActionOperation', () => {
       const optionsWithoutAllActions = createOptions<TestItem, 'test', 'level1', 'level2'>({});
 
       const wrappedAllActionWithoutOptions = wrapAllActionOperation(
-        mockOperations, optionsWithoutAllActions, mockCoordinate, mockRegistry
+        mockOperations, optionsWithoutAllActions
       );
 
       await expect(wrappedAllActionWithoutOptions(actionKey, actionParams)).rejects.toThrow(
@@ -257,16 +255,17 @@ describe('wrapAllActionOperation', () => {
       const actionKey = 'testAction';
       const actionParams = {};
       const expectedResult: TestItem[] = [];
+      const affectedItems: Array<any> = [];
 
-      mockActionMethod.mockResolvedValue(expectedResult);
+      mockActionMethod.mockResolvedValue([expectedResult, affectedItems]);
 
       const result = await wrappedAllAction(actionKey, actionParams);
 
       // eslint-disable-next-line no-undefined
       expect(mockActionMethod).toHaveBeenCalledWith(actionParams, undefined);
-      expect(result).toBe(expectedResult);
-      expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBe(0);
+      expect(result).toEqual([expectedResult, affectedItems]);
+      expect(Array.isArray(result[0])).toBe(true);
+      expect(result[0].length).toBe(0);
     });
 
     it('should handle multiple items in result array', async () => {
@@ -277,16 +276,17 @@ describe('wrapAllActionOperation', () => {
         { id: '2', name: 'item2' } as TestItem,
         { id: '3', name: 'item3' } as TestItem,
       ];
+      const affectedItems: Array<any> = [];
 
-      mockActionMethod.mockResolvedValue(expectedResult);
+      mockActionMethod.mockResolvedValue([expectedResult, affectedItems]);
 
       const result = await wrappedAllAction(actionKey, actionParams);
 
       // eslint-disable-next-line no-undefined
       expect(mockActionMethod).toHaveBeenCalledWith(actionParams, undefined);
-      expect(result).toBe(expectedResult);
-      expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBe(3);
+      expect(result).toEqual([expectedResult, affectedItems]);
+      expect(Array.isArray(result[0])).toBe(true);
+      expect(result[0].length).toBe(3);
     });
 
     it('should work with different action keys', async () => {
@@ -297,15 +297,16 @@ describe('wrapAllActionOperation', () => {
         const expectedResult: TestItem[] = [
           { id: '1', name: `result for ${actionKey}` } as TestItem
         ];
+        const affectedItems: Array<any> = [];
 
         mockActionMethod.mockClear();
-        mockActionMethod.mockResolvedValue(expectedResult);
+        mockActionMethod.mockResolvedValue([expectedResult, affectedItems]);
 
         const result = await wrappedAllAction(actionKey, actionParams);
 
         // eslint-disable-next-line no-undefined
         expect(mockActionMethod).toHaveBeenCalledWith(actionParams, undefined);
-        expect(result).toBe(expectedResult);
+        expect(result).toEqual([expectedResult, affectedItems]);
       }
     });
   });

@@ -127,7 +127,7 @@ export interface Operations<
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
     actionKey: string,
     actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-  ): Promise<V>;
+  ): Promise<[V, Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
 
   actions: Record<string, ActionMethod<V, S, L1, L2, L3, L4, L5>>;
 
@@ -143,7 +143,7 @@ export interface Operations<
     allActionKey: string,
     allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | [],
-  ): Promise<V[]>;
+  ): Promise<[V[], Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
 
   allActions: Record<string, AllActionMethod<V, S, L1, L2, L3, L4, L5>>;
 
@@ -181,9 +181,9 @@ export const wrapOperations = <
   operations.find = wrapFindOperation(toWrap, options, coordinate, registry);
   operations.findOne = wrapFindOneOperation(toWrap, options, coordinate, registry);
   operations.upsert = wrapUpsertOperation(operations, registry);
-  operations.action = wrapActionOperation(toWrap, options, coordinate, registry);
+  operations.action = wrapActionOperation(toWrap, options);
   operations.facet = wrapFacetOperation(toWrap, options, coordinate, registry);
-  operations.allAction = wrapAllActionOperation(toWrap, options, coordinate, registry);
+  operations.allAction = wrapAllActionOperation(toWrap, options);
   operations.allFacet = wrapAllFacetOperation(toWrap, options, coordinate, registry);
 
   // Copy collection properties from options and toWrap
