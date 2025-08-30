@@ -16,7 +16,7 @@ export interface ActionMethod<
   (
     item: V,
     actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-  ): Promise<V>;
+  ): Promise<[V, Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
 }
 
 export interface AllActionMethod<
@@ -31,7 +31,7 @@ export interface AllActionMethod<
   (
     allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<V[]>;
+  ): Promise<[V[], Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
 }
 
 export interface FacetMethod<
@@ -91,13 +91,13 @@ export interface Options<
     preCreate?: (
       item: Partial<Item<S, L1, L2, L3, L4, L5>>,
       options?:
-      {
-        key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-        locations?: never;
-      } | {
-        key?: never;
-        locations: LocKeyArray<L1, L2, L3, L4, L5>,
-      }
+        {
+          key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
+          locations?: never;
+        } | {
+          key?: never;
+          locations: LocKeyArray<L1, L2, L3, L4, L5>,
+        }
     ) => Promise<Partial<Item<S, L1, L2, L3, L4, L5>>>;
     postCreate?: (
       item: V,
@@ -120,13 +120,13 @@ export interface Options<
     onCreate?: (
       item: Partial<Item<S, L1, L2, L3, L4, L5>>,
       options?:
-      {
-        key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-        locations?: never;
-      } | {
-        key?: never;
-        locations: LocKeyArray<L1, L2, L3, L4, L5>,
-      }
+        {
+          key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
+          locations?: never;
+        } | {
+          key?: never;
+          locations: LocKeyArray<L1, L2, L3, L4, L5>,
+        }
     ) => Promise<boolean>;
     onUpdate?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
@@ -167,13 +167,13 @@ export const createDefaultOptions = <
         item: Partial<Item<S, L1, L2, L3, L4, L5>>,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         options?:
-        {
-          key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-          locations?: never;
-        } | {
-          key?: never;
-          locations: LocKeyArray<L1, L2, L3, L4, L5>,
-        }
+          {
+            key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
+            locations?: never;
+          } | {
+            key?: never;
+            locations: LocKeyArray<L1, L2, L3, L4, L5>,
+          }
       ) => {
         const retItem = clearAggs(item);
         return retItem as Partial<Item<S, L1, L2, L3, L4, L5>>;
