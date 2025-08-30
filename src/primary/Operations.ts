@@ -1,10 +1,10 @@
-import { Operations as AbstractOperations, wrapOperations as createAbstractOperations } from "../Operations";
-import { Item, ItemQuery, PriKey } from "@fjell/core";
+import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
+import { Coordinate } from "@fjell/registry";
+import { Operations as AbstractOperations, Registry } from "@fjell/lib";
+import { ActionMethod, AllActionMethod, AllFacetMethod, FacetMethod, Options } from "../Options";
 
 import LibLogger from "../logger";
-import { Registry } from "../Registry";
-import { Coordinate } from "@fjell/registry";
-import { Options } from "./Options";
+import { ItemQuery } from "@fjell/core";
 
 const logger = LibLogger.get("primary", "Operations");
 
@@ -68,7 +68,9 @@ export interface Operations<
     key: PriKey<S>,
     actionKey: string,
     actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-  ): Promise<V>;
+  ): Promise<[V, Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
+
+  actions: Record<string, ActionMethod<V, S, never, never, never, never, never>>;
 
   facet(
     key: PriKey<S>,
@@ -76,15 +78,21 @@ export interface Operations<
     facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<any>;
 
+  facets: Record<string, FacetMethod<V, S, never, never, never, never, never>>;
+
   allAction(
     allActionKey: string,
     allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-  ): Promise<V[]>;
+  ): Promise<[V[], Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
+
+  allActions: Record<string, AllActionMethod<V, S, never, never, never, never, never>>;
 
   allFacet(
     allFacetKey: string,
     allFacetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<any>;
+
+  allFacets: Record<string, AllFacetMethod<never, never, never, never, never>>;
 }
 
 export const wrapOperations = <
@@ -98,6 +106,7 @@ export const wrapOperations = <
   ): Operations<V, S> => {
   logger.debug("wrapOperations", { toWrap, options, coordinate, registry });
   return {
-    ...createAbstractOperations(toWrap, options, coordinate, registry),
+    ...toWrap,
+    // Add any primary-specific wrapping logic here if needed
   };
 }
