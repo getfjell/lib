@@ -14,9 +14,9 @@ export const wrapAllActionOperation = <
   L4 extends string = never,
   L5 extends string = never,
 >(
-    toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-    options: Options<V, S, L1, L2, L3, L4, L5>,
-  ) => {
+  toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
+  options: Options<V, S, L1, L2, L3, L4, L5>,
+) => {
   const { allActions } = options || {};
   const allAction = async (
     allActionKey: string,
@@ -25,7 +25,16 @@ export const wrapAllActionOperation = <
   ): Promise<[V[], Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]> => {
     logger.debug("allAction", { allActionKey, allActionParams, locations });
     if (!allActions?.[allActionKey]) {
-      throw new Error(`AllAction ${allActionKey} not found in definition`);
+      const availableActions = allActions ? Object.keys(allActions) : [];
+      const errorMessage = `AllAction "${allActionKey}" not found in definition. Available actions: ${availableActions.length > 0 ? availableActions.join(', ') : 'none'}`;
+      logger.error(errorMessage, {
+        requestedAction: allActionKey,
+        availableActions,
+        allActionsKeys: allActions ? Object.keys(allActions) : [],
+        params: allActionParams,
+        locations
+      });
+      throw new Error(errorMessage);
     }
     const allActionMethod = allActions[allActionKey];
     return allActionMethod(allActionParams, locations);
