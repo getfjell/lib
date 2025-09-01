@@ -14,9 +14,9 @@ export const wrapAllActionOperation = <
   L4 extends string = never,
   L5 extends string = never,
 >(
-  toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-  options: Options<V, S, L1, L2, L3, L4, L5>,
-) => {
+    toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
+    options: Options<V, S, L1, L2, L3, L4, L5>,
+  ) => {
   const { allActions } = options || {};
   const allAction = async (
     allActionKey: string,
