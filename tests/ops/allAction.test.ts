@@ -3,6 +3,7 @@ import { Item, LocKey, LocKeyArray } from '@fjell/core';
 
 // Create mock logger functions that can be accessed by tests
 const mockLoggerDebug = vi.hoisted(() => vi.fn());
+const mockLoggerError = vi.hoisted(() => vi.fn());
 const mockLoggerDefault = vi.hoisted(() => vi.fn());
 const mockLoggerGet = vi.hoisted(() => vi.fn());
 
@@ -11,6 +12,7 @@ vi.mock('../../src/logger', () => ({
   default: {
     get: mockLoggerGet.mockReturnValue({
       debug: mockLoggerDebug,
+      error: mockLoggerError,
       default: mockLoggerDefault,
     }),
   },
@@ -35,6 +37,7 @@ describe('wrapAllActionOperation', () => {
   beforeEach(() => {
     // Reset only specific mocks, not the logger get mock since it's called at module load time
     mockLoggerDebug.mockClear();
+    mockLoggerError.mockClear();
     mockLoggerDefault.mockClear();
 
     // Create mock all action method
@@ -227,7 +230,7 @@ describe('wrapAllActionOperation', () => {
       );
 
       await expect(wrappedAllActionWithoutActions(actionKey, actionParams)).rejects.toThrow(
-        'AllAction testAction not found in definition'
+        'AllAction "testAction" not found in definition. Available actions: none'
       );
 
       expect(mockActionMethod).not.toHaveBeenCalled();
@@ -245,7 +248,7 @@ describe('wrapAllActionOperation', () => {
       );
 
       await expect(wrappedAllActionWithoutOptions(actionKey, actionParams)).rejects.toThrow(
-        'AllAction testAction not found in definition'
+        'AllAction "testAction" not found in definition. Available actions: none'
       );
 
       expect(mockActionMethod).not.toHaveBeenCalled();
