@@ -25,7 +25,16 @@ export const wrapAllActionOperation = <
   ): Promise<[V[], Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]> => {
     logger.debug("allAction", { allActionKey, allActionParams, locations });
     if (!allActions?.[allActionKey]) {
-      throw new Error(`AllAction ${allActionKey} not found in definition`);
+      const availableActions = allActions ? Object.keys(allActions) : [];
+      const errorMessage = `AllAction "${allActionKey}" not found in definition. Available actions: ${availableActions.length > 0 ? availableActions.join(', ') : 'none'}`;
+      logger.error(errorMessage, {
+        requestedAction: allActionKey,
+        availableActions,
+        allActionsKeys: allActions ? Object.keys(allActions) : [],
+        params: allActionParams,
+        locations
+      });
+      throw new Error(errorMessage);
     }
     const allActionMethod = allActions[allActionKey];
     return allActionMethod(allActionParams, locations);
