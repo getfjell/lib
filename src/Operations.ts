@@ -165,11 +165,11 @@ export const wrapOperations = <
   L4 extends string = never,
   L5 extends string = never,
 >(
-    toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-    options: Options<V, S, L1, L2, L3, L4, L5>,
-    coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
-    registry: Registry,
-  ): Operations<V, S, L1, L2, L3, L4, L5> => {
+  toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
+  options: Options<V, S, L1, L2, L3, L4, L5>,
+  coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
+  registry: Registry,
+): Operations<V, S, L1, L2, L3, L4, L5> => {
   const operations = {} as Operations<V, S, L1, L2, L3, L4, L5>;
 
   operations.all = wrapAllOperation(toWrap, options, coordinate, registry);
@@ -187,11 +187,11 @@ export const wrapOperations = <
   operations.allFacet = wrapAllFacetOperation(toWrap, options, coordinate, registry);
 
   // Copy collection properties from options and toWrap
-  operations.finders = { ...toWrap.finders, ...options.finders };
-  operations.actions = { ...toWrap.actions, ...options.actions };
-  operations.facets = { ...toWrap.facets, ...options.facets };
-  operations.allActions = { ...toWrap.allActions, ...options.allActions };
-  operations.allFacets = { ...toWrap.allFacets, ...options.allFacets };
+  operations.finders = { ...(toWrap.finders || {}), ...(options.finders || {}) };
+  operations.actions = { ...(toWrap.actions || {}), ...(options.actions || {}) };
+  operations.facets = { ...(toWrap.facets || {}), ...(options.facets || {}) };
+  operations.allActions = { ...(toWrap.allActions || {}), ...(options.allActions || {}) };
+  operations.allFacets = { ...(toWrap.allFacets || {}), ...(options.allFacets || {}) };
 
   return operations;
 };
@@ -205,8 +205,8 @@ export const createReadOnlyOperations = <
   L4 extends string = never,
   L5 extends string = never,
 >(
-    toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-  ): Operations<V, S, L1, L2, L3, L4, L5> => {
+  toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
+): Operations<V, S, L1, L2, L3, L4, L5> => {
 
   logger.debug("createReadOnlyOperations", { toWrap });
   const create = async (
