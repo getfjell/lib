@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { ComKey, Item, PriKey } from "@fjell/core";
 
 import { LocKeyArray } from "@fjell/core";
@@ -11,6 +12,8 @@ import { Coordinate } from "@fjell/registry";
 import { ActionMethod } from "../Options";
 import { FacetMethod } from "../Options";
 import { AllActionMethod } from "../Options";
+
+import logger from "src/logger";
 
 export interface Operations<
   V extends Item<S, L1, L2, L3, L4, L5>,
@@ -118,15 +121,13 @@ export const wrapOperations = <
   L4 extends string = never,
   L5 extends string = never,
 >(
-    toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-    options: Options<V, S, L1, L2, L3, L4, L5>,
-    coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
-    registry: Registry,
+  toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
+  options: Options<V, S, L1, L2, L3, L4, L5>,
+  coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
+  registry: Registry,
 
-  ): Operations<V, S, L1, L2, L3, L4, L5> => {
-
+): Operations<V, S, L1, L2, L3, L4, L5> => {
+  logger.debug("wrapOperations", { toWrap, options, coordinate, registry });
   const operations = wrapAbstractOperations(toWrap, options, coordinate, registry);
-  return {
-    ...operations
-  };
+  return operations;
 };

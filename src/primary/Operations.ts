@@ -1,10 +1,12 @@
+/* eslint-disable indent */
 import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
-import { Operations as AbstractOperations, Registry } from "@fjell/lib";
 import { ActionMethod, AllActionMethod, AllFacetMethod, FacetMethod, Options } from "../Options";
+import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperations } from "../Operations";
 
 import LibLogger from "../logger";
 import { ItemQuery } from "@fjell/core";
+import { Registry } from "../Registry";
 
 const logger = LibLogger.get("primary", "Operations");
 
@@ -99,14 +101,13 @@ export const wrapOperations = <
   V extends Item<S>,
   S extends string
 >(
-    toWrap: Operations<V, S>,
-    options: Options<V, S>,
-    coordinate: Coordinate<S>,
-    registry: Registry,
-  ): Operations<V, S> => {
+  toWrap: Operations<V, S>,
+  options: Options<V, S>,
+  coordinate: Coordinate<S>,
+  registry: Registry,
+
+): Operations<V, S> => {
   logger.debug("wrapOperations", { toWrap, options, coordinate, registry });
-  return {
-    ...toWrap,
-    // Add any primary-specific wrapping logic here if needed
-  };
-}
+  const operations = wrapAbstractOperations(toWrap, options, coordinate, registry);
+  return operations;
+};
