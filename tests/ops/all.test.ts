@@ -95,8 +95,7 @@ describe('getAllOperation', () => {
     (mockOperations.all as Mock).mockResolvedValue(expectedItems);
 
     const result = await allOperation(itemQuery);
-
-    // eslint-disable-next-line no-undefined
+     
     expect(mockOperations.all).toHaveBeenCalledWith(itemQuery, undefined);
     expect(result).toEqual(expectedItems);
   });
