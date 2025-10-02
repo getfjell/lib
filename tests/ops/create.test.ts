@@ -1,4 +1,4 @@
-/* eslint-disable no-undefined */
+ 
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { ComKey, Item, LocKey, LocKeyArray, PriKey } from "@fjell/core";
 import { wrapCreateOperation } from "../../src/ops/create";
