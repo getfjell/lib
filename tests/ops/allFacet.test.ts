@@ -107,8 +107,7 @@ describe('wrapAllFacetOperation', () => {
       mockFacetMethod.mockResolvedValue(expectedResult);
 
       const result = await wrappedAllFacet(facetKey, facetParams);
-
-      // eslint-disable-next-line no-undefined
+       
       expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, undefined);
       expect(result).toBe(expectedResult);
     });
@@ -161,14 +160,13 @@ describe('wrapAllFacetOperation', () => {
       mockFacetMethod.mockResolvedValue(expectedResult);
 
       const result = await wrappedAllFacet(facetKey, facetParams);
-
-      // eslint-disable-next-line no-undefined
+       
       expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, undefined);
       expect(result).toBe(expectedResult);
       expect(mockLoggerDebug).toHaveBeenCalledWith('allFacet', {
         allFacetKey: facetKey,
         allFacetParams: facetParams,
-        // eslint-disable-next-line no-undefined
+         
         locations: undefined,
       });
     });
@@ -181,7 +179,7 @@ describe('wrapAllFacetOperation', () => {
       mockFacetMethod.mockRejectedValue(testError);
 
       await expect(wrappedAllFacet(facetKey, facetParams)).rejects.toThrow('Facet operation failed');
-      // eslint-disable-next-line no-undefined
+       
       expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, undefined);
     });
 
@@ -201,7 +199,7 @@ describe('wrapAllFacetOperation', () => {
       expect(mockLoggerDebug).toHaveBeenCalledWith('allFacet', {
         allFacetKey: facetKey,
         allFacetParams: facetParams,
-        // eslint-disable-next-line no-undefined
+         
         locations: undefined,
       });
     });
@@ -249,7 +247,7 @@ describe('wrapAllFacetOperation', () => {
       // Test different return types
       const testCases = [
         null,
-        // eslint-disable-next-line no-undefined
+         
         undefined,
         'string result',
         42,
@@ -263,8 +261,7 @@ describe('wrapAllFacetOperation', () => {
         mockFacetMethod.mockResolvedValue(expectedResult);
 
         const result = await wrappedAllFacet(facetKey, facetParams);
-
-        // eslint-disable-next-line no-undefined
+         
         expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, undefined);
         expect(result).toBe(expectedResult);
       }
