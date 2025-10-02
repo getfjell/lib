@@ -286,15 +286,14 @@ describe('contained/Library', () => {
 
     it('should handle undefined parent gracefully', () => {
       const result = createLibrary(
-        // eslint-disable-next-line no-undefined
+         
         undefined as any,
         mockRegistry,
         mockCoordinate,
         mockOperations,
         mockOptions
       );
-
-      // eslint-disable-next-line no-undefined
+       
       expect(result.parent).toBe(undefined);
       expect(result.coordinate).toBe(mockCoordinate);
     });
