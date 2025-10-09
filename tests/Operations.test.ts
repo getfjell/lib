@@ -17,6 +17,7 @@ vi.mock('@fjell/logging', () => {
     alert: vi.fn(),
     critical: vi.fn(),
     notice: vi.fn(),
+    default: vi.fn(),
     time: vi.fn().mockReturnThis(),
     end: vi.fn(),
     log: vi.fn(),
