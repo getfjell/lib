@@ -43,17 +43,27 @@ export const wrapCreateOperation = <
       locations: LocKeyArray<L1, L2, L3, L4, L5>,
     }
   ): Promise<V> => {
-    logger.default("create", { item, options });
+    logger.default("📚 [LIB] Wrapped create operation called", { item, options, coordinate: coordinate.kta });
 
     let itemToCreate = item;
 
+    logger.default("📚 [LIB] Running pre-create hook");
     itemToCreate = await runPreCreateHook(itemToCreate, options);
+    logger.default("📚 [LIB] Pre-create hook completed", { itemToCreate });
+
+    logger.default("📚 [LIB] Running create validation");
     await validateCreate(itemToCreate, options);
+    logger.default("📚 [LIB] Create validation completed");
 
+    logger.default("📚 [LIB] Calling underlying operation (lib-firestore)", { itemToCreate, options });
     let createdItem = await toWrap.create(itemToCreate, options);
-    createdItem = await runPostCreateHook(createdItem);
+    logger.default("📚 [LIB] Underlying operation completed", { createdItem });
 
-    logger.default("created item: %j", { createdItem });
+    logger.default("📚 [LIB] Running post-create hook");
+    createdItem = await runPostCreateHook(createdItem);
+    logger.default("📚 [LIB] Post-create hook completed", { createdItem });
+
+    logger.default("📚 [LIB] Wrapped create operation completed", { createdItem });
     return createdItem;
   }
 

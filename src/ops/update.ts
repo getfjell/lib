@@ -30,20 +30,31 @@ export const wrapUpdateOperation = <
     item: Partial<Item<S, L1, L2, L3, L4, L5>>,
   ): Promise<V> => {
 
-    logger.default('update', { key, item });
+    logger.default('📚 [LIB] Wrapped update operation called', { key, item, coordinate: coordinate.kta });
 
     let itemToUpdate = item;
+    
+    logger.default('📚 [LIB] Running pre-update hook');
     itemToUpdate = await runPreUpdateHook(key, itemToUpdate);
+    logger.default('📚 [LIB] Pre-update hook completed', { itemToUpdate });
+
+    logger.default('📚 [LIB] Running update validation');
     await validateUpdate(key, itemToUpdate);
+    logger.default('📚 [LIB] Update validation completed');
 
     try {
-      logger.default('Updating item', { key, item: itemToUpdate });
+      logger.default('📚 [LIB] Calling underlying operation (lib-firestore)', { key, item: itemToUpdate });
       let updatedItem = await toWrap.update(key, itemToUpdate) as V;
-      updatedItem = await runPostUpdateHook(updatedItem);
+      logger.default('📚 [LIB] Underlying operation completed', { updatedItem });
 
-      logger.default("updated item: %j", { updatedItem });
+      logger.default('📚 [LIB] Running post-update hook');
+      updatedItem = await runPostUpdateHook(updatedItem);
+      logger.default('📚 [LIB] Post-update hook completed', { updatedItem });
+
+      logger.default("📚 [LIB] Wrapped update operation completed", { updatedItem });
       return updatedItem;
     } catch (error: unknown) {
+      logger.error('📚 [LIB] Update operation failed', { error, key, item: itemToUpdate });
       throw new UpdateError(
         { key, item: itemToUpdate },
         coordinate,

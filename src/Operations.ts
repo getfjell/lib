@@ -171,14 +171,28 @@ export const wrapOperations = <
   coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   registry: Registry,
 ): Operations<V, S, L1, L2, L3, L4, L5> => {
+  logger.default('🔗 [LIB] Wrapping operations with hooks and validation', {
+    coordinate: coordinate.kta,
+    hasHooks: !!options.hooks,
+    hasValidators: !!options.validators,
+    toWrapType: toWrap.constructor?.name || 'Unknown'
+  });
+
   const operations = {} as Operations<V, S, L1, L2, L3, L4, L5>;
 
+  logger.default('🔗 [LIB] Wrapping create operation');
+  operations.create = wrapCreateOperation(toWrap, options, coordinate, registry);
+  
+  logger.default('🔗 [LIB] Wrapping update operation');
+  operations.update = wrapUpdateOperation(toWrap, options, coordinate, registry);
+  
+  logger.default('🔗 [LIB] Wrapping remove operation');
+  operations.remove = wrapRemoveOperation(toWrap, options, coordinate, registry);
+  
+  logger.default('🔗 [LIB] Wrapping other operations');
   operations.all = wrapAllOperation(toWrap, options, coordinate, registry);
   operations.one = wrapOneOperation(toWrap, options, coordinate, registry);
-  operations.create = wrapCreateOperation(toWrap, options, coordinate, registry);
-  operations.update = wrapUpdateOperation(toWrap, options, coordinate, registry);
   operations.get = wrapGetOperation(toWrap, options, coordinate, registry);
-  operations.remove = wrapRemoveOperation(toWrap, options, coordinate, registry);
   operations.find = wrapFindOperation(toWrap, options, coordinate, registry);
   operations.findOne = wrapFindOneOperation(toWrap, options, coordinate, registry);
   operations.upsert = wrapUpsertOperation(operations, registry);
@@ -193,6 +207,11 @@ export const wrapOperations = <
   operations.facets = { ...(toWrap.facets || {}), ...(options.facets || {}) };
   operations.allActions = { ...(toWrap.allActions || {}), ...(options.allActions || {}) };
   operations.allFacets = { ...(toWrap.allFacets || {}), ...(options.allFacets || {}) };
+
+  logger.default('🔗 [LIB] Operations wrapping completed', {
+    coordinate: coordinate.kta,
+    wrappedOperations: Object.keys(operations)
+  });
 
   return operations;
 };
