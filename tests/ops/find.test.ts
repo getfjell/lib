@@ -169,4 +169,32 @@ describe('wrapFindOperation', () => {
 
     expect(result).toEqual(expectedItems);
   });
+
+  test('should throw error when finder not found in options', async () => {
+    const customOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>({
+      finders: {
+        testFinder: vi.fn()
+      }
+    });
+
+    const findOperation = wrapFindOperation(mockOperations, customOptions, mockCoordinate, registry);
+    const finder = 'nonExistentFinder';
+    const finderParams = { param1: 'value1' };
+
+    await expect(findOperation(finder, finderParams)).rejects.toThrow(
+      `Finder ${finder} not found in definition for ${mockCoordinate.toString()}`
+    );
+  });
+
+  test('should throw error when finders not defined in options', async () => {
+    const customOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+
+    const findOperation = wrapFindOperation(mockOperations, customOptions, mockCoordinate, registry);
+    const finder = 'anyFinder';
+    const finderParams = { param1: 'value1' };
+
+    await expect(findOperation(finder, finderParams)).rejects.toThrow(
+      `Finder ${finder} not found in definition for ${mockCoordinate.toString()}`
+    );
+  });
 });
