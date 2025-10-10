@@ -29,20 +29,30 @@ export const wrapRemoveOperation = <
   const remove = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
   ): Promise<V> => {
-    logger.default('Removing item', { key });
+    logger.default('📚 [LIB] Wrapped remove operation called', { key, coordinate: coordinate.kta });
 
+    logger.default('📚 [LIB] Running pre-remove hook');
     await runPreRemoveHook(key);
-    await validateRemove(key);
+    logger.default('📚 [LIB] Pre-remove hook completed');
 
+    logger.default('📚 [LIB] Running remove validation');
+    await validateRemove(key);
+    logger.default('📚 [LIB] Remove validation completed');
+
+    logger.default('📚 [LIB] Calling underlying operation (lib-firestore)', { key });
     const item = await toWrap.remove(key);
+    logger.default('📚 [LIB] Underlying operation completed', { item });
 
     if (!item) {
+      logger.error('📚 [LIB] Remove operation failed - no item returned', { key });
       throw new RemoveError({ key }, coordinate);
     }
 
+    logger.default('📚 [LIB] Running post-remove hook');
     await runPostRemoveHook(item);
+    logger.default('📚 [LIB] Post-remove hook completed', { item });
 
-    logger.default("removed item: %j", { item });
+    logger.default("📚 [LIB] Wrapped remove operation completed", { item });
     return item;
   }
 
