@@ -252,6 +252,30 @@ describe('wrapAllActionOperation', () => {
       expect(mockActionMethod).not.toHaveBeenCalled();
     });
 
+    it('should throw error with available actions listed when allAction not found', async () => {
+      const actionKey = 'nonExistentAction';
+      const actionParams = {};
+
+      // Mock options with some allActions but not the requested one
+      const optionsWithOtherActions = createOptions<TestItem, 'test', 'level1', 'level2'>({
+        allActions: {
+          'availableAction1': vi.fn(),
+          'availableAction2': vi.fn(),
+          'availableAction3': vi.fn()
+        }
+      });
+
+      const wrappedAllActionWithOtherActions = wrapAllActionOperation(
+        mockOperations, optionsWithOtherActions
+      );
+
+      await expect(wrappedAllActionWithOtherActions(actionKey, actionParams)).rejects.toThrow(
+        'AllAction "nonExistentAction" not found in definition. Available actions: availableAction1, availableAction2, availableAction3'
+      );
+
+      expect(mockActionMethod).not.toHaveBeenCalled();
+    });
+
     it('should return empty array when action method returns empty array', async () => {
       const actionKey = 'testAction';
       const actionParams = {};

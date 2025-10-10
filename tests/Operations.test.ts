@@ -169,4 +169,94 @@ describe('Operations', () => {
       expect(testAllFacets.testFacet).toHaveBeenCalledWith(params, locations);
     });
   });
+
+  describe('property merging from toWrap and options', () => {
+    test('should merge finders from both toWrap and options', () => {
+      const registry = createRegistry();
+      
+      const toWrapFinders = {
+        fromToWrap: vi.fn()
+      };
+      
+      const optionsFinders = {
+        fromOptions: vi.fn()
+      };
+
+      const mockOpsWithFinders = {
+        ...mockOperations,
+        finders: toWrapFinders
+      };
+
+      const optionsWithFinders = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+      optionsWithFinders.finders = optionsFinders;
+
+      const operations = wrapOperations(mockOpsWithFinders, optionsWithFinders, mockCoordinate, registry);
+
+      expect(operations.finders.fromToWrap).toBeDefined();
+      expect(operations.finders.fromOptions).toBeDefined();
+    });
+
+    test('should handle missing finders in toWrap', () => {
+      const registry = createRegistry();
+      
+      const optionsFinders = {
+        fromOptions: vi.fn()
+      };
+
+      const mockOpsWithoutFinders = {
+        ...mockOperations,
+        finders: undefined
+      };
+
+      const optionsWithFinders = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+      optionsWithFinders.finders = optionsFinders;
+
+      const operations = wrapOperations(mockOpsWithoutFinders as any, optionsWithFinders, mockCoordinate, registry);
+
+      expect(operations.finders.fromOptions).toBeDefined();
+      expect(Object.keys(operations.finders).length).toBe(1);
+    });
+
+    test('should handle missing finders in options', () => {
+      const registry = createRegistry();
+      
+      const toWrapFinders = {
+        fromToWrap: vi.fn()
+      };
+
+      const mockOpsWithFinders = {
+        ...mockOperations,
+        finders: toWrapFinders
+      };
+
+      const optionsWithoutFinders = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+
+      const operations = wrapOperations(mockOpsWithFinders, optionsWithoutFinders, mockCoordinate, registry);
+
+      expect(operations.finders.fromToWrap).toBeDefined();
+    });
+
+    test('should handle missing actions in both toWrap and options', () => {
+      const registry = createRegistry();
+
+      const mockOpsWithoutActions = {
+        ...mockOperations,
+        actions: undefined,
+        allActions: undefined,
+        facets: undefined,
+        allFacets: undefined,
+        finders: undefined
+      };
+
+      const optionsWithout = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+
+      const operations = wrapOperations(mockOpsWithoutActions as any, optionsWithout, mockCoordinate, registry);
+
+      expect(operations.actions).toBeDefined();
+      expect(operations.allActions).toBeDefined();
+      expect(operations.facets).toBeDefined();
+      expect(operations.allFacets).toBeDefined();
+      expect(operations.finders).toBeDefined();
+    });
+  });
 });
