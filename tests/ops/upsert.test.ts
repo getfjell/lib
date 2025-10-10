@@ -94,5 +94,21 @@ describe('upsert', () => {
       expect(createMethodMock).not.toHaveBeenCalled();
       expect(updateMethodMock).toHaveBeenCalled();
     });
+
+    test('should rethrow non-NotFoundError errors from get', async () => {
+      const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
+      const itemProperties = { name: 'newItem' } as Partial<Item<'test'>>;
+      const customError = new Error('Database connection failed');
+
+      getMethodMock.mockImplementation(() => {
+        throw customError;
+      });
+
+      const registry = createRegistry();
+      await expect(wrapUpsertOperation(operations, registry)(key, itemProperties)).rejects.toThrow('Database connection failed');
+      expect(getMethodMock).toHaveBeenCalled();
+      expect(createMethodMock).not.toHaveBeenCalled();
+      expect(updateMethodMock).not.toHaveBeenCalled();
+    });
   });
 });
