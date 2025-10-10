@@ -1,6 +1,7 @@
 import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
 import deepmerge from "deepmerge";
 import LibLogger from "./logger";
+import { AggregationDefinition, ReferenceDefinition } from "./processing";
 
 const logger = LibLogger.get("Options");
 
@@ -141,6 +142,8 @@ export interface Options<
   facets?: Record<string, FacetMethod<V, S, L1, L2, L3, L4, L5>>,
   allActions?: Record<string, AllActionMethod<V, S, L1, L2, L3, L4, L5>>,
   allFacets?: Record<string, AllFacetMethod<L1, L2, L3, L4, L5>>,
+  references?: ReferenceDefinition[],
+  aggregations?: AggregationDefinition[],
 }
 
 export const createDefaultOptions = <
