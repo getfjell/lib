@@ -35,6 +35,11 @@ describe('AggregationBuilder', () => {
           kt: 'user',
           pk: 'user1',
           loc: [{ kt: 'org', lk: 'org1' }]
+        },
+        events: {
+          created: { at: new Date() },
+          updated: { at: new Date() },
+          deleted: { at: null }
         }
       };
 
@@ -63,6 +68,11 @@ describe('AggregationBuilder', () => {
           kt: 'user',
           pk: 'user1',
           loc: [{ kt: 'org', lk: 'org1' }]
+        },
+        events: {
+          created: { at: new Date() },
+          updated: { at: new Date() },
+          deleted: { at: null }
         }
       };
 
@@ -91,7 +101,12 @@ describe('AggregationBuilder', () => {
       mockRegistry.get = vi.fn().mockReturnValue(null);
 
       const item: Item<'user'> = {
-        key: { kt: 'user', pk: 'user1' }
+        key: { kt: 'user', pk: 'user1' },
+        events: {
+          created: { at: new Date() },
+          updated: { at: new Date() },
+          deleted: { at: null }
+        }
       };
 
       const aggregationDef: AggregationDefinition = {
@@ -111,6 +126,11 @@ describe('AggregationBuilder', () => {
           kt: 'user',
           pk: 'user1',
           loc: [{ kt: 'org', lk: 'org1' }]
+        },
+        events: {
+          created: { at: new Date() },
+          updated: { at: new Date() },
+          deleted: { at: null }
         }
       };
 
@@ -139,6 +159,11 @@ describe('AggregationBuilder', () => {
           kt: 'user',
           pk: 'user1',
           loc: [{ kt: 'org', lk: 'org1' }]
+        },
+        events: {
+          created: { at: new Date() },
+          updated: { at: new Date() },
+          deleted: { at: null }
         }
       };
 
@@ -160,7 +185,12 @@ describe('AggregationBuilder', () => {
 
     it('should work without a context', async () => {
       const item: Item<'user'> = {
-        key: { kt: 'user', pk: 'user1' }
+        key: { kt: 'user', pk: 'user1' },
+        events: {
+          created: { at: new Date() },
+          updated: { at: new Date() },
+          deleted: { at: null }
+        }
       };
 
       const aggregationDef: AggregationDefinition = {
@@ -179,7 +209,12 @@ describe('AggregationBuilder', () => {
 
     it('should handle primary key items (no location)', async () => {
       const item: Item<'user'> = {
-        key: { kt: 'user', pk: 'user1' }
+        key: { kt: 'user', pk: 'user1' },
+        events: {
+          created: { at: new Date() },
+          updated: { at: new Date() },
+          deleted: { at: null }
+        }
       };
 
       const aggregationDef: AggregationDefinition = {
