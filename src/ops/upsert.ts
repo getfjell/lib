@@ -4,11 +4,13 @@ import {
   Item,
   PriKey,
 } from "@fjell/core";
+import { Coordinate } from "@fjell/registry";
 
 import LibLogger from "../logger";
 import { NotFoundError } from "../errors";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
+import { validateKey } from "../validation/KeyValidator";
 
 const logger = LibLogger.get('ops', 'upsert');
 
@@ -22,6 +24,7 @@ export const wrapUpsertOperation = <
   L4 extends string = never,
   L5 extends string = never>(
     ops: Operations<V, S, L1, L2, L3, L4, L5>,
+    coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
   ) => {
@@ -56,6 +59,9 @@ export const wrapUpsertOperation = <
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
     itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>,
   ): Promise<V> => {
+
+    // Validate key type and location key order
+    validateKey(key, coordinate, 'upsert');
 
     let item: V | null = null;
     item = await retrieveOrCreateWithKey(key, itemProperties);
