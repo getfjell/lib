@@ -5,6 +5,7 @@ import { Options } from "../Options";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
+import { validateKey } from "../validation/KeyValidator";
 
 const logger = LibLogger.get("library", "ops", "facet");
 
@@ -32,6 +33,10 @@ export const wrapFacetOperation = <
     facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
   ): Promise<V> => {
     logger.debug("facet for item key: %j, facet key: %s, params: %j", key, facetKey, facetParams);
+    
+    // Validate key type and location key order
+    validateKey(key, coordinate, 'facet');
+    
     if (!facets?.[facetKey]) {
       throw new Error(`Facet ${facetKey} not found in definition for ${coordinate.toString()}`);
     }

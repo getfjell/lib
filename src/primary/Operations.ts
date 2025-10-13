@@ -48,6 +48,26 @@ export interface Operations<
     item: Partial<Item<S>>,
   ): Promise<V>;
 
+  /**
+   * Retrieves a single item by its primary key.
+   *
+   * This is a primary item library, so the key should only contain:
+   * - The primary key type (kt)
+   * - The primary key value (pk)
+   *
+   * @param key - A PriKey identifying the item
+   * @returns Promise resolving to the item
+   * @throws InvalidKeyTypeError if a ComKey is provided instead of PriKey
+   * @throws NotFoundError if the item doesn't exist
+   *
+   * @example
+   * ```typescript
+   * const document = await library.operations.get({
+   *   kt: 'documents',
+   *   pk: 'doc-id'
+   * });
+   * ```
+   */
   get(
     key: PriKey<S>,
   ): Promise<V>;
