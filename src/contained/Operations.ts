@@ -60,8 +60,29 @@ export interface Operations<
     itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>,
   ): Promise<V>;
 
+  /**
+   * Retrieves a single item by its composite key.
+   *
+   * This is a composite item library, so the key must include both:
+   * - The parent primary key (kt, pk)
+   * - The location hierarchy (loc array with lk values)
+   *
+   * @param key - A ComKey containing the full path to the item
+   * @returns Promise resolving to the item
+   * @throws InvalidKeyTypeError if a PriKey is provided instead of ComKey
+   * @throws NotFoundError if the item doesn't exist
+   *
+   * @example
+   * ```typescript
+   * const annotation = await library.operations.get({
+   *   kt: 'annotations',
+   *   pk: 'parent-id',
+   *   loc: [{ kt: 'documents', lk: 'doc-id' }]
+   * });
+   * ```
+   */
   get(
-    key: ComKey<S, L1, L2, L3, L4, L5> | PriKey<S>,
+    key: ComKey<S, L1, L2, L3, L4, L5>,
   ): Promise<V>;
 
   remove(

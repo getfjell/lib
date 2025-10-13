@@ -5,7 +5,7 @@ import { Operations } from '../../src/Operations';
 import { createOptions, Options } from '../../src/Options';
 import { wrapUpdateOperation } from '../../src/ops/update';
 import { createRegistry, Registry } from '../../src/Registry';
-import { ComKey, Item, PriKey } from '@fjell/core';
+import { ComKey, Item } from '@fjell/core';
 
 vi.mock('@fjell/logging', () => {
   const logger = {
@@ -50,28 +50,10 @@ describe('wrapUpdateOperation', () => {
 
     registry = createRegistry();
     mockOptions = createOptions<TestItem, 'test', 'level1'>();
-    mockCoordinate = createCoordinate(['test'], ['level1']);
+    mockCoordinate = createCoordinate(['test', 'level1']);
   });
 
   describe('basic update operation', () => {
-    test('should call wrapped operations update with correct parameters using PriKey', async () => {
-      const updateOperation = wrapUpdateOperation(mockOperations, mockOptions, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
-      const item: Partial<TestItem> = { name: 'updated-name' };
-      const expectedItem: TestItem = {
-        id: 'test-id',
-        name: 'updated-name',
-        key
-      } as TestItem;
-
-      (mockOperations.update as any).mockResolvedValue(expectedItem);
-
-      const result = await updateOperation(key, item);
-
-      expect(mockOperations.update).toHaveBeenCalledWith(key, item);
-      expect(result).toEqual(expectedItem);
-    });
-
     test('should call wrapped operations update with correct parameters using ComKey', async () => {
       const updateOperation = wrapUpdateOperation(mockOperations, mockOptions, mockCoordinate, registry);
       const key: ComKey<'test', 'level1'> = {
@@ -96,7 +78,11 @@ describe('wrapUpdateOperation', () => {
 
     test('should propagate errors from underlying operations as UpdateError', async () => {
       const updateOperation = wrapUpdateOperation(mockOperations, mockOptions, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'updated-name' };
       const updateError = new Error('Database error');
 
@@ -115,7 +101,11 @@ describe('wrapUpdateOperation', () => {
       };
 
       const updateOperation = wrapUpdateOperation(mockOperations, optionsWithHook, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const originalItem: Partial<TestItem> = { name: 'original-name' };
       const expectedResult: TestItem = {
         id: 'hook-id',
@@ -141,7 +131,11 @@ describe('wrapUpdateOperation', () => {
       };
 
       const updateOperation = wrapUpdateOperation(mockOperations, optionsWithHook, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test-name' };
 
       await expect(updateOperation(key, item)).rejects.toThrow(HookError);
@@ -150,7 +144,11 @@ describe('wrapUpdateOperation', () => {
 
     test('should work without preUpdate hook', async () => {
       const updateOperation = wrapUpdateOperation(mockOperations, mockOptions, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test-name' };
       const expectedResult: TestItem = {
         id: 'test-id',
@@ -180,7 +178,11 @@ describe('wrapUpdateOperation', () => {
       };
 
       const updateOperation = wrapUpdateOperation(mockOperations, optionsWithHook, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test-name' };
       const updateResult: TestItem = {
         id: 'test-id',
@@ -209,7 +211,11 @@ describe('wrapUpdateOperation', () => {
       };
 
       const updateOperation = wrapUpdateOperation(mockOperations, optionsWithHook, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test-name' };
       const updateResult: TestItem = {
         id: 'test-id',
@@ -229,7 +235,11 @@ describe('wrapUpdateOperation', () => {
 
     test('should work without postUpdate hook', async () => {
       const updateOperation = wrapUpdateOperation(mockOperations, mockOptions, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test-name' };
       const expectedResult: TestItem = {
         id: 'test-id',
@@ -254,7 +264,11 @@ describe('wrapUpdateOperation', () => {
       };
 
       const updateOperation = wrapUpdateOperation(mockOperations, optionsWithValidator, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test-name' };
       const expectedResult: TestItem = {
         id: 'test-id',
@@ -279,7 +293,11 @@ describe('wrapUpdateOperation', () => {
       };
 
       const updateOperation = wrapUpdateOperation(mockOperations, optionsWithValidator, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test-name' };
 
       await expect(updateOperation(key, item)).rejects.toThrow(UpdateValidationError);
@@ -296,7 +314,11 @@ describe('wrapUpdateOperation', () => {
       };
 
       const updateOperation = wrapUpdateOperation(mockOperations, optionsWithValidator, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test-name' };
 
       await expect(updateOperation(key, item)).rejects.toThrow(UpdateValidationError);
@@ -306,7 +328,11 @@ describe('wrapUpdateOperation', () => {
 
     test('should work without validation', async () => {
       const updateOperation = wrapUpdateOperation(mockOperations, mockOptions, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test-name' };
       const expectedResult: TestItem = {
         id: 'test-id',
@@ -343,7 +369,11 @@ describe('wrapUpdateOperation', () => {
       };
 
       const updateOperation = wrapUpdateOperation(mockOperations, optionsWithAll, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const originalItem: Partial<TestItem> = { name: 'original' };
       const updateResult: TestItem = {
         id: 'updated-id',
@@ -381,7 +411,11 @@ describe('wrapUpdateOperation', () => {
       };
 
       const updateOperation = wrapUpdateOperation(mockOperations, optionsWithAll, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test' };
 
       await expect(updateOperation(key, item)).rejects.toThrow(HookError);
@@ -406,7 +440,11 @@ describe('wrapUpdateOperation', () => {
       };
 
       const updateOperation = wrapUpdateOperation(mockOperations, optionsWithAll, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test' };
 
       await expect(updateOperation(key, item)).rejects.toThrow(UpdateValidationError);
@@ -420,7 +458,11 @@ describe('wrapUpdateOperation', () => {
   describe('edge cases', () => {
     test('should handle empty item object', async () => {
       const updateOperation = wrapUpdateOperation(mockOperations, mockOptions, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = {};
       const expectedResult: TestItem = {
         id: 'test-id',
@@ -438,7 +480,11 @@ describe('wrapUpdateOperation', () => {
 
     test('should handle undefined options', async () => {
       const updateOperation = wrapUpdateOperation(mockOperations, {} as Options<TestItem, 'test', 'level1'>, mockCoordinate, registry);
-      const key: PriKey<'test'> = { kt: 'test', pk: 'test-id' };
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
       const item: Partial<TestItem> = { name: 'test-name' };
       const expectedResult: TestItem = {
         id: 'test-id',

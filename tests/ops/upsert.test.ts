@@ -70,7 +70,7 @@ describe('upsert', () => {
       updateMethodMock.mockResolvedValueOnce({ ...testItem, action: 'updated' } as Item<'test'>);
 
       const registry = createRegistry();
-      const result = await wrapUpsertOperation(operations, registry)(key, itemProperties);
+      const result = await wrapUpsertOperation(operations, coordinate, registry)(key, itemProperties);
       expect(result).toBeDefined();
       expect(result.action).toBe('updated');
       expect(getMethodMock).toHaveBeenCalled();
@@ -82,12 +82,13 @@ describe('upsert', () => {
       const testItem = { name: 'newItem' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
       const itemProperties = { name: 'newItem' } as Partial<Item<'test'>>;
+      const coordinate = createCoordinate<'test'>(['test'], []);
 
       getMethodMock.mockResolvedValueOnce(testItem);
       updateMethodMock.mockResolvedValueOnce({ ...testItem, action: 'updated' } as Item<'test'>);
 
       const registry = createRegistry();
-      const result = await wrapUpsertOperation(operations, registry)(key, itemProperties);
+      const result = await wrapUpsertOperation(operations, coordinate, registry)(key, itemProperties);
       expect(result).toBeDefined();
       expect(result.action).toBe('updated');
       expect(getMethodMock).toHaveBeenCalled();
@@ -98,6 +99,7 @@ describe('upsert', () => {
     test('should rethrow non-NotFoundError errors from get', async () => {
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
       const itemProperties = { name: 'newItem' } as Partial<Item<'test'>>;
+      const coordinate = createCoordinate<'test'>(['test'], []);
       const customError = new Error('Database connection failed');
 
       getMethodMock.mockImplementation(() => {
@@ -105,7 +107,7 @@ describe('upsert', () => {
       });
 
       const registry = createRegistry();
-      await expect(wrapUpsertOperation(operations, registry)(key, itemProperties)).rejects.toThrow('Database connection failed');
+      await expect(wrapUpsertOperation(operations, coordinate, registry)(key, itemProperties)).rejects.toThrow('Database connection failed');
       expect(getMethodMock).toHaveBeenCalled();
       expect(createMethodMock).not.toHaveBeenCalled();
       expect(updateMethodMock).not.toHaveBeenCalled();
