@@ -7,6 +7,7 @@ import { HookError, RemoveError, RemoveValidationError } from "../errors";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
+import { validateKey } from "../validation/KeyValidator";
 
 const logger = LibLogger.get('library', 'ops', 'remove');
 
@@ -30,6 +31,9 @@ export const wrapRemoveOperation = <
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
   ): Promise<V> => {
     logger.default('📚 [LIB] Wrapped remove operation called', { key, coordinate: coordinate.kta });
+
+    // Validate key type and location key order
+    validateKey(key, coordinate, 'remove');
 
     logger.default('📚 [LIB] Running pre-remove hook');
     await runPreRemoveHook(key);
