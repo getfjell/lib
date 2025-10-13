@@ -6,6 +6,7 @@ import { HookError, UpdateError, UpdateValidationError } from "../errors";
 import LibLogger from '../logger';
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
+import { validateKey } from "../validation/KeyValidator";
 
 const logger = LibLogger.get('library', 'ops', 'update');
 
@@ -31,6 +32,9 @@ export const wrapUpdateOperation = <
   ): Promise<V> => {
 
     logger.default('📚 [LIB] Wrapped update operation called', { key, item, coordinate: coordinate.kta });
+
+    // Validate key type and location key order
+    validateKey(key, coordinate, 'update');
 
     let itemToUpdate = item;
     
