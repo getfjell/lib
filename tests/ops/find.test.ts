@@ -46,7 +46,7 @@ describe('wrapFindOperation', () => {
     } as unknown as Operations<TestItem, 'test', 'loc1', 'loc2'>;
 
     registry = createRegistry();
-    mockCoordinate = createCoordinate(['test'], ['scope1']);
+    mockCoordinate = createCoordinate(['test', 'loc1', 'loc2'], ['scope1']);
   });
 
   test('should call wrapped operations find with correct parameters', async () => {

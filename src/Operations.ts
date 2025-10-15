@@ -198,7 +198,7 @@ export const wrapOperations = <
   operations.upsert = wrapUpsertOperation(operations, coordinate, registry);
   operations.action = wrapActionOperation(toWrap, options, coordinate);
   operations.facet = wrapFacetOperation(toWrap, options, coordinate, registry);
-  operations.allAction = wrapAllActionOperation(toWrap, options);
+  operations.allAction = wrapAllActionOperation(toWrap, options, coordinate);
   operations.allFacet = wrapAllFacetOperation(toWrap, options, coordinate, registry);
 
   // Copy collection properties from options and toWrap
