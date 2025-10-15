@@ -5,6 +5,7 @@ import { Options } from "../Options";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
+import { validateLocations } from "../validation/KeyValidator";
 
 const logger = LibLogger.get("library", "ops", "allFacet");
 
@@ -19,7 +20,7 @@ export const wrapAllFacetOperation = <
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
     options: Options<V, S, L1, L2, L3, L4, L5>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
@@ -33,6 +34,10 @@ export const wrapAllFacetOperation = <
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<any> => {
     logger.debug("allFacet", { allFacetKey, allFacetParams, locations });
+    
+    // Validate location key array order
+    validateLocations(locations, coordinate, 'allFacet');
+    
     if (!allFacets?.[allFacetKey]) {
       throw new Error(`AllFacet ${allFacetKey} not found in definition`);
     }

@@ -12,6 +12,7 @@ import { CreateValidationError, HookError } from "../errors";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
+import { validateLocations } from "../validation/KeyValidator";
 
 const logger = LibLogger.get("library", "ops", "create");
 
@@ -44,6 +45,11 @@ export const wrapCreateOperation = <
     }
   ): Promise<V> => {
     logger.default("📚 [LIB] Wrapped create operation called", { item, options, coordinate: coordinate.kta });
+
+    // Validate location key array order if locations are provided
+    if (options && 'locations' in options) {
+      validateLocations(options.locations, coordinate, 'create');
+    }
 
     let itemToCreate = item;
 
