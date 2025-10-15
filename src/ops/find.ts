@@ -5,6 +5,7 @@ import { Options } from "../Options";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
+import { validateLocations } from "../validation/KeyValidator";
 
 const logger = LibLogger.get("library", "ops", "find");
 
@@ -33,6 +34,10 @@ export const wrapFindOperation = <
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<V[]> => {
     logger.default("find", { finder, finderParams, locations });
+    
+    // Validate location key array order
+    validateLocations(locations, coordinate, 'find');
+    
     if (!finders?.[finder]) {
       throw new Error(`Finder ${finder} not found in definition for ${coordinate.toString()}`);
     }

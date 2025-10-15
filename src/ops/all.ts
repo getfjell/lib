@@ -6,6 +6,7 @@ import { Options } from "../Options";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
+import { validateLocations } from "../validation/KeyValidator";
 
 const logger = LibLogger.get("library", "ops", "all");
 
@@ -19,9 +20,9 @@ export const wrapAllOperation = <
   L5 extends string = never
 >(
   toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   options: Options<V, S, L1, L2, L3, L4, L5>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   registry: Registry,
@@ -33,6 +34,10 @@ export const wrapAllOperation = <
   ): Promise<V[]> => {
 
     logger.default("getAllOperation", { itemQuery, locations });
+    
+    // Validate location key array order
+    validateLocations(locations, coordinate, 'all');
+    
     const items = await toWrap.all(itemQuery, locations);
     logger.default("getAllOperation: %j", { items });
     return items;

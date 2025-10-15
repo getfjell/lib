@@ -57,7 +57,7 @@ describe('wrapAllFacetOperation', () => {
       }
     });
 
-    mockCoordinate = createCoordinate(['test'], ['level1', 'level2']);
+    mockCoordinate = createCoordinate(['test', 'level1', 'level2'], ['scope1']);
     mockRegistry = {} as Registry;
   });
 

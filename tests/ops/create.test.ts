@@ -50,7 +50,7 @@ describe('getCreateOperation', () => {
 
     registry = createRegistry();
     mockDefinition = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
-    mockCoordinate = createCoordinate(['test'], ['scope1']);
+    mockCoordinate = createCoordinate(['test', 'loc1', 'loc2'], ['scope1']);
   });
 
   test('should call wrapped operations create with correct parameters', async () => {
