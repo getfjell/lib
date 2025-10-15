@@ -61,7 +61,7 @@ describe('Operations', () => {
   };
 
   // Mock coordinate and options
-  const mockCoordinate = createCoordinate(['test'], ['scope1']);
+  const mockCoordinate = createCoordinate(['test', 'loc1', 'loc2'], ['scope1']);
   const mockOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
 
   describe('createOperations', () => {

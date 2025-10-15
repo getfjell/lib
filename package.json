@@ -1,6 +1,6 @@
 {
   "name": "@fjell/lib",
-  "version": "4.4.52",
+  "version": "4.4.53",
   "keywords": [
     "library",
     "persistence",
@@ -36,7 +36,7 @@
   "dependencies": {
     "@fjell/core": "^4.4.44",
     "@fjell/logging": "^4.4.47",
-    "@fjell/registry": "^4.4.46",
+    "@fjell/registry": "^4.4.47",
     "deepmerge": "^4.3.1"
   },
   "devDependencies": {

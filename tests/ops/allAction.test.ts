@@ -22,6 +22,7 @@ import { wrapAllActionOperation } from '../../src/ops/allAction';
 import { Options } from '../../src/Options';
 import { Operations } from '../../src/Operations';
 import { createOptions } from '../../src/Options';
+import { Coordinate, createCoordinate } from '@fjell/registry';
 
 // Type definitions for test data
 interface TestItem extends Item<'test', 'level1', 'level2'> {
@@ -32,6 +33,7 @@ interface TestItem extends Item<'test', 'level1', 'level2'> {
 describe('wrapAllActionOperation', () => {
   let mockOperations: Operations<TestItem, 'test', 'level1', 'level2'>;
   let mockOptions: Options<TestItem, 'test', 'level1', 'level2'>;
+  let mockCoordinate: Coordinate<'test', 'level1', 'level2'>;
   let mockActionMethod: MockedFunction<any>;
 
   beforeEach(() => {
@@ -55,17 +57,20 @@ describe('wrapAllActionOperation', () => {
         complexAction: mockActionMethod,
       }
     });
+    
+    // Create coordinate that matches the test structure
+    mockCoordinate = createCoordinate(['test', 'level1', 'level2'], ['scope1']);
   });
 
   describe('wrapAllActionOperation', () => {
     it('should return a function when called', () => {
-      const result = wrapAllActionOperation(mockOperations, mockOptions);
+      const result = wrapAllActionOperation(mockOperations, mockOptions, mockCoordinate);
 
       expect(typeof result).toBe('function');
     });
 
     it('should call LibLogger.get with correct parameters', () => {
-      wrapAllActionOperation(mockOperations, mockOptions);
+      wrapAllActionOperation(mockOperations, mockOptions, mockCoordinate);
 
       expect(mockLoggerGet).toHaveBeenCalledWith('library', 'ops', 'allAction');
     });
@@ -75,7 +80,7 @@ describe('wrapAllActionOperation', () => {
     let wrappedAllAction: ReturnType<typeof wrapAllActionOperation<TestItem, 'test', 'level1', 'level2'>>;
 
     beforeEach(() => {
-      wrappedAllAction = wrapAllActionOperation(mockOperations, mockOptions);
+      wrappedAllAction = wrapAllActionOperation(mockOperations, mockOptions, mockCoordinate);
     });
 
     it('should call action method with correct parameters and return array result', async () => {
