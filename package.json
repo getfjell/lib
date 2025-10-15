@@ -1,6 +1,6 @@
 {
   "name": "@fjell/lib",
-  "version": "4.4.53-dev.0",
+  "version": "4.4.53",
   "keywords": [
     "library",
     "persistence",
