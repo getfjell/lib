@@ -53,7 +53,7 @@ describe('wrapOneOperation', () => {
     // Mock options
     mockOptions = createOptions<TestItem, 'test', 'level1'>({});
 
-    mockCoordinate = createCoordinate(['test'], ['level1']);
+    mockCoordinate = createCoordinate(['test', 'level1'], ['scope1']);
     mockRegistry = createRegistry();
   });
 

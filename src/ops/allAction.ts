@@ -1,7 +1,9 @@
 import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
+import { Coordinate } from "@fjell/registry";
 import { Operations } from "../Operations";
 import { Options } from "../Options";
 import LibLogger from "../logger";
+import { validateLocations } from "../validation/KeyValidator";
 
 const logger = LibLogger.get("library", "ops", "allAction");
 
@@ -16,6 +18,7 @@ export const wrapAllActionOperation = <
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
     options: Options<V, S, L1, L2, L3, L4, L5>,
+    coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   ) => {
   const { allActions } = options || {};
   const allAction = async (
@@ -24,6 +27,10 @@ export const wrapAllActionOperation = <
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<[V[], Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]> => {
     logger.debug("allAction", { allActionKey, allActionParams, locations });
+    
+    // Validate location key array order
+    validateLocations(locations, coordinate, 'allAction');
+    
     if (!allActions?.[allActionKey]) {
       const availableActions = allActions ? Object.keys(allActions) : [];
       const errorMessage = `AllAction "${allActionKey}" not found in definition. Available actions: ${availableActions.length > 0 ? availableActions.join(', ') : 'none'}`;
