@@ -190,7 +190,16 @@ export const validateKey = <
   
   // For composite keys, validate the location key array order
   if (keyIsComposite) {
-    validateLocationKeyOrder(key as ComKey<S, L1, L2, L3, L4, L5>, coordinate, operation);
+    const comKey = key as ComKey<S, L1, L2, L3, L4, L5>;
+    
+    // Empty loc array is a special case: it means "find by primary key across all locations"
+    // This is used for foreign key references to composite items where the location context is unknown
+    if (comKey.loc.length === 0) {
+      logger.debug(`Empty loc array detected in ${operation} - will search across all locations`, { key });
+    } else {
+      // For non-empty loc arrays, validate the order matches the expected hierarchy
+      validateLocationKeyOrder(comKey, coordinate, operation);
+    }
   }
   
   logger.debug(`Key validation passed for ${operation}`, { key });
