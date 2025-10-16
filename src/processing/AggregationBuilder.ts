@@ -1,7 +1,9 @@
-import { ikToLKA, Item, LocKeyArray } from "@fjell/core";
+import { ComKey, ikToLKA, isComKey, Item, LocKey, LocKeyArray } from "@fjell/core";
 import type { Registry } from "../Registry";
 import { contextManager, OperationContext, serializeKey } from "./OperationContext";
-import logger from "../logger";
+import LibLogger from "../logger";
+
+const logger = LibLogger.get('lib', 'processing', 'AggregationBuilder');
 
 /**
  * Definition for an aggregation relationship.
@@ -32,7 +34,105 @@ export const buildAggregation = async (
   context?: OperationContext
 ) => {
 
-  const location = ikToLKA(item.key) as unknown as LocKeyArray;
+  // 🔍 DEBUG LOGGING: Log initial state
+  logger.info('🔍 AggregationBuilder START', {
+    itemKeyType: item.key.kt,
+    itemKeyPk: (item.key as any).pk,
+    itemKeyFull: JSON.stringify(item.key),
+    targetKta: aggregationDefinition.kta,
+    aggregationProperty: aggregationDefinition.property,
+    cardinality: aggregationDefinition.cardinality
+  });
+
+  // Construct the location array for aggregation queries.
+  // There are two types of aggregations:
+  //
+  // 1. SIBLING AGGREGATIONS: Finding items at the same parent location
+  //    Example: User (in Org) finding Profile (in Org) - both siblings under Org
+  //    Target coordinate: ['profile'] or ['profile', 'org']
+  //    Current item: User with coordinate ['user', 'org']
+  //    Location to pass: [org] (parent location only)
+  //
+  // 2. CHILD AGGREGATIONS: Finding items contained in the current item
+  //    Example: OrderForm finding OrderNoseShape contained in it
+  //    Target coordinate: ['orderNoseShape', 'orderForm', 'order']
+  //    Current item: OrderForm with coordinate ['orderForm', 'order']
+  //    Location to pass: [orderForm, order] (current item + parents)
+  //
+  // We detect child aggregations by checking if the target coordinate includes
+  // the current item's type in its hierarchy (after the first element).
+  
+  const currentItemType = item.key.kt;
+  const targetKta = aggregationDefinition.kta;
+  const targetKtaSliced = targetKta.slice(1);
+  const isChildAggregation = targetKta.length > 1 && targetKtaSliced.includes(currentItemType);
+  
+  // 🔍 DEBUG LOGGING: Log detection logic
+  logger.info('🔍 AggregationBuilder DETECTION', {
+    currentItemType,
+    targetKta,
+    targetKtaSliced,
+    includesCurrentItem: targetKtaSliced.includes(currentItemType),
+    isChildAggregation,
+    isComKeyResult: isComKey(item.key)
+  });
+
+  let location: LocKeyArray;
+  if (isComKey(item.key)) {
+    // TypeScript type narrowing: explicitly cast to ComKey to access .loc property
+    const comKey = item.key as ComKey<string, string, string, string, string, string>;
+    
+    // 🔍 DEBUG LOGGING: Log ComKey details
+    logger.info('🔍 AggregationBuilder COMKEY', {
+      comKeyKt: comKey.kt,
+      comKeyPk: comKey.pk,
+      comKeyLoc: JSON.stringify(comKey.loc),
+      comKeyLocLength: comKey.loc?.length || 0
+    });
+    
+    if (isChildAggregation) {
+      // Child aggregation: include current item as location key
+      const currentItemLocKey: LocKey<string> = {
+        kt: comKey.kt,
+        lk: comKey.pk
+      };
+      location = [currentItemLocKey, ...comKey.loc] as unknown as LocKeyArray;
+      
+      // 🔍 DEBUG LOGGING: Log child aggregation location construction
+      logger.info('🔍 AggregationBuilder CHILD AGGREGATION', {
+        currentItemLocKey,
+        parentLocs: JSON.stringify(comKey.loc),
+        constructedLocation: JSON.stringify(location),
+        locationLength: location.length
+      });
+    } else {
+      // Sibling aggregation: use parent locations only
+      location = ikToLKA(comKey) as unknown as LocKeyArray;
+      
+      // 🔍 DEBUG LOGGING: Log sibling aggregation location construction
+      logger.info('🔍 AggregationBuilder SIBLING AGGREGATION', {
+        ikToLKAResult: JSON.stringify(location),
+        locationLength: location.length
+      });
+    }
+  } else {
+    // For primary keys, ikToLKA already returns the item as a location
+    location = ikToLKA(item.key) as unknown as LocKeyArray;
+    
+    // 🔍 DEBUG LOGGING: Log primary key handling
+    logger.info('🔍 AggregationBuilder PRIMARY KEY', {
+      ikToLKAResult: JSON.stringify(location),
+      locationLength: location.length
+    });
+  }
+
+  // 🔍 DEBUG LOGGING: Log final result before calling operation
+  logger.info('🔍 AggregationBuilder FINAL LOCATION', {
+    finalLocation: JSON.stringify(location),
+    finalLocationLength: location.length,
+    operationType: aggregationDefinition.cardinality,
+    targetLibraryKta: aggregationDefinition.kta
+  });
 
   // Get the library instance from the registry using the key type array
   const libraryInstance = registry.get(aggregationDefinition.kta as any);
