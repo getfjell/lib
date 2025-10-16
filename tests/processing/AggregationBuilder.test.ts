@@ -57,7 +57,7 @@ describe('AggregationBuilder', () => {
       expect(result.profile).toEqual(expectedProfile);
       expect(mockLibraryInstance.operations.one).toHaveBeenCalledWith(
         {},
-        [{ kt: 'org', lk: 'org1' }, { kt: 'user', lk: 'user1' }]
+        [{ kt: 'org', lk: 'org1' }]
       );
       expect(mockRegistry.get).toHaveBeenCalledWith(['profile']);
     });
@@ -93,7 +93,7 @@ describe('AggregationBuilder', () => {
       expect(result.tasks).toEqual(expectedTasks);
       expect(mockLibraryInstance.operations.all).toHaveBeenCalledWith(
         {},
-        [{ kt: 'org', lk: 'org1' }, { kt: 'user', lk: 'user1' }]
+        [{ kt: 'org', lk: 'org1' }]
       );
     });
 
