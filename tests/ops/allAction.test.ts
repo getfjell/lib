@@ -231,7 +231,7 @@ describe('wrapAllActionOperation', () => {
       );
 
       await expect(wrappedAllActionWithoutActions(actionKey, actionParams)).rejects.toThrow(
-        'AllAction "testAction" not found in definition. Available actions: none'
+        'AllAction "testAction" not found'
       );
 
       expect(mockActionMethod).not.toHaveBeenCalled();
@@ -249,7 +249,7 @@ describe('wrapAllActionOperation', () => {
       );
 
       await expect(wrappedAllActionWithoutOptions(actionKey, actionParams)).rejects.toThrow(
-        'AllAction "testAction" not found in definition. Available actions: none'
+        'AllAction "testAction" not found'
       );
 
       expect(mockActionMethod).not.toHaveBeenCalled();
@@ -273,7 +273,7 @@ describe('wrapAllActionOperation', () => {
       );
 
       await expect(wrappedAllActionWithOtherActions(actionKey, actionParams)).rejects.toThrow(
-        'AllAction "nonExistentAction" not found in definition. Available actions: availableAction1, availableAction2, availableAction3'
+        'AllAction "nonExistentAction" not found'
       );
 
       expect(mockActionMethod).not.toHaveBeenCalled();

@@ -2,11 +2,14 @@
 import {
   ComKey,
   Coordinate,
-  createCreateWrapper,
   CreateMethod,
+  executeWithContext,
   Item,
   LocKeyArray,
+  OperationContext,
   PriKey,
+  validateKey,
+  validateLocations
 } from "@fjell/core";
 
 import { Options } from "../Options";
@@ -35,26 +38,58 @@ export const wrapCreateOperation = <
 
   const libOptions = options;
 
-  // Use the wrapper for automatic validation
-  return createCreateWrapper(
-    coordinate,
-    async (item, options) => {
-      logger.debug("Create operation started", { item, options, coordinate: coordinate.kta });
+  const create = async (
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
+    createOptions?: {
+      key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>;
+      locations?: never;
+    } | {
+      key?: never;
+      locations: LocKeyArray<L1, L2, L3, L4, L5>;
+    }
+  ): Promise<V> => {
+    try {
+      logger.debug("create", { item, createOptions });
+
+      // Validate create options
+      if (createOptions) {
+        if ('key' in createOptions && createOptions.key) {
+          validateKey(createOptions.key, coordinate, 'create');
+        }
+        if ('locations' in createOptions && createOptions.locations) {
+          validateLocations(createOptions.locations, coordinate, 'create');
+        }
+      }
 
       let itemToCreate = item;
 
-      itemToCreate = await runPreCreateHook(itemToCreate, options);
+      itemToCreate = await runPreCreateHook(itemToCreate, createOptions);
 
-      await validateCreate(itemToCreate, options);
+      await validateCreate(itemToCreate, createOptions);
 
-      let createdItem = await toWrap.create(itemToCreate, options);
+      const context: OperationContext = {
+        itemType: coordinate.kta[0],
+        operationType: 'create',
+        operationName: 'create',
+        params: { item: itemToCreate, options: createOptions },
+        locations: createOptions?.locations as any
+      };
+
+      let createdItem = await executeWithContext(
+        () => toWrap.create(itemToCreate, createOptions),
+        context
+      );
 
       createdItem = await runPostCreateHook(createdItem);
 
       logger.debug("Create operation completed successfully", { createdItem });
       return createdItem;
+    } catch (error) {
+      throw new Error((error as Error).message, { cause: error });
     }
-  );
+  };
+
+  return create;
 
   async function runPreCreateHook(
     item: Partial<Item<S, L1, L2, L3, L4, L5>>,
