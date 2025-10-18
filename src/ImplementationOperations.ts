@@ -13,16 +13,16 @@ import {
 
 /**
  * ImplementationOperations
- * 
+ *
  * The subset of operations that implementation libraries (lib-firestore, lib-sequelize)
  * are required to implement. This interface excludes extended operations like facets and
  * actions which are added by the wrapping layer in wrapImplementationOperations().
- * 
+ *
  * Implementation libraries should:
  * 1. Implement these core CRUD and query operations
  * 2. Return an ImplementationOperations object from their createOperations function
  * 3. Use wrapImplementationOperations() to add extended operations (facets, actions) as stubs
- * 
+ *
  * This approach:
  * - Makes the contract explicit and honest
  * - Removes boilerplate stub implementations from every implementation library

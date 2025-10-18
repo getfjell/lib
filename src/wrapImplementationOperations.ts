@@ -5,14 +5,14 @@ import { Options } from "./Options";
 
 /**
  * wrapImplementationOperations
- * 
+ *
  * Wraps implementation operations (from lib-firestore, lib-sequelize) with:
  * 1. Default stub implementations for extended operations (facets, actions)
  * 2. Metadata dictionaries (finders, actions, facets, allActions, allFacets)
- * 
+ *
  * This centralizes the pattern of adding extended operations, removing the need for
  * implementation libraries to provide their own stub implementations.
- * 
+ *
  * @param implOps - The core operations implemented by the library
  * @param options - Library options containing finders, actions, facets definitions
  * @returns Complete Operations object with all required methods and metadata
