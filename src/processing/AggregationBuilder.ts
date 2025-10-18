@@ -1,10 +1,6 @@
 import { ComKey, ikToLKA, isComKey, Item, LocKey, LocKeyArray } from "@fjell/core";
-import { ComKey, ikToLKA, isComKey, Item, LocKey, LocKeyArray } from "@fjell/core";
 import type { Registry } from "../Registry";
 import { contextManager, OperationContext, serializeKey } from "./OperationContext";
-import LibLogger from "../logger";
-
-const logger = LibLogger.get('lib', 'processing', 'AggregationBuilder');
 import LibLogger from "../logger";
 
 const logger = LibLogger.get('lib', 'processing', 'AggregationBuilder');
