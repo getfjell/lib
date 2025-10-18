@@ -21,7 +21,7 @@ vi.mock('../../src/logger', () => ({
 import { wrapActionOperation } from '../../src/ops/action';
 import { Operations } from '../../src/Operations';
 import { createOptions, Options } from '../../src/Options';
-import { Coordinate, createCoordinate } from '@fjell/registry';
+import { Coordinate, createCoordinate } from '@fjell/core';
 
 // Type definitions for test data
 interface TestItem extends Item<'test', 'level1'> {

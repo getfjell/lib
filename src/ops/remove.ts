@@ -1,13 +1,12 @@
 
-import { ComKey, Item, PriKey, RemoveMethod } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
+import { ComKey, Coordinate, Item, PriKey, RemoveMethod } from "@fjell/core";
 
 import { Options } from "../Options";
 import { HookError, RemoveError, RemoveValidationError } from "../errors";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateKey } from "../validation/KeyValidator";
+import { validateKey } from "@fjell/core";
 
 const logger = LibLogger.get('library', 'ops', 'remove');
 
