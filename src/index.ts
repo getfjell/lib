@@ -1,9 +1,11 @@
 export * from './errors';
+export * from './ImplementationOperations';
 export * from './Library';
 export * from './LibraryFactory';
 export * from './Operations';
 export * from './Options';
 export * from './Registry';
 export * from './processing';
+export * from './wrapImplementationOperations';
 export * as Primary from './primary';
 export * as Contained from './contained';

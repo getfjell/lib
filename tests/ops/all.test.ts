@@ -3,7 +3,7 @@ import { Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapAllOperation } from "../../src/ops/all";
 import { Operations } from "../../src/Operations";
 import { createRegistry } from "../../src/Registry";
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { createOptions } from '../../src/Options';
 
 vi.mock('@fjell/logging', () => {
@@ -60,8 +60,8 @@ describe('getAllOperation', () => {
       { kt: 'loc2', lk: 'loc2-id' } as LocKey<'loc2'>
     ];
     const expectedItems: TestItem[] = [
-      { name: 'test1' } as TestItem,
-      { name: 'test2' } as TestItem
+      { name: 'test1', key: { kt: 'test', pk: 'item1', loc: locations } } as TestItem,
+      { name: 'test2', key: { kt: 'test', pk: 'item2', loc: locations } } as TestItem
     ];
 
     (mockOperations.all as Mock).mockResolvedValue(expectedItems);
@@ -96,7 +96,7 @@ describe('getAllOperation', () => {
 
     const result = await allOperation(itemQuery);
      
-    expect(mockOperations.all).toHaveBeenCalledWith(itemQuery, undefined);
+    expect(mockOperations.all).toHaveBeenCalledWith(itemQuery, []);
     expect(result).toEqual(expectedItems);
   });
 });

@@ -74,7 +74,7 @@ describe('Primary Index', () => {
 
     test('should createLibrary function work correctly', async () => {
       const { createLibrary } = await import('../../src/primary/index');
-      const { createCoordinate } = await import('@fjell/registry');
+      const { createCoordinate } = await import('@fjell/core');
 
       const mockCoordinate = createCoordinate(['test'], ['scope1']);
       const mockOptions = {};

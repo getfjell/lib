@@ -20,7 +20,7 @@ import { wrapAllFacetOperation } from '../../src/ops/allFacet';
 import { Options } from '../../src/Options';
 import { Operations } from '../../src/Operations';
 import { Registry } from '../../src/Registry';
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { createOptions } from '../../src/Options';
 
 // Type definitions for test data
@@ -108,7 +108,7 @@ describe('wrapAllFacetOperation', () => {
 
       const result = await wrappedAllFacet(facetKey, facetParams);
        
-      expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, undefined);
+      expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, []);
       expect(result).toBe(expectedResult);
     });
 
@@ -138,7 +138,7 @@ describe('wrapAllFacetOperation', () => {
 
       await wrappedAllFacet(facetKey, facetParams, locations);
 
-      expect(mockLoggerDebug).toHaveBeenCalledWith('allFacet', {
+      expect(mockLoggerDebug).toHaveBeenCalledWith('AllFacet operation started', {
         allFacetKey: facetKey,
         allFacetParams: facetParams,
         locations: locations,
@@ -161,13 +161,12 @@ describe('wrapAllFacetOperation', () => {
 
       const result = await wrappedAllFacet(facetKey, facetParams);
        
-      expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, undefined);
+      expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, []);
       expect(result).toBe(expectedResult);
-      expect(mockLoggerDebug).toHaveBeenCalledWith('allFacet', {
+      expect(mockLoggerDebug).toHaveBeenCalledWith('AllFacet operation started', {
         allFacetKey: facetKey,
         allFacetParams: facetParams,
-         
-        locations: undefined,
+        locations: [],
       });
     });
 
@@ -180,7 +179,7 @@ describe('wrapAllFacetOperation', () => {
 
       await expect(wrappedAllFacet(facetKey, facetParams)).rejects.toThrow('Facet operation failed');
        
-      expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, undefined);
+      expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, []);
     });
 
     it('should still log debug information even when facet fails', async () => {
@@ -196,11 +195,10 @@ describe('wrapAllFacetOperation', () => {
         // Expected to throw
       }
 
-      expect(mockLoggerDebug).toHaveBeenCalledWith('allFacet', {
+      expect(mockLoggerDebug).toHaveBeenCalledWith('AllFacet operation started', {
         allFacetKey: facetKey,
         allFacetParams: facetParams,
-         
-        locations: undefined,
+        locations: [],
       });
     });
 
@@ -216,7 +214,7 @@ describe('wrapAllFacetOperation', () => {
       );
 
       await expect(wrappedAllFacetWithoutFacets(facetKey, facetParams)).rejects.toThrow(
-        'AllFacet testFacet not found in definition'
+        'AllFacet "testFacet" not found'
       );
 
       expect(mockFacetMethod).not.toHaveBeenCalled();
@@ -234,7 +232,7 @@ describe('wrapAllFacetOperation', () => {
       );
 
       await expect(wrappedAllFacetWithoutOptions(facetKey, facetParams)).rejects.toThrow(
-        'AllFacet testFacet not found in definition'
+        'AllFacet "testFacet" not found'
       );
 
       expect(mockFacetMethod).not.toHaveBeenCalled();
@@ -262,7 +260,7 @@ describe('wrapAllFacetOperation', () => {
 
         const result = await wrappedAllFacet(facetKey, facetParams);
          
-        expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, undefined);
+        expect(mockFacetMethod).toHaveBeenCalledWith(facetParams, []);
         expect(result).toBe(expectedResult);
       }
     });

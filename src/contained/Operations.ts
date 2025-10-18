@@ -1,20 +1,20 @@
 /* eslint-disable indent */
-import { ComKey, Item, PriKey } from "@fjell/core";
-
-import { LocKeyArray } from "@fjell/core";
-
-import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperations } from "../Operations";
-import { ItemQuery } from "@fjell/core";
-
+import {
+  AffectedKeys,
+  ContainedOperations as CoreContainedOperations,
+  OperationParams
+} from "@fjell/core";
+import { Coordinate, Item } from "@fjell/core";
+import { wrapOperations as wrapAbstractOperations } from "../Operations";
 import { Registry } from "../Registry";
 import { Options } from "./Options";
-import { Coordinate } from "@fjell/registry";
-import { ActionMethod } from "../Options";
-import { FacetMethod } from "../Options";
-import { AllActionMethod } from "../Options";
+import { ActionMethod, AllActionMethod, AllFacetMethod, FacetMethod, FinderMethod } from "../Options";
 
 import logger from "src/logger";
 
+/**
+ * Contained Operations interface - extends core ContainedOperations and adds lib-specific properties
+ */
 export interface Operations<
   V extends Item<S, L1, L2, L3, L4, L5>,
   S extends string,
@@ -23,115 +23,17 @@ export interface Operations<
   L3 extends string = never,
   L4 extends string = never,
   L5 extends string = never,
-> extends AbstractOperations<V, S, L1, L2, L3, L4, L5> {
-
-  all(
-    itemQuery: ItemQuery,
-    locations: LocKeyArray<L1, L2, L3, L4, L5> | [],
-  ): Promise<V[]>;
-
-  one(
-    itemQuery: ItemQuery,
-    locations: LocKeyArray<L1, L2, L3, L4, L5> | [],
-  ): Promise<V | null>;
-
-  create(
-    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
-    options?: {
-      locations?: LocKeyArray<L1, L2, L3, L4, L5>,
-    }
-  ): Promise<V>;
-
-  update(
-    key: ComKey<S, L1, L2, L3, L4, L5>,
-    item: Partial<Item<S, L1, L2, L3, L4, L5>>
-  ): Promise<V>;
-
-  /**
-   * The key supplied to upsert will be used to retrieve the item, or to create a new item.  This method will
-   * attempt to retrieve the item by the supplied key, and if the item is not found it will create a new item
-   * using the properties supplied in the item parameter.
-   * @param key - The key to use to retrieve the item, or to create a new item.
-   * @param item - The properties to use to create a new item.
-   * @param options - The options to use to create a new item.
-   */
-  upsert(
-    key: ComKey<S, L1, L2, L3, L4, L5>,
-    itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>,
-  ): Promise<V>;
-
-  /**
-   * Retrieves a single item by its composite key.
-   *
-   * This is a composite item library, so the key must include both:
-   * - The parent primary key (kt, pk)
-   * - The location hierarchy (loc array with lk values)
-   *
-   * @param key - A ComKey containing the full path to the item
-   * @returns Promise resolving to the item
-   * @throws InvalidKeyTypeError if a PriKey is provided instead of ComKey
-   * @throws NotFoundError if the item doesn't exist
-   *
-   * @example
-   * ```typescript
-   * const annotation = await library.operations.get({
-   *   kt: 'annotations',
-   *   pk: 'parent-id',
-   *   loc: [{ kt: 'documents', lk: 'doc-id' }]
-   * });
-   * ```
-   */
-  get(
-    key: ComKey<S, L1, L2, L3, L4, L5>,
-  ): Promise<V>;
-
-  remove(
-    key: ComKey<S, L1, L2, L3, L4, L5>,
-  ): Promise<V>;
-
-  find(
-    finder: string,
-    finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-    locations: LocKeyArray<L1, L2, L3, L4, L5> | [],
-  ): Promise<V[]>;
-
-  findOne(
-    finder: string,
-    finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-    locations: LocKeyArray<L1, L2, L3, L4, L5> | [],
-  ): Promise<V>;
-
-  action(
-    key: ComKey<S, L1, L2, L3, L4, L5>,
-    actionKey: string,
-    actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-  ): Promise<[V, Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
-
+> extends CoreContainedOperations<V, S, L1, L2, L3, L4, L5> {
+  // Lib-specific extensions
+  finders: Record<string, FinderMethod<V, S, L1, L2, L3, L4, L5>>;
   actions: Record<string, ActionMethod<V, S, L1, L2, L3, L4, L5>>;
-
-  facet(
-    key: ComKey<S, L1, L2, L3, L4, L5>,
-    facetKey: string,
-    facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-  ): Promise<any>;
-
   facets: Record<string, FacetMethod<V, S, L1, L2, L3, L4, L5>>;
-
-  allAction(
-    allActionKey: string,
-    allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-    locations: LocKeyArray<L1, L2, L3, L4, L5> | [],
-  ): Promise<[V[], Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
-
   allActions: Record<string, AllActionMethod<V, S, L1, L2, L3, L4, L5>>;
-
-  allFacet(
-    allFacetKey: string,
-    allFacetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-    locations: LocKeyArray<L1, L2, L3, L4, L5> | [],
-  ): Promise<any>;
-
+  allFacets: Record<string, AllFacetMethod<L1, L2, L3, L4, L5>>;
 }
+
+// Re-export types
+export type { OperationParams, AffectedKeys };
 
 export const wrapOperations = <
   V extends Item<S, L1, L2, L3, L4, L5>,

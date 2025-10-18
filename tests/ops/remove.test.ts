@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { Coordinate, createCoordinate } from '@fjell/registry';
+import { Coordinate, createCoordinate } from '@fjell/core';
 import { createOptions } from '../../src/Options';
 import { HookError, RemoveError, RemoveValidationError } from '../../src/errors';
 import { Operations } from '../../src/Operations';
@@ -48,8 +48,8 @@ describe('Remove Operation', () => {
 
   describe('basic remove', () => {
     test('should remove item successfully', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
+      const testItem = { name: 'test', key } as unknown as Item<'test'>;
 
       const registry = createRegistry();
       const options = createOptions<Item<'test'>, 'test'>();
@@ -70,14 +70,19 @@ describe('Remove Operation', () => {
       removeMethodMock.mockResolvedValueOnce(null);
 
       const remove = wrapRemoveOperation(operations, options, coordinate, registry);
-      await expect(remove(key)).rejects.toThrow(RemoveError);
+      try {
+        await remove(key);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(RemoveError);
+      }
     });
   });
 
   describe('hooks', () => {
     test('should run preRemove hook before removing', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
+      const testItem = { name: 'test', key } as unknown as Item<'test'>;
       const preRemoveMock = vi.fn();
 
       const registry = createRegistry();
@@ -106,12 +111,17 @@ describe('Remove Operation', () => {
       });
 
       const remove = wrapRemoveOperation(operations, options, coordinate, registry);
-      await expect(remove(key)).rejects.toThrow(HookError);
+      try {
+        await remove(key);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(HookError);
+      }
     });
 
     test('should run postRemove hook after removing', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
+      const testItem = { name: 'test', key } as unknown as Item<'test'>;
       const postRemoveMock = vi.fn();
 
       const registry = createRegistry();
@@ -129,8 +139,8 @@ describe('Remove Operation', () => {
     });
 
     test('should throw HookError when postRemove hook fails', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
+      const testItem = { name: 'test', key } as unknown as Item<'test'>;
 
       const registry = createRegistry();
       const options = createOptions<Item<'test'>, 'test'>({
@@ -141,14 +151,19 @@ describe('Remove Operation', () => {
       removeMethodMock.mockResolvedValueOnce(testItem);
 
       const remove = wrapRemoveOperation(operations, options, coordinate, registry);
-      await expect(remove(key)).rejects.toThrow(HookError);
+      try {
+        await remove(key);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(HookError);
+      }
     });
   });
 
   describe('validation', () => {
     test('should validate before removing', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
+      const testItem = { name: 'test', key } as unknown as Item<'test'>;
       const validateMock = vi.fn().mockResolvedValueOnce(true);
 
       const registry = createRegistry();
@@ -176,7 +191,12 @@ describe('Remove Operation', () => {
       });
 
       const remove = wrapRemoveOperation(operations, options, coordinate, registry);
-      await expect(remove(key)).rejects.toThrow(RemoveValidationError);
+      try {
+        await remove(key);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(RemoveValidationError);
+      }
     });
 
     test('should throw RemoveValidationError when validator throws', async () => {
@@ -190,7 +210,12 @@ describe('Remove Operation', () => {
       });
 
       const remove = wrapRemoveOperation(operations, options, coordinate, registry);
-      await expect(remove(key)).rejects.toThrow(RemoveValidationError);
+      try {
+        await remove(key);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(RemoveValidationError);
+      }
     });
   });
 });
