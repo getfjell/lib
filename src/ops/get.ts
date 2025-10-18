@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ComKey, Item, PriKey } from "@fjell/core";
+import { ComKey, GetMethod, Item, PriKey } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 
 import { Options } from "../Options";
@@ -24,11 +24,11 @@ export const wrapGetOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
 
     registry: Registry,
-  ) => {
+  ): GetMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const get = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-  ): Promise<V> => {
+  ): Promise<V | null> => {
     logger.default('get', { key });
     
     // Validate key type and location key order

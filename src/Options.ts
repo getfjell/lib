@@ -1,82 +1,32 @@
-import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
+import {
+  ActionMethod,
+  AllActionMethod,
+  AllFacetMethod,
+  CreateOptions,
+  FacetMethod,
+  FinderMethod,
+  OperationParams
+} from "@fjell/core";
+import { ComKey, Item, PriKey } from "@fjell/core";
 import deepmerge from "deepmerge";
 import LibLogger from "./logger";
 import { AggregationDefinition, ReferenceDefinition } from "./processing";
 
 const logger = LibLogger.get("Options");
 
-export interface ActionMethod<
-  V extends Item<S, L1, L2, L3, L4, L5>,
-  S extends string,
-  L1 extends string = never,
-  L2 extends string = never,
-  L3 extends string = never,
-  L4 extends string = never,
-  L5 extends string = never,
-> {
-  (
-    item: V,
-    actionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-  ): Promise<[V, Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
-}
+// Re-export method types from core for convenience
+export type {
+  FinderMethod,
+  ActionMethod,
+  AllActionMethod,
+  FacetMethod,
+  AllFacetMethod,
+  OperationParams,
+  CreateOptions
+};
 
-export interface AllActionMethod<
-  V extends Item<S, L1, L2, L3, L4, L5>,
-  S extends string,
-  L1 extends string = never,
-  L2 extends string = never,
-  L3 extends string = never,
-  L4 extends string = never,
-  L5 extends string = never,
-> {
-  (
-    allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<[V[], Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]>;
-}
-
-export interface FacetMethod<
-  V extends Item<S, L1, L2, L3, L4, L5>,
-  S extends string,
-  L1 extends string = never,
-  L2 extends string = never,
-  L3 extends string = never,
-  L4 extends string = never,
-  L5 extends string = never,
-> {
-  (
-    item: V,
-    facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-  ): Promise<any>;
-}
-
-export interface AllFacetMethod<
-  L1 extends string = never,
-  L2 extends string = never,
-  L3 extends string = never,
-  L4 extends string = never,
-  L5 extends string = never,
-> {
-  (
-    allFacetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<any>;
-}
-
-export type FinderParams = Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>
-
-export type FinderMethod<
-  V extends Item<S, L1, L2, L3, L4, L5>,
-  S extends string,
-  L1 extends string = never,
-  L2 extends string = never,
-  L3 extends string = never,
-  L4 extends string = never,
-  L5 extends string = never
-> = (
-  params: FinderParams,
-  locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-) => Promise<V[]>
+// Alias for backwards compatibility
+export type FinderParams = OperationParams;
 
 // TODO: The codesmell here is that we're passing lib to all the hooks.  This might be better with a create pattern.
 export interface Options<
@@ -91,14 +41,7 @@ export interface Options<
   hooks?: {
     preCreate?: (
       item: Partial<Item<S, L1, L2, L3, L4, L5>>,
-      options?:
-        {
-          key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-          locations?: never;
-        } | {
-          key?: never;
-          locations: LocKeyArray<L1, L2, L3, L4, L5>,
-        }
+      options?: CreateOptions<S, L1, L2, L3, L4, L5>
     ) => Promise<Partial<Item<S, L1, L2, L3, L4, L5>>>;
     postCreate?: (
       item: V,
@@ -120,14 +63,7 @@ export interface Options<
   validators?: {
     onCreate?: (
       item: Partial<Item<S, L1, L2, L3, L4, L5>>,
-      options?:
-        {
-          key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-          locations?: never;
-        } | {
-          key?: never;
-          locations: LocKeyArray<L1, L2, L3, L4, L5>,
-        }
+      options?: CreateOptions<S, L1, L2, L3, L4, L5>
     ) => Promise<boolean>;
     onUpdate?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
@@ -169,14 +105,7 @@ export const createDefaultOptions = <
       preCreate: async (
         item: Partial<Item<S, L1, L2, L3, L4, L5>>,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        options?:
-          {
-            key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-            locations?: never;
-          } | {
-            key?: never;
-            locations: LocKeyArray<L1, L2, L3, L4, L5>,
-          }
+        options?: CreateOptions<S, L1, L2, L3, L4, L5>
       ) => {
         const retItem = clearAggs(item);
         return retItem as Partial<Item<S, L1, L2, L3, L4, L5>>;

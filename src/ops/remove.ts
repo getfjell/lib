@@ -1,5 +1,5 @@
 
-import { ComKey, Item, PriKey } from "@fjell/core";
+import { ComKey, Item, PriKey, RemoveMethod } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 
 import { Options } from "../Options";
@@ -25,7 +25,7 @@ export const wrapRemoveOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): RemoveMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const remove = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,

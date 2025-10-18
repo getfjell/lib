@@ -3,6 +3,7 @@ import {
   ComKey,
   Item,
   PriKey,
+  UpsertMethod,
 } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 
@@ -27,7 +28,7 @@ export const wrapUpsertOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): UpsertMethod<V, S, L1, L2, L3, L4, L5> => {
 
   /**
    * Retrieves an item by its primary key or composite key, and creates a new item if it does not exist.
@@ -65,6 +66,10 @@ export const wrapUpsertOperation = <
 
     let item: V | null = null;
     item = await retrieveOrCreateWithKey(key, itemProperties);
+
+    if (!item) {
+      throw new Error(`Failed to retrieve or create item for key: ${JSON.stringify(key)}`);
+    }
 
     logger.debug('Updating Item', { key: item.key, itemProperties });
     item = await ops.update(item.key, itemProperties);

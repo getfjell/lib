@@ -1,4 +1,4 @@
-import { Item, LocKeyArray } from "@fjell/core";
+import { FindOneMethod, Item, LocKeyArray } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 
 import { Options } from "../Options";
@@ -25,13 +25,13 @@ export const wrapFindOneOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): FindOneMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const findOne = async (
     finder: string,
     finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<V> => {
+  ): Promise<V | null> => {
     logger.default("find", { finder, finderParams, locations });
     
     // Validate location key array order
