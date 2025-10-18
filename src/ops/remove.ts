@@ -1,12 +1,11 @@
 
-import { ComKey, Coordinate, Item, PriKey, RemoveMethod } from "@fjell/core";
+import { ComKey, Coordinate, createRemoveWrapper, Item, PriKey, RemoveMethod } from "@fjell/core";
 
 import { Options } from "../Options";
 import { HookError, RemoveError, RemoveValidationError } from "../errors";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateKey } from "@fjell/core";
 
 const logger = LibLogger.get('library', 'ops', 'remove');
 
@@ -26,73 +25,58 @@ export const wrapRemoveOperation = <
     registry: Registry,
   ): RemoveMethod<V, S, L1, L2, L3, L4, L5> => {
 
-  const remove = async (
-    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-  ): Promise<V> => {
-    logger.default('📚 [LIB] Wrapped remove operation called', { key, coordinate: coordinate.kta });
+  // Use the wrapper for automatic validation
+  return createRemoveWrapper(
+    coordinate,
+    async (key) => {
+      logger.debug('Remove operation started', { key, coordinate: coordinate.kta });
 
-    // Validate key type and location key order
-    validateKey(key, coordinate, 'remove');
+      await runPreRemoveHook(key);
 
-    logger.default('📚 [LIB] Running pre-remove hook');
-    await runPreRemoveHook(key);
-    logger.default('📚 [LIB] Pre-remove hook completed');
+      await validateRemove(key);
 
-    logger.default('📚 [LIB] Running remove validation');
-    await validateRemove(key);
-    logger.default('📚 [LIB] Remove validation completed');
+      const item = await toWrap.remove(key);
 
-    logger.default('📚 [LIB] Calling underlying operation (lib-firestore)', { key });
-    const item = await toWrap.remove(key);
-    logger.default('📚 [LIB] Underlying operation completed', { item });
+      if (!item) {
+        logger.error('Remove operation failed - no item returned', { key });
+        throw new RemoveError({ key }, coordinate);
+      }
 
-    if (!item) {
-      logger.error('📚 [LIB] Remove operation failed - no item returned', { key });
-      throw new RemoveError({ key }, coordinate);
+      await runPostRemoveHook(item);
+
+      logger.debug("Remove operation completed successfully", { item });
+      return item;
     }
-
-    logger.default('📚 [LIB] Running post-remove hook');
-    await runPostRemoveHook(item);
-    logger.default('📚 [LIB] Post-remove hook completed', { item });
-
-    logger.default("📚 [LIB] Wrapped remove operation completed", { item });
-    return item;
-  }
+  );
 
   async function runPreRemoveHook(key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>) {
     if (options?.hooks?.preRemove) {
       try {
-        logger.default('Running preRemove hook', { key });
         await options.hooks.preRemove(key);
       } catch (error: unknown) {
         throw new HookError('preRemove', 'remove', coordinate, { cause: error as Error });
       }
     } else {
-      logger.default('No preRemove hook found, returning.');
     }
   }
 
   async function runPostRemoveHook(item: V) {
     if (options?.hooks?.postRemove) {
       try {
-        logger.default('Running postRemove hook', { item });
         await options.hooks.postRemove(item);
       } catch (error: unknown) {
         throw new HookError('postRemove', 'remove', coordinate, { cause: error as Error });
       }
     } else {
-      logger.default('No postRemove hook found, returning.');
     }
   }
 
   async function validateRemove(key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>) {
     if (!options?.validators?.onRemove) {
-      logger.default('No validator found for remove, returning.');
       return;
     }
 
     try {
-      logger.default('Validating remove', { key });
       const isValid = await options.validators.onRemove(key);
       if (!isValid) {
         throw new RemoveValidationError(
@@ -110,5 +94,4 @@ export const wrapRemoveOperation = <
     }
   }
 
-  return remove;
 }

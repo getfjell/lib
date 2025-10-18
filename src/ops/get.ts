@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ComKey, Coordinate, GetMethod, Item, PriKey } from "@fjell/core";
+import { ComKey, Coordinate, createGetWrapper, GetMethod, Item, PriKey } from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from '../logger';
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateKey } from "@fjell/core";
 import { InvalidKeyTypeError, LocationKeyOrderError } from "../errors";
 
 const logger = LibLogger.get('library', 'ops', 'get');
@@ -26,23 +25,26 @@ export const wrapGetOperation = <
     registry: Registry,
   ): GetMethod<V, S, L1, L2, L3, L4, L5> => {
 
-  const get = async (
-    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-  ): Promise<V | null> => {
-    logger.default('get', { key });
-    
-    // Validate key type and location key order
-    try {
-      validateKey(key, coordinate, 'get');
-    } catch (error) {
-      // Convert validation errors to lib-specific error types
-      if (error instanceof Error) {
+  // Use the wrapper for automatic validation with custom error handling
+  return createGetWrapper(
+    coordinate,
+    async (key) => {
+      logger.debug('Get operation started', { key });
+      
+      // No validation needed - wrapper handles it automatically
+      const item = await toWrap.get(key);
+      
+      logger.debug('Get operation completed', { item });
+      return item;
+    },
+    {
+      onError: (error, context) => {
         const message = error.message;
         
         // Check if it's a location key order error
         if (message.includes('Location key array order mismatch') ||
             message.includes('Location key array length mismatch')) {
-          throw new LocationKeyOrderError('get', coordinate, key as ComKey<S, L1, L2, L3, L4, L5>, { cause: error });
+          throw new LocationKeyOrderError('get', coordinate, context.params[0] as ComKey<S, L1, L2, L3, L4, L5>, { cause: error });
         }
         
         // Check if it's an invalid key type error
@@ -50,19 +52,12 @@ export const wrapGetOperation = <
             message.includes('received composite key') ||
             message.includes('received primary key')) {
           const isCompositeLib = coordinate.kta.length > 1;
-          throw new InvalidKeyTypeError('get', coordinate, key, isCompositeLib, { cause: error });
+          throw new InvalidKeyTypeError('get', coordinate, context.params[0], isCompositeLib, { cause: error });
         }
+        
+        // Re-throw original error if not a validation error we recognize
+        throw error;
       }
-      
-      // Re-throw if not a validation error we recognize
-      throw error;
     }
-    
-    const item = await toWrap.get(key);
-    logger.default("get: %j", { item });
-    return item;
-  }
-
-  return get;
-
+  );
 }

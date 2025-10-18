@@ -1,11 +1,10 @@
 /* eslint-disable indent */
-import { AllMethod, Coordinate, Item, ItemQuery, LocKeyArray } from "@fjell/core";
+import { AllMethod, Coordinate, createAllWrapper, Item } from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateLocations } from "@fjell/core";
 
 const logger = LibLogger.get("library", "ops", "all");
 
@@ -27,20 +26,17 @@ export const wrapAllOperation = <
   registry: Registry,
 ): AllMethod<V, S, L1, L2, L3, L4, L5> => {
 
-  const all = async (
-    itemQuery?: ItemQuery,
-    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<V[]> => {
-
-    logger.default("getAllOperation", { itemQuery, locations });
-    
-    // Validate location key array order
-    validateLocations(locations, coordinate, 'all');
-    
-    const items = await toWrap.all(itemQuery, locations);
-    logger.default("getAllOperation: %j", { items });
-    return items;
-  }
-
-  return all;
+  // Use the wrapper for automatic validation
+  return createAllWrapper(
+    coordinate,
+    async (itemQuery, locations) => {
+      logger.debug("All operation started", { itemQuery, locations });
+      
+      // No validation needed - wrapper handles it automatically
+      const items = await toWrap.all(itemQuery, locations);
+      
+      logger.debug("All operation completed", { items });
+      return items;
+    }
+  );
 }

@@ -89,13 +89,13 @@ describe('wrapFacetOperation', () => {
     });
 
     it('should forward calls to wrapped operations facet method with correct parameters', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
-      const facetResult = { data: 'test facet result', count: 42 };
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
         pk: 'test-id',
         loc: [{ kt: 'level1', lk: 'location1' }]
       };
+      const testItem: TestItem = { id: '1', name: 'test item', key: testKey } as TestItem;
+      const facetResult = { data: 'test facet result', count: 42 };
       const facetKey = 'testFacet';
       const facetParams = { param1: 'value1', param2: 42, param3: true };
 
@@ -110,13 +110,13 @@ describe('wrapFacetOperation', () => {
     });
 
     it('should work with ComKey as well as PriKey', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
-      const facetResult = { data: 'composite key result' };
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
         pk: 'test-id-2',
         loc: [{ kt: 'level1', lk: 'location2' }]
       };
+      const testItem: TestItem = { id: '1', name: 'test item', key: testKey } as TestItem;
+      const facetResult = { data: 'composite key result' };
       const facetKey = 'testFacet';
       const facetParams = { param1: 'value1' };
 
@@ -131,7 +131,7 @@ describe('wrapFacetOperation', () => {
     });
 
     it('should log debug information before calling facet', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
+      const testItem: TestItem = { id: '1', name: 'test item', key: { kt: 'test', pk: 'test-id', loc: [{ kt: 'level1', lk: 'location1' }] } } as TestItem;
       const facetResult = { data: 'test' };
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
@@ -147,21 +147,23 @@ describe('wrapFacetOperation', () => {
       await wrappedFacet(testKey, facetKey, facetParams);
 
       expect(mockLoggerDebug).toHaveBeenCalledWith(
-        'facet for item key: %j, facet key: %s, params: %j',
-        testKey,
-        facetKey,
-        facetParams
+        'Facet operation started',
+        expect.objectContaining({
+          key: testKey,
+          facetKey,
+          facetParams
+        })
       );
     });
 
     it('should return the facet result after successful execution', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
-      const facetResult = { data: 'test facet result', metrics: { count: 10, success: true } };
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
         pk: 'test-id',
         loc: [{ kt: 'level1', lk: 'location1' }]
       };
+      const testItem: TestItem = { id: '1', name: 'test item', key: testKey } as TestItem;
+      const facetResult = { data: 'test facet result', metrics: { count: 10, success: true } };
       const facetKey = 'testFacet';
       const facetParams = {};
 
@@ -176,7 +178,7 @@ describe('wrapFacetOperation', () => {
     });
 
     it('should handle complex facet parameters including arrays and dates', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
+      const testItem: TestItem = { id: '1', name: 'test item', key: { kt: 'test', pk: 'test-id', loc: [{ kt: 'level1', lk: 'location1' }] } } as TestItem;
       const facetResult = { processedData: 'complex result' };
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
@@ -202,21 +204,23 @@ describe('wrapFacetOperation', () => {
       expect(mockFacetMethod).toHaveBeenCalledWith(testItem, facetParams);
       expect(result).toBe(facetResult);
       expect(mockLoggerDebug).toHaveBeenCalledWith(
-        'facet for item key: %j, facet key: %s, params: %j',
-        testKey,
-        facetKey,
-        facetParams
+        'Facet operation started',
+        expect.objectContaining({
+          key: testKey,
+          facetKey,
+          facetParams
+        })
       );
     });
 
     it('should handle facet methods that return different types', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
-      const primitiveResult = 'simple string result';
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
         pk: 'test-id',
         loc: [{ kt: 'level1', lk: 'location1' }]
       };
+      const testItem: TestItem = { id: '1', name: 'test item', key: testKey } as TestItem;
+      const primitiveResult = 'simple string result';
       const facetKey = 'testFacet';
       const facetParams = {};
 
@@ -231,12 +235,12 @@ describe('wrapFacetOperation', () => {
     });
 
     it('should handle facet methods that return null or undefined', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
         pk: 'test-id',
         loc: [{ kt: 'level1', lk: 'location1' }]
       };
+      const testItem: TestItem = { id: '1', name: 'test item', key: testKey } as TestItem;
       const facetKey = 'testFacet';
       const facetParams = {};
 
@@ -251,12 +255,12 @@ describe('wrapFacetOperation', () => {
     });
 
     it('should propagate errors from the wrapped facet operation', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
         pk: 'test-id',
         loc: [{ kt: 'level1', lk: 'location1' }]
       };
+      const testItem: TestItem = { id: '1', name: 'test item', key: testKey } as TestItem;
       const facetKey = 'testFacet';
       const facetParams = {};
       const testError = new Error('Facet execution failed');
@@ -269,7 +273,7 @@ describe('wrapFacetOperation', () => {
     });
 
     it('should still log debug information even when facet fails', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
+      const testItem: TestItem = { id: '1', name: 'test item', key: { kt: 'test', pk: 'test-id', loc: [{ kt: 'level1', lk: 'location1' }] } } as TestItem;
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
         pk: 'test-id',
@@ -289,20 +293,22 @@ describe('wrapFacetOperation', () => {
       }
 
       expect(mockLoggerDebug).toHaveBeenCalledWith(
-        'facet for item key: %j, facet key: %s, params: %j',
-        testKey,
-        facetKey,
-        facetParams
+        'Facet operation started',
+        expect.objectContaining({
+          key: testKey,
+          facetKey,
+          facetParams
+        })
       );
     });
 
     it('should propagate errors when facet method fails', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
         pk: 'test-id',
         loc: [{ kt: 'level1', lk: 'location1' }]
       };
+      const testItem: TestItem = { id: '1', name: 'test item', key: testKey } as TestItem;
       const facetKey = 'testFacet';
       const facetParams = {};
       const testError = new Error('Facet failed');
@@ -403,7 +409,7 @@ describe('wrapFacetOperation', () => {
     });
 
     it('should handle empty facetParams object', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
+      const testItem: TestItem = { id: '1', name: 'test item', key: { kt: 'test', pk: 'test-id', loc: [{ kt: 'level1', lk: 'location1' }] } } as TestItem;
       const facetResult = { defaultResult: true };
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
@@ -422,25 +428,27 @@ describe('wrapFacetOperation', () => {
       expect(mockFacetMethod).toHaveBeenCalledWith(testItem, facetParams);
       expect(result).toBe(facetResult);
       expect(mockLoggerDebug).toHaveBeenCalledWith(
-        'facet for item key: %j, facet key: %s, params: %j',
-        testKey,
-        facetKey,
-        facetParams
+        'Facet operation started',
+        expect.objectContaining({
+          key: testKey,
+          facetKey,
+          facetParams
+        })
       );
     });
 
     it('should handle facet methods that return arrays', async () => {
-      const testItem: TestItem = { id: '1', name: 'test item' } as TestItem;
-      const facetResult = [
-        { id: 1, name: 'item1' },
-        { id: 2, name: 'item2' },
-        { id: 3, name: 'item3' },
-      ];
       const testKey: ComKey<'test', 'level1'> = {
         kt: 'test',
         pk: 'test-id',
         loc: [{ kt: 'level1', lk: 'location1' }]
       };
+      const testItem: TestItem = { id: '1', name: 'test item', key: testKey } as TestItem;
+      const facetResult = [
+        { id: 1, name: 'item1' },
+        { id: 2, name: 'item2' },
+        { id: 3, name: 'item3' },
+      ];
       const facetKey = 'testFacet';
       const facetParams = { filter: 'active' };
 
