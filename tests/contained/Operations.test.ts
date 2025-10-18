@@ -4,7 +4,7 @@ import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/core";
 import { Operations, wrapOperations } from "../../src/contained/Operations";
 import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperations } from "../../src/Operations";
 import { Registry } from "../../src/Registry";
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { createOptions } from '../../src/Options';
 
 // Mock the abstract operations wrapper

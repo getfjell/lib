@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRegistry, createRegistryFactory, Registry } from '../src/Registry';
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import LibLogger from '../src/logger';
 
 // Mock the logger module

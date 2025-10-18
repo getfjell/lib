@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { createRegistry, NotFoundError, Operations } from '../../src/index';
 import { wrapUpsertOperation } from '../../src/ops/upsert';
 import { Item, PriKey } from '@fjell/core';
@@ -58,16 +58,16 @@ describe('upsert', () => {
 
   describe('upsert with key', () => {
     test('should create new item if it does not exist', async () => {
-      const testItem = { name: 'newItem' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
+      const testItem = { name: 'newItem', key } as unknown as Item<'test'>;
       const itemProperties = { name: 'newItem' } as Partial<Item<'test'>>;
       const coordinate = createCoordinate<'test'>(['test'], []);
 
       getMethodMock.mockImplementation(() => {
         throw new NotFoundError('get', coordinate, key, {});
       });
-      createMethodMock.mockResolvedValueOnce({ ...testItem, action: 'created' } as Item<'test'>);
-      updateMethodMock.mockResolvedValueOnce({ ...testItem, action: 'updated' } as Item<'test'>);
+      createMethodMock.mockResolvedValueOnce({ ...testItem, action: 'created', key } as Item<'test'>);
+      updateMethodMock.mockResolvedValueOnce({ ...testItem, action: 'updated', key } as Item<'test'>);
 
       const registry = createRegistry();
       const result = await wrapUpsertOperation(operations, coordinate, registry)(key, itemProperties);
@@ -79,13 +79,13 @@ describe('upsert', () => {
     });
 
     test('should update new item if exists', async () => {
-      const testItem = { name: 'newItem' } as unknown as Item<'test'>;
       const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
+      const testItem = { name: 'newItem', key } as unknown as Item<'test'>;
       const itemProperties = { name: 'newItem' } as Partial<Item<'test'>>;
       const coordinate = createCoordinate<'test'>(['test'], []);
 
       getMethodMock.mockResolvedValueOnce(testItem);
-      updateMethodMock.mockResolvedValueOnce({ ...testItem, action: 'updated' } as Item<'test'>);
+      updateMethodMock.mockResolvedValueOnce({ ...testItem, action: 'updated', key } as Item<'test'>);
 
       const registry = createRegistry();
       const result = await wrapUpsertOperation(operations, coordinate, registry)(key, itemProperties);

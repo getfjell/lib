@@ -1,11 +1,17 @@
-import { Item, LocKeyArray } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
+import {
+  AllFacetOperationMethod,
+  Coordinate,
+  executeWithContext,
+  Item,
+  LocKeyArray,
+  OperationContext,
+  ValidationError
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateLocations } from "../validation/KeyValidator";
 
 const logger = LibLogger.get("library", "ops", "allFacet");
 
@@ -24,28 +30,45 @@ export const wrapAllFacetOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): AllFacetOperationMethod<L1, L2, L3, L4, L5> => {
 
   const { allFacets } = options || {};
 
   const allFacet = async (
     allFacetKey: string,
-    allFacetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+    allFacetParams?: Record<string, any>,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<any> => {
-    logger.debug("allFacet", { allFacetKey, allFacetParams, locations });
-    
-    // Validate location key array order
-    validateLocations(locations, coordinate, 'allFacet');
+  ) => {
+    const locs = locations ?? [];
+    logger.debug('AllFacet operation started', { allFacetKey, allFacetParams, locations: locs });
     
     if (!allFacets?.[allFacetKey]) {
-      throw new Error(`AllFacet ${allFacetKey} not found in definition`);
+      const availableFacets = allFacets ? Object.keys(allFacets) : [];
+      throw new ValidationError(
+        `AllFacet "${allFacetKey}" not found`,
+        availableFacets,
+        'Use one of the available facets'
+      );
     }
-    // We search for the method, but we throw the method call to the wrapped operations
-    // This is because we want to make sure we're always invoking the appropriate key and event management logic.
-    const allFacetMethod = allFacets[allFacetKey];
-    return allFacetMethod(allFacetParams, locations);
-  }
+
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'allFacet',
+      operationName: allFacetKey,
+      params: allFacetParams || {},
+      locations: locs as any
+    };
+
+    return executeWithContext(
+      () => {
+        const allFacetMethod = allFacets[allFacetKey];
+        const result = allFacetMethod(allFacetParams || {}, locs);
+        logger.debug('AllFacet operation completed', { allFacetKey, result });
+        return result;
+      },
+      context
+    );
+  };
 
   return allFacet;
 }

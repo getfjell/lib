@@ -1,12 +1,18 @@
-import { ComKey, Item, PriKey } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
+import {
+  ComKey,
+  Coordinate,
+  executeWithContext,
+  Item,
+  OperationContext,
+  PriKey,
+  UpdateMethod
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import { HookError, UpdateError, UpdateValidationError } from "../errors";
 import LibLogger from '../logger';
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateKey } from "../validation/KeyValidator";
 
 const logger = LibLogger.get('library', 'ops', 'update');
 
@@ -24,57 +30,63 @@ export const wrapUpdateOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): UpdateMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const update = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>
   ): Promise<V> => {
-
-    logger.default('📚 [LIB] Wrapped update operation called', { key, item, coordinate: coordinate.kta });
-
-    // Validate key type and location key order
-    validateKey(key, coordinate, 'update');
-
-    let itemToUpdate = item;
-    
-    logger.default('📚 [LIB] Running pre-update hook');
-    itemToUpdate = await runPreUpdateHook(key, itemToUpdate);
-    logger.default('📚 [LIB] Pre-update hook completed', { itemToUpdate });
-
-    logger.default('📚 [LIB] Running update validation');
-    await validateUpdate(key, itemToUpdate);
-    logger.default('📚 [LIB] Update validation completed');
-
     try {
-      logger.default('📚 [LIB] Calling underlying operation (lib-firestore)', { key, item: itemToUpdate });
-      let updatedItem = await toWrap.update(key, itemToUpdate) as V;
-      logger.default('📚 [LIB] Underlying operation completed', { updatedItem });
+      logger.debug('update', { key, item });
 
-      logger.default('📚 [LIB] Running post-update hook');
-      updatedItem = await runPostUpdateHook(updatedItem);
-      logger.default('📚 [LIB] Post-update hook completed', { updatedItem });
+      let itemToUpdate = item;
+      
+      itemToUpdate = await runPreUpdateHook(key, itemToUpdate);
 
-      logger.default("📚 [LIB] Wrapped update operation completed", { updatedItem });
+      await validateUpdate(key, itemToUpdate);
+
+      const context: OperationContext = {
+        itemType: coordinate.kta[0],
+        operationType: 'update',
+        operationName: 'update',
+        params: { key, updates: itemToUpdate },
+        key
+      };
+
+      let updatedItem: V;
+      try {
+        updatedItem = await executeWithContext(
+          () => toWrap.update(key, itemToUpdate),
+          context
+        );
+      } catch (updateError) {
+        // Wrap underlying update errors in UpdateError
+        throw new UpdateError({ key, item: itemToUpdate }, coordinate, { cause: updateError as Error });
+      }
+
+      try {
+        updatedItem = await runPostUpdateHook(updatedItem);
+      } catch (hookError) {
+        // Wrap post-update hook errors in UpdateError
+        throw new UpdateError({ key, item: itemToUpdate }, coordinate, { cause: hookError as Error });
+      }
+
+      logger.debug("Update operation completed successfully", { updatedItem });
       return updatedItem;
-    } catch (error: unknown) {
-      logger.error('📚 [LIB] Update operation failed', { error, key, item: itemToUpdate });
-      throw new UpdateError(
-        { key, item: itemToUpdate },
-        coordinate,
-        { cause: error as Error }
-      );
+    } catch (error) {
+      // Wrap all errors in a generic Error with the lib error as cause
+      throw new Error((error as Error).message, { cause: error });
     }
-  }
+  };
+
+  return update;
 
   async function runPreUpdateHook(
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
     itemToUpdate: Partial<Item<S, L1, L2, L3, L4, L5>>
   ): Promise<Partial<Item<S, L1, L2, L3, L4, L5>>> {
-    logger.debug('Running Pre Update Hook');
     if (options?.hooks?.preUpdate) {
       try {
-        logger.default('Running preUpdate hook', { key, item: itemToUpdate });
         itemToUpdate = await options.hooks.preUpdate(key, itemToUpdate);
       } catch (error: unknown) {
         throw new HookError(
@@ -85,7 +97,6 @@ export const wrapUpdateOperation = <
         );
       }
     } else {
-      logger.default('No preUpdate hook found, returning.');
     }
     return itemToUpdate;
   }
@@ -93,10 +104,8 @@ export const wrapUpdateOperation = <
   async function runPostUpdateHook(
     updatedItem: V
   ): Promise<V> {
-    logger.debug('Running Post Update Hook');
     if (options?.hooks?.postUpdate) {
       try {
-        logger.default('Running postUpdate hook', { item: updatedItem });
         updatedItem = await options.hooks.postUpdate(updatedItem);
       } catch (error: unknown) {
         throw new HookError(
@@ -107,7 +116,6 @@ export const wrapUpdateOperation = <
         );
       }
     } else {
-      logger.default('No postUpdate hook found, returning.');
     }
     return updatedItem;
   }
@@ -116,14 +124,11 @@ export const wrapUpdateOperation = <
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
     itemToUpdate: Partial<Item<S, L1, L2, L3, L4, L5>>
   ) {
-    logger.debug('Validating update');
     if (!options?.validators?.onUpdate) {
-      logger.default('No validator found for update, returning.');
       return;
     }
 
     try {
-      logger.debug('Validating update', { key, item: itemToUpdate });
       const isValid = await options.validators.onUpdate(key, itemToUpdate);
       if (!isValid) {
         throw new UpdateValidationError(
@@ -141,5 +146,4 @@ export const wrapUpdateOperation = <
     }
   }
 
-  return update;
 }
