@@ -1,11 +1,20 @@
-import { Coordinate, createFindOneWrapper, FindOneMethod, Item } from "@fjell/core";
+import {
+  Coordinate,
+  executeWithContext,
+  FindOneMethod,
+  Item,
+  LocKeyArray,
+  OperationContext,
+  OperationParams,
+  ValidationError
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from '../logger';
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
 
-const logger = LibLogger.get('library', 'ops', 'one');
+const logger = LibLogger.get('library', 'ops', 'findOne');
 
 export const wrapFindOneOperation = <
   V extends Item<S, L1, L2, L3, L4, L5>,
@@ -25,15 +34,38 @@ export const wrapFindOneOperation = <
     registry: Registry,
   ): FindOneMethod<V, S, L1, L2, L3, L4, L5> => {
 
-  // Use the wrapper for automatic validation
-  return createFindOneWrapper(
-    coordinate,
-    async (finder, finderParams, locations) => {
-      logger.debug("FindOne operation started", { finder, finderParams, locations });
-      
-      const foundItems = await toWrap.findOne(finder, finderParams, locations);
-      logger.debug("FindOne operation completed", { foundItems });
-      return foundItems;
+  const { finders } = options || {};
+
+  const findOne = async (
+    finder: string,
+    params: OperationParams,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
+  ): Promise<V | null> => {
+    const locs = locations ?? [];
+    logger.debug("findOne", { finder, params, locations: locs });
+
+    if (!finders?.[finder]) {
+      const availableFinders = finders ? Object.keys(finders) : [];
+      throw new ValidationError(
+        `Finder "${finder}" not found`,
+        availableFinders,
+        'Use one of the available finders'
+      );
     }
-  );
+
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'findOne',
+      operationName: finder,
+      params,
+      locations: locs as any
+    };
+
+    return executeWithContext(
+      () => toWrap.findOne(finder, params, locs),
+      context
+    );
+  };
+
+  return findOne;
 }

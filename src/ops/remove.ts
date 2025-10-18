@@ -1,5 +1,13 @@
 
-import { ComKey, Coordinate, createRemoveWrapper, Item, PriKey, RemoveMethod } from "@fjell/core";
+import {
+  ComKey,
+  Coordinate,
+  executeWithContext,
+  Item,
+  OperationContext,
+  PriKey,
+  RemoveMethod
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import { HookError, RemoveError, RemoveValidationError } from "../errors";
@@ -25,17 +33,28 @@ export const wrapRemoveOperation = <
     registry: Registry,
   ): RemoveMethod<V, S, L1, L2, L3, L4, L5> => {
 
-  // Use the wrapper for automatic validation
-  return createRemoveWrapper(
-    coordinate,
-    async (key) => {
-      logger.debug('Remove operation started', { key, coordinate: coordinate.kta });
+  const remove = async (
+    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>
+  ): Promise<V | void> => {
+    try {
+      logger.debug('remove', { key });
 
       await runPreRemoveHook(key);
 
       await validateRemove(key);
 
-      const item = await toWrap.remove(key);
+      const context: OperationContext = {
+        itemType: coordinate.kta[0],
+        operationType: 'remove',
+        operationName: 'remove',
+        params: { key },
+        key
+      };
+
+      const item = await executeWithContext(
+        () => toWrap.remove(key),
+        context
+      );
 
       if (!item) {
         logger.error('Remove operation failed - no item returned', { key });
@@ -46,8 +65,13 @@ export const wrapRemoveOperation = <
 
       logger.debug("Remove operation completed successfully", { item });
       return item;
+    } catch (error) {
+      // Wrap all errors in a generic Error with the lib error as cause
+      throw new Error((error as Error).message, { cause: error });
     }
-  );
+  };
+
+  return remove;
 
   async function runPreRemoveHook(key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>) {
     if (options?.hooks?.preRemove) {

@@ -182,7 +182,7 @@ describe('wrapFindOperation', () => {
     const finderParams = { param1: 'value1' };
 
     await expect(findOperation(finder, finderParams)).rejects.toThrow(
-      `Finder ${finder} not found in definition for ${mockCoordinate.toString()}`
+      'Finder "nonExistentFinder" not found'
     );
   });
 
@@ -194,7 +194,7 @@ describe('wrapFindOperation', () => {
     const finderParams = { param1: 'value1' };
 
     await expect(findOperation(finder, finderParams)).rejects.toThrow(
-      `Finder ${finder} not found in definition for ${mockCoordinate.toString()}`
+      'Finder "anyFinder" not found'
     );
   });
 });

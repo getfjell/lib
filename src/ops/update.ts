@@ -1,4 +1,12 @@
-import { ComKey, Coordinate, createUpdateWrapper, Item, PriKey, UpdateMethod } from "@fjell/core";
+import {
+  ComKey,
+  Coordinate,
+  executeWithContext,
+  Item,
+  OperationContext,
+  PriKey,
+  UpdateMethod
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import { HookError, UpdateError, UpdateValidationError } from "../errors";
@@ -24,11 +32,12 @@ export const wrapUpdateOperation = <
     registry: Registry,
   ): UpdateMethod<V, S, L1, L2, L3, L4, L5> => {
 
-  // Use the wrapper for automatic validation
-  return createUpdateWrapper(
-    coordinate,
-    async (key, item) => {
-      logger.debug('Update operation started', { key, coordinate: coordinate.kta });
+  const update = async (
+    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
+    item: Partial<Item<S, L1, L2, L3, L4, L5>>
+  ): Promise<V> => {
+    try {
+      logger.debug('update', { key, item });
 
       let itemToUpdate = item;
       
@@ -36,23 +45,41 @@ export const wrapUpdateOperation = <
 
       await validateUpdate(key, itemToUpdate);
 
+      const context: OperationContext = {
+        itemType: coordinate.kta[0],
+        operationType: 'update',
+        operationName: 'update',
+        params: { key, updates: itemToUpdate },
+        key
+      };
+
+      let updatedItem: V;
       try {
-        let updatedItem = await toWrap.update(key, itemToUpdate) as V;
-
-        updatedItem = await runPostUpdateHook(updatedItem);
-
-        logger.debug("Update operation completed successfully", { updatedItem });
-        return updatedItem;
-      } catch (error: unknown) {
-        logger.error('Update operation failed', { error, key, item: itemToUpdate });
-        throw new UpdateError(
-          { key, item: itemToUpdate },
-          coordinate,
-          { cause: error as Error }
+        updatedItem = await executeWithContext(
+          () => toWrap.update(key, itemToUpdate),
+          context
         );
+      } catch (updateError) {
+        // Wrap underlying update errors in UpdateError
+        throw new UpdateError({ key, item: itemToUpdate }, coordinate, { cause: updateError as Error });
       }
+
+      try {
+        updatedItem = await runPostUpdateHook(updatedItem);
+      } catch (hookError) {
+        // Wrap post-update hook errors in UpdateError
+        throw new UpdateError({ key, item: itemToUpdate }, coordinate, { cause: hookError as Error });
+      }
+
+      logger.debug("Update operation completed successfully", { updatedItem });
+      return updatedItem;
+    } catch (error) {
+      // Wrap all errors in a generic Error with the lib error as cause
+      throw new Error((error as Error).message, { cause: error });
     }
-  );
+  };
+
+  return update;
 
   async function runPreUpdateHook(
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,

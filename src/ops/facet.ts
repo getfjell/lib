@@ -1,4 +1,13 @@
-import { Coordinate, createFacetWrapper, FacetOperationMethod, Item } from "@fjell/core";
+import {
+  ComKey,
+  Coordinate,
+  executeWithContext,
+  FacetOperationMethod,
+  Item,
+  OperationContext,
+  PriKey,
+  ValidationError
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from "../logger";
@@ -25,26 +34,45 @@ export const wrapFacetOperation = <
 
   const { facets } = options || {};
 
-  // Use the wrapper for automatic validation
-  return createFacetWrapper(
-    coordinate,
-    async (key, facetKey, facetParams) => {
-      logger.debug("Facet operation started", { key, facetKey, facetParams });
-      
-      if (!facets?.[facetKey]) {
-        throw new Error(`Facet ${facetKey} not found in definition for ${coordinate.toString()}`);
-      }
-      // We search for the method, but we throw the method call to the wrapped operations
-      // This is because we want to make sure we're always invoking the appropriate key and event management logic.
-      const facetMethod = facets[facetKey];
-      logger.debug("Getting item for facet", { key });
-      const item = await toWrap.get(key);
-      if (!item) {
-        throw new Error(`Item not found for key: ${JSON.stringify(key)}`);
-      }
-      const result = facetMethod(item, facetParams || {});
-      logger.debug('Facet operation completed', { facetKey, result });
-      return result;
+  const facet = async (
+    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
+    facetKey: string,
+    facetParams?: Record<string, any>
+  ) => {
+    logger.debug('Facet operation started', { key, facetKey, facetParams });
+    
+    if (!facets?.[facetKey]) {
+      const availableFacets = facets ? Object.keys(facets) : [];
+      throw new ValidationError(
+        `Facet "${facetKey}" not found`,
+        availableFacets,
+        'Use one of the available facets'
+      );
     }
-  );
+
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'facet',
+      operationName: facetKey,
+      params: facetParams || {},
+      key
+    };
+
+    return executeWithContext(
+      async () => {
+        const facetMethod = facets[facetKey];
+        logger.debug("Getting item for facet", { key });
+        const item = await toWrap.get(key);
+        if (!item) {
+          throw new Error(`Item not found for key: ${JSON.stringify(key)}`);
+        }
+        const result = facetMethod(item, facetParams || {});
+        logger.debug('Facet operation completed', { facetKey, result });
+        return result;
+      },
+      context
+    );
+  };
+
+  return facet;
 }
