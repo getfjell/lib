@@ -4,11 +4,10 @@ import {
   ContainedOperations as CoreContainedOperations,
   OperationParams
 } from "@fjell/core";
-import { Item } from "@fjell/core";
+import { Coordinate, Item } from "@fjell/core";
 import { wrapOperations as wrapAbstractOperations } from "../Operations";
 import { Registry } from "../Registry";
 import { Options } from "./Options";
-import { Coordinate } from "@fjell/registry";
 import { ActionMethod, AllActionMethod, AllFacetMethod, FacetMethod, FinderMethod } from "../Options";
 
 import logger from "src/logger";

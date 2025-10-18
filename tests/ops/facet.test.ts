@@ -22,7 +22,7 @@ import { wrapFacetOperation } from '../../src/ops/facet';
 import { Options } from '../../src/Options';
 import { Operations } from '../../src/Operations';
 import { Registry } from '../../src/Registry';
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { createOptions } from '../../src/Options';
 
 // Type definitions for test data

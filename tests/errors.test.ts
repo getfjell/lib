@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { CreateValidationError, HookError, NotFoundError, NotUpdatedError, RemoveError, RemoveValidationError, UpdateError, UpdateValidationError, ValidationError } from '../src/errors';
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { ComKey, PriKey } from '@fjell/core';
 
 describe('Error Classes', () => {

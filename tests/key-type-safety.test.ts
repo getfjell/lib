@@ -5,7 +5,7 @@ import { InvalidKeyTypeError, LocationKeyOrderError } from '../src/errors';
 import { wrapGetOperation } from '../src/ops/get';
 import { Operations } from '../src/Operations';
 import { Options } from '../src/Options';
-import { Coordinate } from '@fjell/registry';
+import { Coordinate } from '@fjell/core';
 import { Registry } from '../src/Registry';
 
 describe('Key Type Safety for get() Operations', () => {

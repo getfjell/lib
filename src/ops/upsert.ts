@@ -1,17 +1,17 @@
 
 import {
   ComKey,
+  Coordinate,
   Item,
   PriKey,
   UpsertMethod,
 } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
 
 import LibLogger from "../logger";
 import { NotFoundError } from "../errors";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateKey } from "../validation/KeyValidator";
+import { validateKey } from "@fjell/core";
 
 const logger = LibLogger.get('ops', 'upsert');
 

@@ -1,9 +1,8 @@
-import { AffectedKeys, AllActionOperationMethod, Item, LocKeyArray, OperationParams } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
+import { AffectedKeys, AllActionOperationMethod, Coordinate, Item, LocKeyArray, OperationParams } from "@fjell/core";
 import { Operations } from "../Operations";
 import { Options } from "../Options";
 import LibLogger from "../logger";
-import { validateLocations } from "../validation/KeyValidator";
+import { validateLocations } from "@fjell/core";
 
 const logger = LibLogger.get("library", "ops", "allAction");
 

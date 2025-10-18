@@ -4,8 +4,7 @@ import {
   PrimaryOperations as CorePrimaryOperations,
   OperationParams
 } from "@fjell/core";
-import { Item } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
+import { Coordinate, Item } from "@fjell/core";
 import { ActionMethod, AllActionMethod, AllFacetMethod, FacetMethod, FinderMethod, Options } from "../Options";
 import { wrapOperations as wrapAbstractOperations } from "../Operations";
 

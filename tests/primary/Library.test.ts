@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { createLibrary, Library } from '../../src/primary/Library';
-import { Item } from '@fjell/core';
-import { Coordinate, Registry } from '@fjell/registry';
+import { Coordinate, Item } from '@fjell/core';
+import { Registry } from '@fjell/registry';
 import { Operations } from '../../src/primary/Operations';
 import { Options } from '../../src/primary/Options';
 

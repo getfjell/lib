@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { createRegistry, NotFoundError, Operations } from '../../src/index';
 import { wrapUpsertOperation } from '../../src/ops/upsert';
 import { Item, PriKey } from '@fjell/core';

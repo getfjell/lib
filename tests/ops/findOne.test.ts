@@ -3,7 +3,7 @@ import { Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapFindOneOperation } from "../../src/ops/findOne";
 import { Operations } from "../../src/Operations";
 import { createRegistry, Registry } from "../../src/Registry";
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { createOptions, Options } from '../../src/Options';
 
 vi.mock('@fjell/logging', () => {
