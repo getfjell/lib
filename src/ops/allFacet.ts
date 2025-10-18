@@ -1,4 +1,4 @@
-import { Item, LocKeyArray } from "@fjell/core";
+import { AllFacetOperationMethod, Item, LocKeyArray, OperationParams } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 
 import { Options } from "../Options";
@@ -24,13 +24,13 @@ export const wrapAllFacetOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): AllFacetOperationMethod<L1, L2, L3, L4, L5> => {
 
   const { allFacets } = options || {};
 
   const allFacet = async (
     allFacetKey: string,
-    allFacetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+    allFacetParams?: OperationParams,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<any> => {
     logger.debug("allFacet", { allFacetKey, allFacetParams, locations });
@@ -44,7 +44,7 @@ export const wrapAllFacetOperation = <
     // We search for the method, but we throw the method call to the wrapped operations
     // This is because we want to make sure we're always invoking the appropriate key and event management logic.
     const allFacetMethod = allFacets[allFacetKey];
-    return allFacetMethod(allFacetParams, locations);
+    return allFacetMethod(allFacetParams || {}, locations);
   }
 
   return allFacet;

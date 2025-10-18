@@ -1,4 +1,4 @@
-import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
+import { AffectedKeys, AllActionOperationMethod, Item, LocKeyArray, OperationParams } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 import { Operations } from "../Operations";
 import { Options } from "../Options";
@@ -19,13 +19,13 @@ export const wrapAllActionOperation = <
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
     options: Options<V, S, L1, L2, L3, L4, L5>,
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
-  ) => {
+  ): AllActionOperationMethod<V, S, L1, L2, L3, L4, L5> => {
   const { allActions } = options || {};
   const allAction = async (
     allActionKey: string,
-    allActionParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+    allActionParams?: OperationParams,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<[V[], Array<PriKey<any> | ComKey<any, any, any, any, any, any> | LocKeyArray<any, any, any, any, any>>]> => {
+  ): Promise<[V[], AffectedKeys]> => {
     logger.debug("allAction", { allActionKey, allActionParams, locations });
     
     // Validate location key array order
@@ -44,7 +44,7 @@ export const wrapAllActionOperation = <
       throw new Error(errorMessage);
     }
     const allActionMethod = allActions[allActionKey];
-    return allActionMethod(allActionParams, locations);
+    return allActionMethod(allActionParams || {}, locations);
   }
   return allAction;
 }

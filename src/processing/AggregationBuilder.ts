@@ -35,7 +35,7 @@ export const buildAggregation = async (
 ) => {
 
   // 🔍 DEBUG LOGGING: Log initial state
-  logger.info('🔍 AggregationBuilder START', {
+  logger.debug('🔍 AggregationBuilder START', {
     itemKeyType: item.key.kt,
     itemKeyPk: (item.key as any).pk,
     itemKeyFull: JSON.stringify(item.key),
@@ -68,7 +68,7 @@ export const buildAggregation = async (
   const isChildAggregation = targetKta.length > 1 && targetKtaSliced.includes(currentItemType);
   
   // 🔍 DEBUG LOGGING: Log detection logic
-  logger.info('🔍 AggregationBuilder DETECTION', {
+  logger.debug('🔍 AggregationBuilder DETECTION', {
     currentItemType,
     targetKta,
     targetKtaSliced,
@@ -83,7 +83,7 @@ export const buildAggregation = async (
     const comKey = item.key as ComKey<string, string, string, string, string, string>;
     
     // 🔍 DEBUG LOGGING: Log ComKey details
-    logger.info('🔍 AggregationBuilder COMKEY', {
+    logger.debug('🔍 AggregationBuilder COMKEY', {
       comKeyKt: comKey.kt,
       comKeyPk: comKey.pk,
       comKeyLoc: JSON.stringify(comKey.loc),
@@ -99,7 +99,7 @@ export const buildAggregation = async (
       location = [currentItemLocKey, ...comKey.loc] as unknown as LocKeyArray;
       
       // 🔍 DEBUG LOGGING: Log child aggregation location construction
-      logger.info('🔍 AggregationBuilder CHILD AGGREGATION', {
+      logger.debug('🔍 AggregationBuilder CHILD AGGREGATION', {
         currentItemLocKey,
         parentLocs: JSON.stringify(comKey.loc),
         constructedLocation: JSON.stringify(location),
@@ -110,7 +110,7 @@ export const buildAggregation = async (
       location = ikToLKA(comKey) as unknown as LocKeyArray;
       
       // 🔍 DEBUG LOGGING: Log sibling aggregation location construction
-      logger.info('🔍 AggregationBuilder SIBLING AGGREGATION', {
+      logger.debug('🔍 AggregationBuilder SIBLING AGGREGATION', {
         ikToLKAResult: JSON.stringify(location),
         locationLength: location.length
       });
@@ -120,14 +120,14 @@ export const buildAggregation = async (
     location = ikToLKA(item.key) as unknown as LocKeyArray;
     
     // 🔍 DEBUG LOGGING: Log primary key handling
-    logger.info('🔍 AggregationBuilder PRIMARY KEY', {
+    logger.debug('🔍 AggregationBuilder PRIMARY KEY', {
       ikToLKAResult: JSON.stringify(location),
       locationLength: location.length
     });
   }
 
   // 🔍 DEBUG LOGGING: Log final result before calling operation
-  logger.info('🔍 AggregationBuilder FINAL LOCATION', {
+  logger.debug('🔍 AggregationBuilder FINAL LOCATION', {
     finalLocation: JSON.stringify(location),
     finalLocationLength: location.length,
     operationType: aggregationDefinition.cardinality,

@@ -1,6 +1,7 @@
 
 import {
   ComKey,
+  CreateMethod,
   Item,
   LocKeyArray,
   PriKey,
@@ -30,7 +31,7 @@ export const wrapCreateOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): CreateMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const libOptions = options;
 

@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { Item, ItemQuery, LocKeyArray } from "@fjell/core";
+import { AllMethod, Item, ItemQuery, LocKeyArray } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 
 import { Options } from "../Options";
@@ -26,10 +26,10 @@ export const wrapAllOperation = <
   coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   registry: Registry,
-) => {
+): AllMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const all = async (
-    itemQuery: ItemQuery,
+    itemQuery?: ItemQuery,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<V[]> => {
 

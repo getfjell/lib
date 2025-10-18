@@ -1,4 +1,4 @@
-import { ComKey, Item, PriKey } from "@fjell/core";
+import { ComKey, FacetOperationMethod, Item, OperationParams, PriKey } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 
 import { Options } from "../Options";
@@ -23,15 +23,15 @@ export const wrapFacetOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): FacetOperationMethod<S, L1, L2, L3, L4, L5> => {
 
   const { facets } = options || {};
 
   const facet = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
     facetKey: string,
-    facetParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-  ): Promise<V> => {
+    facetParams?: OperationParams,
+  ): Promise<any> => {
     logger.debug("facet for item key: %j, facet key: %s, params: %j", key, facetKey, facetParams);
     
     // Validate key type and location key order
@@ -45,7 +45,10 @@ export const wrapFacetOperation = <
     const facetMethod = facets[facetKey];
     logger.debug("Getting Item for Facet by key: %j", key);
     const item = await toWrap.get(key);
-    return facetMethod(item, facetParams);
+    if (!item) {
+      throw new Error(`Item not found for key: ${JSON.stringify(key)}`);
+    }
+    return facetMethod(item, facetParams || {});
   }
 
   return facet;

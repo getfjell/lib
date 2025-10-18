@@ -1,4 +1,4 @@
-import { ComKey, Item, PriKey } from "@fjell/core";
+import { ComKey, Item, PriKey, UpdateMethod } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
 
 import { Options } from "../Options";
@@ -24,7 +24,7 @@ export const wrapUpdateOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): UpdateMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const update = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
