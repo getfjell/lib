@@ -47,7 +47,11 @@ describe('wrapFindOneOperation', () => {
     } as unknown as Operations<TestItem, 'test', 'loc1', 'loc2'>;
 
     registry = createRegistry();
-    mockOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+    mockOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>({
+      finders: {
+        testFinder: vi.fn()
+      }
+    });
     mockCoordinate = createCoordinate(['test', 'loc1', 'loc2'], ['scope1']);
   });
 

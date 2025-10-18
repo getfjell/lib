@@ -1,4 +1,12 @@
-import { AllActionOperationMethod, Coordinate, createAllActionWrapper, Item } from "@fjell/core";
+import {
+  AllActionOperationMethod,
+  Coordinate,
+  executeWithContext,
+  Item,
+  LocKeyArray,
+  OperationContext,
+  ValidationError
+} from "@fjell/core";
 import { Operations } from "../Operations";
 import { Options } from "../Options";
 import LibLogger from "../logger";
@@ -19,28 +27,42 @@ export const wrapAllActionOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   ): AllActionOperationMethod<V, S, L1, L2, L3, L4, L5> => {
   const { allActions } = options || {};
-  // Use the wrapper for automatic validation
-  return createAllActionWrapper(
-    coordinate,
-    async (allActionKey, allActionParams, locations) => {
-      logger.debug("AllAction operation started", { allActionKey, allActionParams, locations });
-      
-      if (!allActions?.[allActionKey]) {
-        const availableActions = allActions ? Object.keys(allActions) : [];
-        const errorMessage = `AllAction "${allActionKey}" not found in definition. Available actions: ${availableActions.length > 0 ? availableActions.join(', ') : 'none'}`;
-        logger.error(errorMessage, {
-          requestedAction: allActionKey,
-          availableActions,
-          allActionsKeys: allActions ? Object.keys(allActions) : [],
-          params: allActionParams,
-          locations
-        });
-        throw new Error(errorMessage);
-      }
-      const allActionMethod = allActions[allActionKey];
-      const result = allActionMethod(allActionParams || {}, locations);
-      logger.debug('AllAction operation completed', { allActionKey, result });
-      return result;
+  
+  const allAction = async (
+    allActionKey: string,
+    allActionParams?: Record<string, any>,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
+  ) => {
+    const locs = locations ?? [];
+    logger.debug('AllAction operation started', { allActionKey, allActionParams, locations: locs });
+    
+    if (!allActions?.[allActionKey]) {
+      const availableActions = allActions ? Object.keys(allActions) : [];
+      throw new ValidationError(
+        `AllAction "${allActionKey}" not found`,
+        availableActions,
+        'Use one of the available actions'
+      );
     }
-  );
+
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'allAction',
+      operationName: allActionKey,
+      params: allActionParams || {},
+      locations: locs as any
+    };
+
+    return executeWithContext(
+      () => {
+        const allActionMethod = allActions[allActionKey];
+        const result = allActionMethod(allActionParams || {}, locs);
+        logger.debug('AllAction operation completed', { allActionKey, result });
+        return result;
+      },
+      context
+    );
+  };
+
+  return allAction;
 }

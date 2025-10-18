@@ -1,4 +1,13 @@
-import { Coordinate, createFindWrapper, FindMethod, Item } from "@fjell/core";
+import {
+  Coordinate,
+  executeWithContext,
+  FindMethod,
+  Item,
+  LocKeyArray,
+  OperationContext,
+  OperationParams,
+  ValidationError
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from "../logger";
@@ -26,20 +35,36 @@ export const wrapFindOperation = <
 
   const { finders } = options || {};
 
-  // Use the wrapper for automatic validation
-  return createFindWrapper(
-    coordinate,
-    async (finder, finderParams, locations) => {
-      logger.debug("Find operation started", { finder, finderParams, locations });
-      
-      if (!finders?.[finder]) {
-        throw new Error(`Finder ${finder} not found in definition for ${coordinate.toString()}`);
-      }
-      // We search for the method, but we throw the method call to the wrapped operations
-      // This is because we want to make sure we're always invoking the appropriate key and event management logic.
-      const foundItems = await toWrap.find(finder, finderParams, locations);
-      logger.debug("Find operation completed", { foundItems });
-      return foundItems;
+  const find = async (
+    finder: string,
+    params: OperationParams,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
+  ): Promise<V[]> => {
+    const locs = locations ?? [];
+    logger.debug("find", { finder, params, locations: locs });
+
+    if (!finders?.[finder]) {
+      const availableFinders = finders ? Object.keys(finders) : [];
+      throw new ValidationError(
+        `Finder "${finder}" not found`,
+        availableFinders,
+        'Use one of the available finders'
+      );
     }
-  );
+
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'find',
+      operationName: finder,
+      params,
+      locations: locs as any
+    };
+
+    return executeWithContext(
+      () => toWrap.find(finder, params, locs),
+      context
+    );
+  };
+
+  return find;
 }

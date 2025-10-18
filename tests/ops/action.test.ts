@@ -279,7 +279,7 @@ describe('wrapActionOperation', () => {
       const actionParams = {};
 
       await expect(wrappedAction(testKey, actionKey, actionParams)).rejects.toThrow(
-        'Action nonExistentAction not found in definition'
+        'Action "nonExistentAction" not found'
       );
 
       expect(mockOperations.action).not.toHaveBeenCalled();
@@ -302,7 +302,7 @@ describe('wrapActionOperation', () => {
       const wrappedActionWithoutActions = wrapActionOperation(mockOperations, definitionWithoutActions, mockCoordinate);
 
       await expect(wrappedActionWithoutActions(testKey, actionKey, actionParams)).rejects.toThrow(
-        'Action testAction not found in definition'
+        'Action "testAction" not found'
       );
 
       expect(mockOperations.action).not.toHaveBeenCalled();

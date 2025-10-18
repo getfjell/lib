@@ -330,11 +330,10 @@ describe('wrapFacetOperation', () => {
       const facetParams = {};
 
       await expect(wrappedFacet(testKey, facetKey, facetParams)).rejects.toThrow(
-        'Facet nonExistentFacet not found in definition for test, level1 - '
+        'Facet "nonExistentFacet" not found'
       );
 
       expect(mockOperations.facet).not.toHaveBeenCalled();
-      expect(mockCoordinate.toString).toHaveBeenCalled();
     });
 
     it('should throw error when no facets are defined in definition', async () => {
@@ -352,10 +351,9 @@ describe('wrapFacetOperation', () => {
       const wrappedFacetWithoutFacets = wrapFacetOperation(mockOperations, optionsWithoutFacets, mockCoordinate, mockRegistry);
 
       await expect(wrappedFacetWithoutFacets(testKey, facetKey, facetParams)).rejects.toThrow(
-        'Facet testFacet not found in definition for test, level1 - '
+        'Facet "testFacet" not found'
       );
 
-      expect(mockCoordinate.toString).toHaveBeenCalled();
       expect(mockOperations.facet).not.toHaveBeenCalled();
     });
 
@@ -374,10 +372,9 @@ describe('wrapFacetOperation', () => {
       const wrappedFacetWithNullOptions = wrapFacetOperation(mockOperations, optionsWithNullFacets, mockCoordinate, mockRegistry);
 
       await expect(wrappedFacetWithNullOptions(testKey, facetKey, facetParams)).rejects.toThrow(
-        'Facet testFacet not found in definition for test, level1 - '
+        'Facet "testFacet" not found'
       );
 
-      expect(mockCoordinate.toString).toHaveBeenCalled();
       expect(mockOperations.facet).not.toHaveBeenCalled();
     });
 
@@ -401,10 +398,9 @@ describe('wrapFacetOperation', () => {
       );
 
       await expect(wrappedFacetWithUndefinedOptions(testKey, facetKey, facetParams)).rejects.toThrow(
-        'Facet testFacet not found in definition for test, level1 - '
+        'Facet "testFacet" not found'
       );
 
-      expect(mockCoordinate.toString).toHaveBeenCalled();
       expect(mockOperations.facet).not.toHaveBeenCalled();
     });
 

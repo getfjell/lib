@@ -2,10 +2,11 @@
 import {
   ComKey,
   Coordinate,
-  createUpsertWrapper,
+  executeWithContext,
   Item,
+  OperationContext,
   PriKey,
-  UpsertMethod,
+  UpsertMethod
 } from "@fjell/core";
 
 import LibLogger from "../logger";
@@ -30,48 +31,48 @@ export const wrapUpsertOperation = <
     registry: Registry,
   ): UpsertMethod<V, S, L1, L2, L3, L4, L5> => {
 
-  /**
-   * Retrieves an item by its primary key or composite key, and creates a new item if it does not exist.
-   * @param key - The primary key or composite key of the item to retrieve or create.
-   * @param itemProperties - The properties of the item to create if it does not exist.
-   * @returns The retrieved or created item.
-   */
-  const retrieveOrCreateWithKey = async (
+  const upsert = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>,
-  ) => {
-    let item: V | null = null;
-    try {
-      logger.debug('Retrieving item by key', { key });
-      item = await ops.get(key);
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        logger.debug('Item not found, creating new item', { key });
-        item = await ops.create(itemProperties, { key });
-      } else {
-        throw error;
-      }
-    }
+    itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>
+  ): Promise<V> => {
+    logger.debug('upsert', { key, itemProperties });
 
-    return item;
-  }
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'upsert',
+      operationName: 'upsert',
+      params: { key, item: itemProperties },
+      key
+    };
 
-  // Use the wrapper for automatic validation
-  return createUpsertWrapper(
-    coordinate,
-    async (key, itemProperties) => {
-      let item: V | null = null;
-      item = await retrieveOrCreateWithKey(key, itemProperties);
+    return executeWithContext(
+      async () => {
+        let item: V | null = null;
+        try {
+          logger.debug('Retrieving item by key', { key });
+          item = await ops.get(key);
+        } catch (error) {
+          if (error instanceof NotFoundError) {
+            logger.debug('Item not found, creating new item', { key });
+            item = await ops.create(itemProperties, { key });
+          } else {
+            throw error;
+          }
+        }
 
-      if (!item) {
-        throw new Error(`Failed to retrieve or create item for key: ${JSON.stringify(key)}`);
-      }
+        if (!item) {
+          throw new Error(`Failed to retrieve or create item for key: ${JSON.stringify(key)}`);
+        }
 
-      logger.debug('Updating item', { key: item.key, itemProperties });
-      item = await ops.update(item.key, itemProperties);
-      logger.debug('Item updated successfully', { item });
+        logger.debug('Updating item', { key: item.key, itemProperties });
+        item = await ops.update(item.key, itemProperties);
+        logger.debug('Item updated successfully', { item });
 
-      return item;
-    }
-  );
+        return item;
+      },
+      context
+    );
+  };
+
+  return upsert;
 }

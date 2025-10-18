@@ -1,4 +1,12 @@
-import { Coordinate, createOneWrapper, Item, OneMethod } from "@fjell/core";
+import {
+  Coordinate,
+  executeWithContext,
+  Item,
+  ItemQuery,
+  LocKeyArray,
+  OneMethod,
+  OperationContext
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from '../logger';
@@ -25,17 +33,26 @@ export const wrapOneOperation = <
     registry: Registry,
   ): OneMethod<V, S, L1, L2, L3, L4, L5> => {
 
-  // Use the wrapper for automatic validation
-  return createOneWrapper(
-    coordinate,
-    async (itemQuery, locations) => {
-      logger.debug('One operation started', { itemQuery, locations });
-      
-      // No validation needed - wrapper handles it automatically
-      const item = await toWrap.one(itemQuery, locations);
-      
-      logger.debug('One operation completed', { item });
-      return item;
-    }
-  );
+  const one = async (
+    query?: ItemQuery,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
+  ): Promise<V | null> => {
+    const locs = locations ?? [];
+    logger.debug('one', { query, locations: locs });
+
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'one',
+      operationName: 'one',
+      params: { query, locations: locs },
+      locations: locs as any
+    };
+
+    return executeWithContext(
+      () => toWrap.one(query, locs),
+      context
+    );
+  };
+
+  return one;
 }

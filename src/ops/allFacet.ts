@@ -1,4 +1,12 @@
-import { AllFacetOperationMethod, Coordinate, createAllFacetWrapper, Item } from "@fjell/core";
+import {
+  AllFacetOperationMethod,
+  Coordinate,
+  executeWithContext,
+  Item,
+  LocKeyArray,
+  OperationContext,
+  ValidationError
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from "../logger";
@@ -26,21 +34,41 @@ export const wrapAllFacetOperation = <
 
   const { allFacets } = options || {};
 
-  // Use the wrapper for automatic validation
-  return createAllFacetWrapper(
-    coordinate,
-    async (allFacetKey, allFacetParams, locations) => {
-      logger.debug("AllFacet operation started", { allFacetKey, allFacetParams, locations });
-      
-      if (!allFacets?.[allFacetKey]) {
-        throw new Error(`AllFacet ${allFacetKey} not found in definition`);
-      }
-      // We search for the method, but we throw the method call to the wrapped operations
-      // This is because we want to make sure we're always invoking the appropriate key and event management logic.
-      const allFacetMethod = allFacets[allFacetKey];
-      const result = allFacetMethod(allFacetParams || {}, locations);
-      logger.debug('AllFacet operation completed', { allFacetKey, result });
-      return result;
+  const allFacet = async (
+    allFacetKey: string,
+    allFacetParams?: Record<string, any>,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
+  ) => {
+    const locs = locations ?? [];
+    logger.debug('AllFacet operation started', { allFacetKey, allFacetParams, locations: locs });
+    
+    if (!allFacets?.[allFacetKey]) {
+      const availableFacets = allFacets ? Object.keys(allFacets) : [];
+      throw new ValidationError(
+        `AllFacet "${allFacetKey}" not found`,
+        availableFacets,
+        'Use one of the available facets'
+      );
     }
-  );
+
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'allFacet',
+      operationName: allFacetKey,
+      params: allFacetParams || {},
+      locations: locs as any
+    };
+
+    return executeWithContext(
+      () => {
+        const allFacetMethod = allFacets[allFacetKey];
+        const result = allFacetMethod(allFacetParams || {}, locs);
+        logger.debug('AllFacet operation completed', { allFacetKey, result });
+        return result;
+      },
+      context
+    );
+  };
+
+  return allFacet;
 }

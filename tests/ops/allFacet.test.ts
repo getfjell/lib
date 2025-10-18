@@ -214,7 +214,7 @@ describe('wrapAllFacetOperation', () => {
       );
 
       await expect(wrappedAllFacetWithoutFacets(facetKey, facetParams)).rejects.toThrow(
-        'AllFacet testFacet not found in definition'
+        'AllFacet "testFacet" not found'
       );
 
       expect(mockFacetMethod).not.toHaveBeenCalled();
@@ -232,7 +232,7 @@ describe('wrapAllFacetOperation', () => {
       );
 
       await expect(wrappedAllFacetWithoutOptions(facetKey, facetParams)).rejects.toThrow(
-        'AllFacet testFacet not found in definition'
+        'AllFacet "testFacet" not found'
       );
 
       expect(mockFacetMethod).not.toHaveBeenCalled();
