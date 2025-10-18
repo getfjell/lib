@@ -7,8 +7,7 @@ import {
   isOperationPriKey,
   OperationParams
 } from "@fjell/core";
-import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
+import { ComKey, Coordinate, Item, LocKeyArray, PriKey } from "@fjell/core";
 
 import { wrapAllOperation } from "./ops/all";
 import { wrapCreateOperation } from "./ops/create";

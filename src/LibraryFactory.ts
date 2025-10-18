@@ -1,9 +1,8 @@
-import { Item } from "@fjell/core";
+import { Coordinate, Item } from "@fjell/core";
 import { Operations } from "./Operations";
 import { Options } from "./Options";
 import { InstanceFactory as BaseInstanceFactory, Registry, RegistryHub } from "@fjell/registry";
 import { createLibrary, Library } from "./Library";
-import { Coordinate } from "@fjell/registry";
 import LibLogger from "./logger";
 
 const logger = LibLogger.get("InstanceFactory");

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { HookError, UpdateError, UpdateValidationError } from '../../src/errors';
 import { Operations } from '../../src/Operations';
 import { createOptions, Options } from '../../src/Options';

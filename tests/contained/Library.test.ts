@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Item } from "@fjell/core";
 import { Registry } from "../../src/Registry";
-import { Coordinate, createCoordinate } from '@fjell/registry';
+import { Coordinate, createCoordinate } from '@fjell/core';
 import { Library as AbstractLibrary, createLibrary as createAbstractLibrary } from "../../src/Library";
 
 import { createLibrary } from "../../src/contained/Library";

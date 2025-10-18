@@ -5,7 +5,7 @@ import { wrapCreateOperation } from "../../src/ops/create";
 import { Operations } from "../../src/Operations";
 import { createRegistry } from "../../src/Registry";
 import { CreateValidationError, HookError } from "../../src/errors";
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { createOptions } from '../../src/Options';
 
 vi.mock('@fjell/logging', () => {

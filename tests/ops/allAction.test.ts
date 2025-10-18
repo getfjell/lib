@@ -22,7 +22,7 @@ import { wrapAllActionOperation } from '../../src/ops/allAction';
 import { Options } from '../../src/Options';
 import { Operations } from '../../src/Operations';
 import { createOptions } from '../../src/Options';
-import { Coordinate, createCoordinate } from '@fjell/registry';
+import { Coordinate, createCoordinate } from '@fjell/core';
 
 // Type definitions for test data
 interface TestItem extends Item<'test', 'level1', 'level2'> {
