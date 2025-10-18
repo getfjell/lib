@@ -2,6 +2,7 @@
 import {
   ComKey,
   Coordinate,
+  createUpsertWrapper,
   Item,
   PriKey,
   UpsertMethod,
@@ -11,7 +12,6 @@ import LibLogger from "../logger";
 import { NotFoundError } from "../errors";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateKey } from "@fjell/core";
 
 const logger = LibLogger.get('ops', 'upsert');
 
@@ -42,11 +42,11 @@ export const wrapUpsertOperation = <
   ) => {
     let item: V | null = null;
     try {
-      logger.default('Retrieving Item by Key', { key });
+      logger.debug('Retrieving item by key', { key });
       item = await ops.get(key);
     } catch (error) {
       if (error instanceof NotFoundError) {
-        logger.default('Item not found, creating new item', { key });
+        logger.debug('Item not found, creating new item', { key });
         item = await ops.create(itemProperties, { key });
       } else {
         throw error;
@@ -56,27 +56,22 @@ export const wrapUpsertOperation = <
     return item;
   }
 
-  const upsert = async (
-    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>,
-  ): Promise<V> => {
+  // Use the wrapper for automatic validation
+  return createUpsertWrapper(
+    coordinate,
+    async (key, itemProperties) => {
+      let item: V | null = null;
+      item = await retrieveOrCreateWithKey(key, itemProperties);
 
-    // Validate key type and location key order
-    validateKey(key, coordinate, 'upsert');
+      if (!item) {
+        throw new Error(`Failed to retrieve or create item for key: ${JSON.stringify(key)}`);
+      }
 
-    let item: V | null = null;
-    item = await retrieveOrCreateWithKey(key, itemProperties);
+      logger.debug('Updating item', { key: item.key, itemProperties });
+      item = await ops.update(item.key, itemProperties);
+      logger.debug('Item updated successfully', { item });
 
-    if (!item) {
-      throw new Error(`Failed to retrieve or create item for key: ${JSON.stringify(key)}`);
+      return item;
     }
-
-    logger.debug('Updating Item', { key: item.key, itemProperties });
-    item = await ops.update(item.key, itemProperties);
-    logger.default("updated item: %j", { item });
-
-    return item;
-  }
-
-  return upsert;
+  );
 }

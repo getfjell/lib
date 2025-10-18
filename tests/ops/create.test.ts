@@ -1,6 +1,6 @@
  
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { ComKey, Item, LocKey, LocKeyArray, PriKey } from "@fjell/core";
+import { ComKey, Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapCreateOperation } from "../../src/ops/create";
 import { Operations } from "../../src/Operations";
 import { createRegistry } from "../../src/Registry";
@@ -156,7 +156,14 @@ describe('getCreateOperation', () => {
 
     test('should execute preCreate hook with key option', async () => {
       const item: Partial<TestItem> = { name: 'test1' };
-      const key: PriKey<'test'> = { kt: 'test', pk: 'custom-id' };
+      const key: ComKey<'test', 'loc1', 'loc2'> = {
+        kt: 'test',
+        pk: 'custom-id',
+        loc: [
+          { kt: 'loc1', lk: 'loc1-id' } as LocKey<'loc1'>,
+          { kt: 'loc2', lk: 'loc2-id' } as LocKey<'loc2'>
+        ]
+      };
       const options = { key };
       const expectedItem: TestItem = {
         name: 'test1',
@@ -187,8 +194,13 @@ describe('getCreateOperation', () => {
 
       const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
 
-      await expect(createOperation(item)).rejects.toThrow(HookError);
-      await expect(createOperation(item)).rejects.toThrow('Error in preCreate');
+      try {
+        await createOperation(item);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(HookError);
+        expect(error.message).toContain('Error in preCreate');
+      }
     });
 
     test('should not execute preCreate hook if not defined', async () => {
@@ -252,8 +264,13 @@ describe('getCreateOperation', () => {
       const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
       (mockOperations.create as Mock).mockResolvedValue(createdItem);
 
-      await expect(createOperation(item)).rejects.toThrow(HookError);
-      await expect(createOperation(item)).rejects.toThrow('Error in postCreate');
+      try {
+        await createOperation(item);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(HookError);
+        expect(error.message).toContain('Error in postCreate');
+      }
     });
 
     test('should not execute postCreate hook if not defined', async () => {
@@ -331,7 +348,12 @@ describe('getCreateOperation', () => {
 
       const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
 
-      await expect(createOperation(item)).rejects.toThrow(CreateValidationError);
+      try {
+        await createOperation(item);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(CreateValidationError);
+      }
     });
 
     test('should wrap validation errors with CreateValidationError', async () => {
@@ -345,7 +367,12 @@ describe('getCreateOperation', () => {
 
       const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
 
-      await expect(createOperation(item)).rejects.toThrow(CreateValidationError);
+      try {
+        await createOperation(item);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(CreateValidationError);
+      }
     });
 
     test('should not execute onCreate validator if not defined', async () => {
@@ -435,7 +462,12 @@ describe('getCreateOperation', () => {
 
       const createOperation = wrapCreateOperation(mockOperations, mockDefinition, mockCoordinate, registry);
 
-      await expect(createOperation(item)).rejects.toThrow(CreateValidationError);
+      try {
+        await createOperation(item);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(CreateValidationError);
+      }
 
       expect(preCreateHook).toHaveBeenCalled();
       expect(onCreateValidator).toHaveBeenCalledWith(modifiedItem, undefined);

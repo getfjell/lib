@@ -1,10 +1,9 @@
-import { Coordinate, FindOneMethod, Item, LocKeyArray } from "@fjell/core";
+import { Coordinate, createFindOneWrapper, FindOneMethod, Item } from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from '../logger';
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateLocations } from "@fjell/core";
 
 const logger = LibLogger.get('library', 'ops', 'one');
 
@@ -26,20 +25,15 @@ export const wrapFindOneOperation = <
     registry: Registry,
   ): FindOneMethod<V, S, L1, L2, L3, L4, L5> => {
 
-  const findOne = async (
-    finder: string,
-    finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<V | null> => {
-    logger.default("find", { finder, finderParams, locations });
-    
-    // Validate location key array order
-    validateLocations(locations, coordinate, 'findOne');
-    
-    const foundItems = await toWrap.findOne(finder, finderParams, locations);
-    logger.default("found items: %j", { foundItems });
-    return foundItems;
-  }
-
-  return findOne;
+  // Use the wrapper for automatic validation
+  return createFindOneWrapper(
+    coordinate,
+    async (finder, finderParams, locations) => {
+      logger.debug("FindOne operation started", { finder, finderParams, locations });
+      
+      const foundItems = await toWrap.findOne(finder, finderParams, locations);
+      logger.debug("FindOne operation completed", { foundItems });
+      return foundItems;
+    }
+  );
 }

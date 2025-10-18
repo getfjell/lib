@@ -85,7 +85,7 @@ describe('wrapFindOneOperation', () => {
 
     const result = await findOneOperation(finder, finderParams);
 
-    expect(mockOperations.findOne).toHaveBeenCalledWith(finder, finderParams, void 0);
+    expect(mockOperations.findOne).toHaveBeenCalledWith(finder, finderParams, []);
     expect(result).toEqual(expectedItem);
   });
 

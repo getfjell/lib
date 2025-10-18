@@ -1,8 +1,7 @@
-import { ActionOperationMethod, AffectedKeys, ComKey, Coordinate, Item, OperationParams, PriKey } from "@fjell/core";
+import { ActionOperationMethod, Coordinate, createActionWrapper, Item } from "@fjell/core";
 import { Operations } from "../Operations";
 import { Options } from "../Options";
 import LibLogger from "../logger";
-import { validateKey } from "@fjell/core";
 
 const logger = LibLogger.get("library", "ops", "action");
 
@@ -20,25 +19,23 @@ export const wrapActionOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   ): ActionOperationMethod<V, S, L1, L2, L3, L4, L5> => {
   const { actions } = options || {};
-  const action = async (
-    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    actionKey: string,
-    actionParams?: OperationParams,
-  ): Promise<[V, AffectedKeys]> => {
-    logger.debug("action", { key, actionKey, actionParams });
-    
-    // Validate key type and location key order
-    validateKey(key, coordinate, 'action');
-    
-    if (!actions?.[actionKey]) {
-      throw new Error(`Action ${actionKey} not found in definition`);
+  // Use the wrapper for automatic validation
+  return createActionWrapper(
+    coordinate,
+    async (key, actionKey, actionParams) => {
+      logger.debug("Action operation started", { key, actionKey, actionParams });
+      
+      if (!actions?.[actionKey]) {
+        throw new Error(`Action ${actionKey} not found in definition`);
+      }
+      const actionMethod = actions[actionKey];
+      const item = await toWrap.get(key);
+      if (!item) {
+        throw new Error(`Item not found for key: ${JSON.stringify(key)}`);
+      }
+      const result = actionMethod(item, actionParams || {});
+      logger.debug('Action operation completed', { actionKey, result });
+      return result;
     }
-    const actionMethod = actions[actionKey];
-    const item = await toWrap.get(key);
-    if (!item) {
-      throw new Error(`Item not found for key: ${JSON.stringify(key)}`);
-    }
-    return actionMethod(item, actionParams || {});
-  }
-  return action;
+  );
 }

@@ -44,8 +44,8 @@ describe('Get Operation', () => {
 
   describe('basic get', () => {
     test('should get item successfully', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test', 'container'>;
       const key = { kt: 'test', pk: 'test-id' } as PriKey<'test'>;
+      const testItem = { name: 'test', key } as unknown as Item<'test', 'container'>;
 
       const registry = createRegistry();
       const coordinate = createCoordinate(['test'], ['scope1']);
@@ -75,8 +75,8 @@ describe('Get Operation', () => {
     });
 
     test('should handle complex item queries', async () => {
-      const testItem = { name: 'test' } as unknown as Item<'test', 'container'>;
       const key = { kt: 'test', pk: 'test-id' } as PriKey<'test'>;
+      const testItem = { name: 'test', key } as unknown as Item<'test', 'container'>;
 
       const registry = createRegistry();
       const coordinate = createCoordinate(['test'], ['scope1']);

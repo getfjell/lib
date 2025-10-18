@@ -2,6 +2,7 @@
 import {
   ComKey,
   Coordinate,
+  createCreateWrapper,
   CreateMethod,
   Item,
   LocKeyArray,
@@ -13,7 +14,6 @@ import { CreateValidationError, HookError } from "../errors";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateLocations } from "@fjell/core";
 
 const logger = LibLogger.get("library", "ops", "create");
 
@@ -35,44 +35,26 @@ export const wrapCreateOperation = <
 
   const libOptions = options;
 
-  const create = async (
-    item: Partial<Item<S, L1, L2, L3, L4, L5>>,
-    options?: {
-      key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-      locations?: never;
-    } | {
-      key?: never;
-      locations: LocKeyArray<L1, L2, L3, L4, L5>,
+  // Use the wrapper for automatic validation
+  return createCreateWrapper(
+    coordinate,
+    async (item, options) => {
+      logger.debug("Create operation started", { item, options, coordinate: coordinate.kta });
+
+      let itemToCreate = item;
+
+      itemToCreate = await runPreCreateHook(itemToCreate, options);
+
+      await validateCreate(itemToCreate, options);
+
+      let createdItem = await toWrap.create(itemToCreate, options);
+
+      createdItem = await runPostCreateHook(createdItem);
+
+      logger.debug("Create operation completed successfully", { createdItem });
+      return createdItem;
     }
-  ): Promise<V> => {
-    logger.default("📚 [LIB] Wrapped create operation called", { item, options, coordinate: coordinate.kta });
-
-    // Validate location key array order if locations are provided
-    if (options && 'locations' in options) {
-      validateLocations(options.locations, coordinate, 'create');
-    }
-
-    let itemToCreate = item;
-
-    logger.default("📚 [LIB] Running pre-create hook");
-    itemToCreate = await runPreCreateHook(itemToCreate, options);
-    logger.default("📚 [LIB] Pre-create hook completed", { itemToCreate });
-
-    logger.default("📚 [LIB] Running create validation");
-    await validateCreate(itemToCreate, options);
-    logger.default("📚 [LIB] Create validation completed");
-
-    logger.default("📚 [LIB] Calling underlying operation (lib-firestore)", { itemToCreate, options });
-    let createdItem = await toWrap.create(itemToCreate, options);
-    logger.default("📚 [LIB] Underlying operation completed", { createdItem });
-
-    logger.default("📚 [LIB] Running post-create hook");
-    createdItem = await runPostCreateHook(createdItem);
-    logger.default("📚 [LIB] Post-create hook completed", { createdItem });
-
-    logger.default("📚 [LIB] Wrapped create operation completed", { createdItem });
-    return createdItem;
-  }
+  );
 
   async function runPreCreateHook(
     item: Partial<Item<S, L1, L2, L3, L4, L5>>,
@@ -87,7 +69,6 @@ export const wrapCreateOperation = <
     let itemToCreate = item;
     if (libOptions?.hooks?.preCreate) {
       try {
-        logger.default('Running preCreate hook', { item: itemToCreate, options });
         itemToCreate = await libOptions.hooks.preCreate(itemToCreate, options);
       } catch (error: unknown) {
         throw new HookError(
@@ -98,7 +79,6 @@ export const wrapCreateOperation = <
         );
       }
     } else {
-      logger.default('No preCreate hook found, returning.');
     }
     return itemToCreate;
   }
@@ -108,7 +88,6 @@ export const wrapCreateOperation = <
   ): Promise<V> {
     if (libOptions?.hooks?.postCreate) {
       try {
-        logger.default('Running postCreate hook', { item: createdItem });
         createdItem = await libOptions.hooks.postCreate(createdItem);
       } catch (error: unknown) {
         throw new HookError(
@@ -119,7 +98,6 @@ export const wrapCreateOperation = <
         );
       }
     } else {
-      logger.default('No postCreate hook found, returning.');
     }
     return createdItem;
   }
@@ -135,12 +113,10 @@ export const wrapCreateOperation = <
     }
   ) {
     if (!libOptions?.validators?.onCreate) {
-      logger.default('No validator found for create, returning.');
       return;
     }
 
     try {
-      logger.default('Validating create', { item, options });
       const isValid = await libOptions.validators.onCreate(item, options);
       if (!isValid) {
         throw new CreateValidationError(
@@ -158,5 +134,4 @@ export const wrapCreateOperation = <
     }
   }
 
-  return create;
 }

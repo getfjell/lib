@@ -1,10 +1,9 @@
-import { Coordinate, Item, ItemQuery, LocKeyArray, OneMethod } from "@fjell/core";
+import { Coordinate, createOneWrapper, Item, OneMethod } from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from '../logger';
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateLocations } from "@fjell/core";
 
 const logger = LibLogger.get('library', 'ops', 'one');
 
@@ -26,20 +25,17 @@ export const wrapOneOperation = <
     registry: Registry,
   ): OneMethod<V, S, L1, L2, L3, L4, L5> => {
 
-  const one = async (
-    itemQuery?: ItemQuery,
-    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<V | null> => {
-    const locationsArray = locations ?? [];
-    logger.default('one', { itemQuery, locations: locationsArray });
-    
-    // Validate location key array order
-    validateLocations(locationsArray, coordinate, 'one');
-    
-    const item = await toWrap.one(itemQuery, locationsArray);
-    logger.default("one: %j", { item });
-    return item;
-  }
-
-  return one;
+  // Use the wrapper for automatic validation
+  return createOneWrapper(
+    coordinate,
+    async (itemQuery, locations) => {
+      logger.debug('One operation started', { itemQuery, locations });
+      
+      // No validation needed - wrapper handles it automatically
+      const item = await toWrap.one(itemQuery, locations);
+      
+      logger.debug('One operation completed', { item });
+      return item;
+    }
+  );
 }
