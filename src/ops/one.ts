@@ -1,7 +1,5 @@
-import { Item, LocKeyArray } from "@fjell/core";
+import { Item, ItemQuery, LocKeyArray, OneMethod } from "@fjell/core";
 import { Coordinate } from "@fjell/registry";
-
-import { ItemQuery } from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from '../logger';
@@ -27,18 +25,19 @@ export const wrapOneOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): OneMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const one = async (
-    itemQuery: ItemQuery,
-    locations: LocKeyArray<L1, L2, L3, L4, L5> | [] = []
+    itemQuery?: ItemQuery,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<V | null> => {
-    logger.default('one', { itemQuery, locations });
+    const locationsArray = locations ?? [];
+    logger.default('one', { itemQuery, locations: locationsArray });
     
     // Validate location key array order
-    validateLocations(locations, coordinate, 'one');
+    validateLocations(locationsArray, coordinate, 'one');
     
-    const item = await toWrap.one(itemQuery, locations);
+    const item = await toWrap.one(itemQuery, locationsArray);
     logger.default("one: %j", { item });
     return item;
   }
