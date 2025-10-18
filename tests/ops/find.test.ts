@@ -3,7 +3,7 @@ import { Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapFindOperation } from "../../src/ops/find";
 import { Operations } from "../../src/Operations";
 import { createRegistry, Registry } from "../../src/Registry";
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { createOptions } from '../../src/Options';
 
 vi.mock('@fjell/logging', () => {
@@ -99,7 +99,7 @@ describe('wrapFindOperation', () => {
 
     const result = await findOperation(finder, finderParams);
 
-    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, void 0);
+    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, []);
     expect(result).toEqual(expectedItems);
   });
 
@@ -124,7 +124,7 @@ describe('wrapFindOperation', () => {
 
     const result = await findOperation(finder, finderParams);
 
-    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, void 0);
+    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, []);
     expect(result).toEqual(expectedItems);
   });
 
@@ -182,7 +182,7 @@ describe('wrapFindOperation', () => {
     const finderParams = { param1: 'value1' };
 
     await expect(findOperation(finder, finderParams)).rejects.toThrow(
-      `Finder ${finder} not found in definition for ${mockCoordinate.toString()}`
+      'Finder "nonExistentFinder" not found'
     );
   });
 
@@ -194,7 +194,7 @@ describe('wrapFindOperation', () => {
     const finderParams = { param1: 'value1' };
 
     await expect(findOperation(finder, finderParams)).rejects.toThrow(
-      `Finder ${finder} not found in definition for ${mockCoordinate.toString()}`
+      'Finder "anyFinder" not found'
     );
   });
 });

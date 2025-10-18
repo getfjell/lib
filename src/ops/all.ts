@@ -1,12 +1,19 @@
 /* eslint-disable indent */
-import { Item, ItemQuery, LocKeyArray } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
+import {
+  AllMethod,
+  Coordinate,
+  executeWithContext,
+  Item,
+  ItemQuery,
+  LocKeyArray,
+  OperationContext,
+  validateLocations
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateLocations } from "../validation/KeyValidator";
 
 const logger = LibLogger.get("library", "ops", "all");
 
@@ -26,22 +33,33 @@ export const wrapAllOperation = <
   coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   registry: Registry,
-) => {
+): AllMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const all = async (
-    itemQuery: ItemQuery,
+    query?: ItemQuery,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<V[]> => {
+    const locs = locations ?? [];
+    logger.debug("all", { query, locations: locs });
 
-    logger.default("getAllOperation", { itemQuery, locations });
-    
-    // Validate location key array order
-    validateLocations(locations, coordinate, 'all');
-    
-    const items = await toWrap.all(itemQuery, locations);
-    logger.default("getAllOperation: %j", { items });
-    return items;
-  }
+    // Validate locations
+    if (locs.length > 0) {
+      validateLocations(locs, coordinate, 'all');
+    }
+
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'all',
+      operationName: 'all',
+      params: { query, locations: locs },
+      locations: locs as any
+    };
+
+    return executeWithContext(
+      () => toWrap.all(query, locs),
+      context
+    );
+  };
 
   return all;
 }

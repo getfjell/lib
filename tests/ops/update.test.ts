@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { HookError, UpdateError, UpdateValidationError } from '../../src/errors';
 import { Operations } from '../../src/Operations';
 import { createOptions, Options } from '../../src/Options';
@@ -88,7 +88,12 @@ describe('wrapUpdateOperation', () => {
 
       (mockOperations.update as any).mockRejectedValue(updateError);
 
-      await expect(updateOperation(key, item)).rejects.toThrow(UpdateError);
+      try {
+        await updateOperation(key, item);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(UpdateError);
+      }
     });
   });
 
@@ -138,7 +143,12 @@ describe('wrapUpdateOperation', () => {
       };
       const item: Partial<TestItem> = { name: 'test-name' };
 
-      await expect(updateOperation(key, item)).rejects.toThrow(HookError);
+      try {
+        await updateOperation(key, item);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(HookError);
+      }
       expect(mockOperations.update).not.toHaveBeenCalled();
     });
 
@@ -225,11 +235,12 @@ describe('wrapUpdateOperation', () => {
 
       (mockOperations.update as any).mockResolvedValue(updateResult);
 
-      await expect(updateOperation(key, item)).rejects.toThrow(UpdateError);
       try {
         await updateOperation(key, item);
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error.cause).toBeInstanceOf(HookError);
+        expect(error.cause).toBeInstanceOf(UpdateError);
+        expect(error.cause.cause).toBeInstanceOf(HookError);
       }
     });
 
@@ -300,7 +311,12 @@ describe('wrapUpdateOperation', () => {
       };
       const item: Partial<TestItem> = { name: 'test-name' };
 
-      await expect(updateOperation(key, item)).rejects.toThrow(UpdateValidationError);
+      try {
+        await updateOperation(key, item);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(UpdateValidationError);
+      }
       expect(validator).toHaveBeenCalledWith(key, item);
       expect(mockOperations.update).not.toHaveBeenCalled();
     });
@@ -321,7 +337,12 @@ describe('wrapUpdateOperation', () => {
       };
       const item: Partial<TestItem> = { name: 'test-name' };
 
-      await expect(updateOperation(key, item)).rejects.toThrow(UpdateValidationError);
+      try {
+        await updateOperation(key, item);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(UpdateValidationError);
+      }
       expect(validator).toHaveBeenCalledWith(key, item);
       expect(mockOperations.update).not.toHaveBeenCalled();
     });
@@ -418,7 +439,12 @@ describe('wrapUpdateOperation', () => {
       };
       const item: Partial<TestItem> = { name: 'test' };
 
-      await expect(updateOperation(key, item)).rejects.toThrow(HookError);
+      try {
+        await updateOperation(key, item);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(HookError);
+      }
       expect(preUpdateHook).toHaveBeenCalled();
       expect(validator).not.toHaveBeenCalled();
       expect(mockOperations.update).not.toHaveBeenCalled();
@@ -447,7 +473,12 @@ describe('wrapUpdateOperation', () => {
       };
       const item: Partial<TestItem> = { name: 'test' };
 
-      await expect(updateOperation(key, item)).rejects.toThrow(UpdateValidationError);
+      try {
+        await updateOperation(key, item);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(UpdateValidationError);
+      }
       expect(preUpdateHook).toHaveBeenCalled();
       expect(validator).toHaveBeenCalled();
       expect(mockOperations.update).not.toHaveBeenCalled();

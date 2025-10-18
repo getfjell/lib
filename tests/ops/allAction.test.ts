@@ -22,7 +22,7 @@ import { wrapAllActionOperation } from '../../src/ops/allAction';
 import { Options } from '../../src/Options';
 import { Operations } from '../../src/Operations';
 import { createOptions } from '../../src/Options';
-import { Coordinate, createCoordinate } from '@fjell/registry';
+import { Coordinate, createCoordinate } from '@fjell/core';
 
 // Type definitions for test data
 interface TestItem extends Item<'test', 'level1', 'level2'> {
@@ -91,8 +91,8 @@ describe('wrapAllActionOperation', () => {
         { kt: 'level2', lk: 'level2-id' } as LocKey<'level2'>
       ];
       const expectedResult: TestItem[] = [
-        { id: '1', name: 'item1' } as TestItem,
-        { id: '2', name: 'item2' } as TestItem
+        { id: '1', name: 'item1', key: { kt: 'test', pk: 'item1', loc: locations } } as TestItem,
+        { id: '2', name: 'item2', key: { kt: 'test', pk: 'item2', loc: locations } } as TestItem
       ];
       const affectedItems: Array<any> = [];
 
@@ -109,7 +109,7 @@ describe('wrapAllActionOperation', () => {
       const actionKey = 'testAction';
       const actionParams = { param1: 'value1' };
       const expectedResult: TestItem[] = [
-        { id: '1', name: 'item without locations' } as TestItem
+        { id: '1', name: 'item without locations', key: { kt: 'test', pk: 'item1', loc: [] } } as TestItem
       ];
       const affectedItems: Array<any> = [];
 
@@ -117,7 +117,7 @@ describe('wrapAllActionOperation', () => {
 
       const result = await wrappedAllAction(actionKey, actionParams);
        
-      expect(mockActionMethod).toHaveBeenCalledWith(actionParams, undefined);
+      expect(mockActionMethod).toHaveBeenCalledWith(actionParams, []);
       expect(result).toEqual([expectedResult, affectedItems]);
     });
 
@@ -152,7 +152,7 @@ describe('wrapAllActionOperation', () => {
 
       await wrappedAllAction(actionKey, actionParams, locations);
 
-      expect(mockLoggerDebug).toHaveBeenCalledWith('allAction', {
+      expect(mockLoggerDebug).toHaveBeenCalledWith('AllAction operation started', {
         allActionKey: actionKey,
         allActionParams: actionParams,
         locations: locations,
@@ -170,7 +170,7 @@ describe('wrapAllActionOperation', () => {
         arrayParam: ['item1', 'item2', 123, true],
       };
       const expectedResult: TestItem[] = [
-        { id: '1', name: 'complex processing completed' } as TestItem
+        { id: '1', name: 'complex processing completed', key: { kt: 'test', pk: 'item1', loc: [] } } as TestItem
       ];
       const affectedItems: Array<any> = [];
 
@@ -178,13 +178,12 @@ describe('wrapAllActionOperation', () => {
 
       const result = await wrappedAllAction(actionKey, actionParams);
        
-      expect(mockActionMethod).toHaveBeenCalledWith(actionParams, undefined);
+      expect(mockActionMethod).toHaveBeenCalledWith(actionParams, []);
       expect(result).toEqual([expectedResult, affectedItems]);
-      expect(mockLoggerDebug).toHaveBeenCalledWith('allAction', {
+      expect(mockLoggerDebug).toHaveBeenCalledWith('AllAction operation started', {
         allActionKey: actionKey,
         allActionParams: actionParams,
-         
-        locations: undefined,
+        locations: [],
       });
     });
 
@@ -197,7 +196,7 @@ describe('wrapAllActionOperation', () => {
 
       await expect(wrappedAllAction(actionKey, actionParams)).rejects.toThrow('Action operation failed');
        
-      expect(mockActionMethod).toHaveBeenCalledWith(actionParams, undefined);
+      expect(mockActionMethod).toHaveBeenCalledWith(actionParams, []);
     });
 
     it('should still log debug information even when action fails', async () => {
@@ -213,11 +212,10 @@ describe('wrapAllActionOperation', () => {
         // Expected to throw
       }
 
-      expect(mockLoggerDebug).toHaveBeenCalledWith('allAction', {
+      expect(mockLoggerDebug).toHaveBeenCalledWith('AllAction operation started', {
         allActionKey: actionKey,
         allActionParams: actionParams,
-         
-        locations: undefined,
+        locations: [],
       });
     });
 
@@ -233,7 +231,7 @@ describe('wrapAllActionOperation', () => {
       );
 
       await expect(wrappedAllActionWithoutActions(actionKey, actionParams)).rejects.toThrow(
-        'AllAction "testAction" not found in definition. Available actions: none'
+        'AllAction "testAction" not found'
       );
 
       expect(mockActionMethod).not.toHaveBeenCalled();
@@ -251,7 +249,7 @@ describe('wrapAllActionOperation', () => {
       );
 
       await expect(wrappedAllActionWithoutOptions(actionKey, actionParams)).rejects.toThrow(
-        'AllAction "testAction" not found in definition. Available actions: none'
+        'AllAction "testAction" not found'
       );
 
       expect(mockActionMethod).not.toHaveBeenCalled();
@@ -275,7 +273,7 @@ describe('wrapAllActionOperation', () => {
       );
 
       await expect(wrappedAllActionWithOtherActions(actionKey, actionParams)).rejects.toThrow(
-        'AllAction "nonExistentAction" not found in definition. Available actions: availableAction1, availableAction2, availableAction3'
+        'AllAction "nonExistentAction" not found'
       );
 
       expect(mockActionMethod).not.toHaveBeenCalled();
@@ -291,7 +289,7 @@ describe('wrapAllActionOperation', () => {
 
       const result = await wrappedAllAction(actionKey, actionParams);
        
-      expect(mockActionMethod).toHaveBeenCalledWith(actionParams, undefined);
+      expect(mockActionMethod).toHaveBeenCalledWith(actionParams, []);
       expect(result).toEqual([expectedResult, affectedItems]);
       expect(Array.isArray(result[0])).toBe(true);
       expect(result[0].length).toBe(0);
@@ -301,9 +299,9 @@ describe('wrapAllActionOperation', () => {
       const actionKey = 'testAction';
       const actionParams = {};
       const expectedResult: TestItem[] = [
-        { id: '1', name: 'item1' } as TestItem,
-        { id: '2', name: 'item2' } as TestItem,
-        { id: '3', name: 'item3' } as TestItem,
+        { id: '1', name: 'item1', key: { kt: 'test', pk: 'item1', loc: [] } } as TestItem,
+        { id: '2', name: 'item2', key: { kt: 'test', pk: 'item2', loc: [] } } as TestItem,
+        { id: '3', name: 'item3', key: { kt: 'test', pk: 'item3', loc: [] } } as TestItem,
       ];
       const affectedItems: Array<any> = [];
 
@@ -311,7 +309,7 @@ describe('wrapAllActionOperation', () => {
 
       const result = await wrappedAllAction(actionKey, actionParams);
        
-      expect(mockActionMethod).toHaveBeenCalledWith(actionParams, undefined);
+      expect(mockActionMethod).toHaveBeenCalledWith(actionParams, []);
       expect(result).toEqual([expectedResult, affectedItems]);
       expect(Array.isArray(result[0])).toBe(true);
       expect(result[0].length).toBe(3);
@@ -323,7 +321,7 @@ describe('wrapAllActionOperation', () => {
       for (const actionKey of testCases) {
         const actionParams = { key: actionKey };
         const expectedResult: TestItem[] = [
-          { id: '1', name: `result for ${actionKey}` } as TestItem
+          { id: '1', name: `result for ${actionKey}`, key: { kt: 'test', pk: 'item1', loc: [] } } as TestItem
         ];
         const affectedItems: Array<any> = [];
 
@@ -332,7 +330,7 @@ describe('wrapAllActionOperation', () => {
 
         const result = await wrappedAllAction(actionKey, actionParams);
          
-        expect(mockActionMethod).toHaveBeenCalledWith(actionParams, undefined);
+        expect(mockActionMethod).toHaveBeenCalledWith(actionParams, []);
         expect(result).toEqual([expectedResult, affectedItems]);
       }
     });

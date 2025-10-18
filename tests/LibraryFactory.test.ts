@@ -4,7 +4,8 @@ import { Operations } from '../src/Operations';
 import { Options } from '../src/Options';
 import { createLibrary, Library } from '../src/Library';
 import { Item } from '@fjell/core';
-import { Coordinate, createCoordinate, Registry, RegistryHub } from '@fjell/registry';
+import { Coordinate, createCoordinate } from '@fjell/core';
+import { Registry, RegistryHub } from '@fjell/registry';
 
 vi.mock('@fjell/logging', () => {
   const logger = {

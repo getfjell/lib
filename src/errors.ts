@@ -1,5 +1,4 @@
-import { abbrevIK, ComKey, isComKey, isPriKey, Item, LocKeyArray, PriKey } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
+import { abbrevIK, ComKey, Coordinate, isComKey, isPriKey, Item, LocKeyArray, PriKey } from "@fjell/core";
 
 export class LibError<
   S extends string,
@@ -102,7 +101,7 @@ export class InvalidKeyTypeError<
     if (expectedIsComposite) {
       // This is a composite library
       const locationTypes = keyTypeArray.slice(1).join(', ');
-      expectedFormat = `ComKey with format: { kt: '${keyTypeArray[0]}', pk: string|number, loc: [${locationTypes.split(', ').map(kt => `{ kt: '${kt}', lk: string|number }`).join(', ')}] }`;
+      expectedFormat = `ComKey with format: { kt: '${keyTypeArray[0]}', pk: string|number, loc: [${locationTypes.split(', ').map((kt: string) => `{ kt: '${kt}', lk: string|number }`).join(', ')}] }`;
     } else {
       // This is a primary library
       expectedFormat = `PriKey with format: { kt: '${keyTypeArray[0]}', pk: string|number }`;
@@ -375,11 +374,11 @@ export class LocationKeyOrderError<
     const actualLocationTypes = key.loc.map(loc => loc.kt);
     
     // Build detailed error message
-    const expectedOrder = expectedLocationTypes.map((kt, i) =>
+    const expectedOrder = expectedLocationTypes.map((kt: string, i: number) =>
       `  [${i}] { kt: '${kt}', lk: <value> }`
     ).join('\n');
     
-    const actualOrder = key.loc.map((loc, i) =>
+    const actualOrder = key.loc.map((loc, i: number) =>
       `  [${i}] { kt: '${loc.kt}', lk: ${JSON.stringify(loc.lk)} }`
     ).join('\n');
     
@@ -410,7 +409,7 @@ export class LocationKeyOrderError<
       ...mismatches,
       ``,
       `Understanding the hierarchy:`,
-      `  The key type array [${keyTypeArray.map(kt => `'${kt}'`).join(', ')}] defines the containment hierarchy.`,
+      `  The key type array [${keyTypeArray.map((kt: string) => `'${kt}'`).join(', ')}] defines the containment hierarchy.`,
       `  - '${keyTypeArray[0]}' is the primary item type`,
       expectedLocationTypes.length > 0 ? `  - '${keyTypeArray[0]}' items are contained in '${expectedLocationTypes[0]}'` : '',
       expectedLocationTypes.length > 1 ? `  - '${expectedLocationTypes[0]}' items are contained in '${expectedLocationTypes[1]}'` : '',
@@ -421,7 +420,7 @@ export class LocationKeyOrderError<
       `    kt: '${keyTypeArray[0]}',`,
       `    pk: 'item-id',`,
       `    loc: [`,
-      expectedLocationTypes.map(kt => `      { kt: '${kt}', lk: 'parent-id' }`).join(',\n'),
+      expectedLocationTypes.map((kt: string) => `      { kt: '${kt}', lk: 'parent-id' }`).join(',\n'),
       `    ]`,
       `  })`
     ].filter(line => line !== '').join('\n');

@@ -1,7 +1,7 @@
 /* eslint-disable no-undefined */
 import LibLogger from "./logger";
-import { Item } from "@fjell/core";
-import { Instance as BaseInstance, Coordinate, createInstance as createBaseInstance, Registry } from "@fjell/registry";
+import { Coordinate, Item } from "@fjell/core";
+import { Instance as BaseInstance, createInstance as createBaseInstance, Registry } from "@fjell/registry";
 import { Operations } from "./Operations";
 import { Options } from "./Options";
 
