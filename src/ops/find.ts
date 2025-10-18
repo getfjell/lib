@@ -1,10 +1,9 @@
-import { Coordinate, FindMethod, Item, LocKeyArray } from "@fjell/core";
+import { Coordinate, createFindWrapper, FindMethod, Item } from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateLocations } from "@fjell/core";
 
 const logger = LibLogger.get("library", "ops", "find");
 
@@ -27,25 +26,20 @@ export const wrapFindOperation = <
 
   const { finders } = options || {};
 
-  const find = async (
-    finder: string,
-    finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
-    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<V[]> => {
-    logger.default("find", { finder, finderParams, locations });
-    
-    // Validate location key array order
-    validateLocations(locations, coordinate, 'find');
-    
-    if (!finders?.[finder]) {
-      throw new Error(`Finder ${finder} not found in definition for ${coordinate.toString()}`);
+  // Use the wrapper for automatic validation
+  return createFindWrapper(
+    coordinate,
+    async (finder, finderParams, locations) => {
+      logger.debug("Find operation started", { finder, finderParams, locations });
+      
+      if (!finders?.[finder]) {
+        throw new Error(`Finder ${finder} not found in definition for ${coordinate.toString()}`);
+      }
+      // We search for the method, but we throw the method call to the wrapped operations
+      // This is because we want to make sure we're always invoking the appropriate key and event management logic.
+      const foundItems = await toWrap.find(finder, finderParams, locations);
+      logger.debug("Find operation completed", { foundItems });
+      return foundItems;
     }
-    // We search for the method, but we throw the method call to the wrapped operations
-    // This is because we want to make sure we're always invoking the appropriate key and event management logic.
-    const foundItems = await toWrap.find(finder, finderParams, locations);
-    logger.default("found items: %j", { foundItems });
-    return foundItems;
-  }
-
-  return find;
+  );
 }

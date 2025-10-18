@@ -1,10 +1,9 @@
-import { AllFacetOperationMethod, Coordinate, Item, LocKeyArray, OperationParams } from "@fjell/core";
+import { AllFacetOperationMethod, Coordinate, createAllFacetWrapper, Item } from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateLocations } from "@fjell/core";
 
 const logger = LibLogger.get("library", "ops", "allFacet");
 
@@ -27,24 +26,21 @@ export const wrapAllFacetOperation = <
 
   const { allFacets } = options || {};
 
-  const allFacet = async (
-    allFacetKey: string,
-    allFacetParams?: OperationParams,
-    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<any> => {
-    logger.debug("allFacet", { allFacetKey, allFacetParams, locations });
-    
-    // Validate location key array order
-    validateLocations(locations, coordinate, 'allFacet');
-    
-    if (!allFacets?.[allFacetKey]) {
-      throw new Error(`AllFacet ${allFacetKey} not found in definition`);
+  // Use the wrapper for automatic validation
+  return createAllFacetWrapper(
+    coordinate,
+    async (allFacetKey, allFacetParams, locations) => {
+      logger.debug("AllFacet operation started", { allFacetKey, allFacetParams, locations });
+      
+      if (!allFacets?.[allFacetKey]) {
+        throw new Error(`AllFacet ${allFacetKey} not found in definition`);
+      }
+      // We search for the method, but we throw the method call to the wrapped operations
+      // This is because we want to make sure we're always invoking the appropriate key and event management logic.
+      const allFacetMethod = allFacets[allFacetKey];
+      const result = allFacetMethod(allFacetParams || {}, locations);
+      logger.debug('AllFacet operation completed', { allFacetKey, result });
+      return result;
     }
-    // We search for the method, but we throw the method call to the wrapped operations
-    // This is because we want to make sure we're always invoking the appropriate key and event management logic.
-    const allFacetMethod = allFacets[allFacetKey];
-    return allFacetMethod(allFacetParams || {}, locations);
-  }
-
-  return allFacet;
+  );
 }

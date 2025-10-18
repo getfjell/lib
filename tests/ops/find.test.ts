@@ -99,7 +99,7 @@ describe('wrapFindOperation', () => {
 
     const result = await findOperation(finder, finderParams);
 
-    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, void 0);
+    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, []);
     expect(result).toEqual(expectedItems);
   });
 
@@ -124,7 +124,7 @@ describe('wrapFindOperation', () => {
 
     const result = await findOperation(finder, finderParams);
 
-    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, void 0);
+    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, []);
     expect(result).toEqual(expectedItems);
   });
 
