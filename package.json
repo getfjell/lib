@@ -1,5 +1,6 @@
 {
   "name": "@fjell/lib",
+  "description": "Server-side Library for Fjell",
   "version": "4.4.59-dev.0",
   "keywords": [
     "library",
@@ -8,18 +9,17 @@
     "fjell"
   ],
   "license": "Apache-2.0",
-  "description": "Server-side Library for Fjell",
   "engines": {
     "node": ">=21"
   },
-  "module": "dist/index.js",
+  "type": "module",
+  "main": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
-  "type": "module",
   "scripts": {
     "build": "tsc --project tsconfig.declarations.json && node build.js",
     "dev": "concurrently \"tsc --watch --project tsconfig.declarations.json\" \"node build.js --watch\"",
