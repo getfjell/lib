@@ -103,4 +103,19 @@ describe('wrapFindOneOperation', () => {
 
     await expect(findOneOperation(finder, finderParams)).rejects.toThrow('Database error');
   });
+  
+  test('should throw error when finder not found in options', async () => {
+    const findOneOperation = wrapFindOneOperation(mockOperations, mockOptions, mockCoordinate, registry);
+    await expect(findOneOperation('nonExistentFinder', { q: 'x' })).rejects.toThrow(
+      'Finder "nonExistentFinder" not found'
+    );
+  });
+
+  test('should throw error when finders not defined in options', async () => {
+    const optionsWithoutFinders = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
+    const findOneOperation = wrapFindOneOperation(mockOperations, optionsWithoutFinders, mockCoordinate, registry);
+    await expect(findOneOperation('anyFinder', {})).rejects.toThrow(
+      'Finder "anyFinder" not found'
+    );
+  });
 });
