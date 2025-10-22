@@ -1,6 +1,7 @@
 {
   "name": "@fjell/lib",
-  "version": "4.4.52-dev.0",
+  "description": "Server-side Library for Fjell",
+  "version": "4.4.59",
   "keywords": [
     "library",
     "persistence",
@@ -8,18 +9,17 @@
     "fjell"
   ],
   "license": "Apache-2.0",
-  "description": "Server-side Library for Fjell",
   "engines": {
     "node": ">=21"
   },
-  "module": "dist/index.js",
+  "type": "module",
+  "main": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
-  "type": "module",
   "scripts": {
     "build": "tsc --project tsconfig.declarations.json && node build.js",
     "dev": "concurrently \"tsc --watch --project tsconfig.declarations.json\" \"node build.js --watch\"",
@@ -34,15 +34,15 @@
     "docs:test": "cd docs && npm run test"
   },
   "dependencies": {
-    "@fjell/core": "^4.4.44",
-    "@fjell/logging": "^4.4.47",
-    "@fjell/registry": "^4.4.45",
+    "@fjell/core": "^4.4.51",
+    "@fjell/logging": "^4.4.50",
+    "@fjell/registry": "^4.4.53",
     "deepmerge": "^4.3.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.32.0",
-    "@fjell/eslint-config": "^1.1.25",
+    "@fjell/eslint-config": "^1.1.28",
     "@swc/core": "^1.13.2",
     "@tsconfig/recommended": "^1.0.10",
     "@types/multer": "^2.0.0",

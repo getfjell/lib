@@ -1,11 +1,16 @@
 
 import {
   ComKey,
+  Coordinate,
+  CreateMethod,
+  executeWithContext,
   Item,
   LocKeyArray,
+  OperationContext,
   PriKey,
+  validateKey,
+  validateLocations
 } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
 
 import { Options } from "../Options";
 import { CreateValidationError, HookError } from "../errors";
@@ -29,43 +34,62 @@ export const wrapCreateOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): CreateMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const libOptions = options;
 
   const create = async (
     item: Partial<Item<S, L1, L2, L3, L4, L5>>,
-    options?: {
-      key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
+    createOptions?: {
+      key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>;
       locations?: never;
     } | {
       key?: never;
-      locations: LocKeyArray<L1, L2, L3, L4, L5>,
+      locations: LocKeyArray<L1, L2, L3, L4, L5>;
     }
   ): Promise<V> => {
-    logger.default("📚 [LIB] Wrapped create operation called", { item, options, coordinate: coordinate.kta });
+    try {
+      logger.debug("create", { item, createOptions });
 
-    let itemToCreate = item;
+      // Validate create options
+      if (createOptions) {
+        if ('key' in createOptions && createOptions.key) {
+          validateKey(createOptions.key, coordinate, 'create');
+        }
+        if ('locations' in createOptions && createOptions.locations) {
+          validateLocations(createOptions.locations, coordinate, 'create');
+        }
+      }
 
-    logger.default("📚 [LIB] Running pre-create hook");
-    itemToCreate = await runPreCreateHook(itemToCreate, options);
-    logger.default("📚 [LIB] Pre-create hook completed", { itemToCreate });
+      let itemToCreate = item;
 
-    logger.default("📚 [LIB] Running create validation");
-    await validateCreate(itemToCreate, options);
-    logger.default("📚 [LIB] Create validation completed");
+      itemToCreate = await runPreCreateHook(itemToCreate, createOptions);
 
-    logger.default("📚 [LIB] Calling underlying operation (lib-firestore)", { itemToCreate, options });
-    let createdItem = await toWrap.create(itemToCreate, options);
-    logger.default("📚 [LIB] Underlying operation completed", { createdItem });
+      await validateCreate(itemToCreate, createOptions);
 
-    logger.default("📚 [LIB] Running post-create hook");
-    createdItem = await runPostCreateHook(createdItem);
-    logger.default("📚 [LIB] Post-create hook completed", { createdItem });
+      const context: OperationContext = {
+        itemType: coordinate.kta[0],
+        operationType: 'create',
+        operationName: 'create',
+        params: { item: itemToCreate, options: createOptions },
+        locations: createOptions?.locations as any
+      };
 
-    logger.default("📚 [LIB] Wrapped create operation completed", { createdItem });
-    return createdItem;
-  }
+      let createdItem = await executeWithContext(
+        () => toWrap.create(itemToCreate, createOptions),
+        context
+      );
+
+      createdItem = await runPostCreateHook(createdItem);
+
+      logger.debug("Create operation completed successfully", { createdItem });
+      return createdItem;
+    } catch (error) {
+      throw new Error((error as Error).message, { cause: error });
+    }
+  };
+
+  return create;
 
   async function runPreCreateHook(
     item: Partial<Item<S, L1, L2, L3, L4, L5>>,
@@ -80,7 +104,6 @@ export const wrapCreateOperation = <
     let itemToCreate = item;
     if (libOptions?.hooks?.preCreate) {
       try {
-        logger.default('Running preCreate hook', { item: itemToCreate, options });
         itemToCreate = await libOptions.hooks.preCreate(itemToCreate, options);
       } catch (error: unknown) {
         throw new HookError(
@@ -91,7 +114,6 @@ export const wrapCreateOperation = <
         );
       }
     } else {
-      logger.default('No preCreate hook found, returning.');
     }
     return itemToCreate;
   }
@@ -101,7 +123,6 @@ export const wrapCreateOperation = <
   ): Promise<V> {
     if (libOptions?.hooks?.postCreate) {
       try {
-        logger.default('Running postCreate hook', { item: createdItem });
         createdItem = await libOptions.hooks.postCreate(createdItem);
       } catch (error: unknown) {
         throw new HookError(
@@ -112,7 +133,6 @@ export const wrapCreateOperation = <
         );
       }
     } else {
-      logger.default('No postCreate hook found, returning.');
     }
     return createdItem;
   }
@@ -128,12 +148,10 @@ export const wrapCreateOperation = <
     }
   ) {
     if (!libOptions?.validators?.onCreate) {
-      logger.default('No validator found for create, returning.');
       return;
     }
 
     try {
-      logger.default('Validating create', { item, options });
       const isValid = await libOptions.validators.onCreate(item, options);
       if (!isValid) {
         throw new CreateValidationError(
@@ -151,5 +169,4 @@ export const wrapCreateOperation = <
     }
   }
 
-  return create;
 }

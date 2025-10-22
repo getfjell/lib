@@ -1,12 +1,20 @@
-import { Item, LocKeyArray } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
+import {
+  Coordinate,
+  executeWithContext,
+  FindOneMethod,
+  Item,
+  LocKeyArray,
+  OperationContext,
+  OperationParams,
+  ValidationError
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from '../logger';
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
 
-const logger = LibLogger.get('library', 'ops', 'one');
+const logger = LibLogger.get('library', 'ops', 'findOne');
 
 export const wrapFindOneOperation = <
   V extends Item<S, L1, L2, L3, L4, L5>,
@@ -18,24 +26,46 @@ export const wrapFindOneOperation = <
   L5 extends string = never
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
     options: Options<V, S, L1, L2, L3, L4, L5>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): FindOneMethod<V, S, L1, L2, L3, L4, L5> => {
+
+  const { finders } = options || {};
 
   const findOne = async (
     finder: string,
-    finderParams: Record<string, string | number | boolean | Date | Array<string | number | boolean | Date>>,
+    params: OperationParams,
     locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<V> => {
-    logger.default("find", { finder, finderParams, locations });
-    const foundItems = await toWrap.findOne(finder, finderParams, locations);
-    logger.default("found items: %j", { foundItems });
-    return foundItems;
-  }
+  ): Promise<V | null> => {
+    const locs = locations ?? [];
+    logger.debug("findOne", { finder, params, locations: locs });
+
+    if (!finders?.[finder]) {
+      const availableFinders = finders ? Object.keys(finders) : [];
+      throw new ValidationError(
+        `Finder "${finder}" not found`,
+        availableFinders,
+        'Use one of the available finders'
+      );
+    }
+
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'findOne',
+      operationName: finder,
+      params,
+      locations: locs as any
+    };
+
+    return executeWithContext(
+      () => toWrap.findOne(finder, params, locs),
+      context
+    );
+  };
 
   return findOne;
 }

@@ -57,7 +57,7 @@ describe('AggregationBuilder', () => {
       expect(result.profile).toEqual(expectedProfile);
       expect(mockLibraryInstance.operations.one).toHaveBeenCalledWith(
         {},
-        [{ kt: 'user', lk: 'user1' }, { kt: 'org', lk: 'org1' }]
+        [{ kt: 'org', lk: 'org1' }]
       );
       expect(mockRegistry.get).toHaveBeenCalledWith(['profile']);
     });
@@ -93,7 +93,7 @@ describe('AggregationBuilder', () => {
       expect(result.tasks).toEqual(expectedTasks);
       expect(mockLibraryInstance.operations.all).toHaveBeenCalledWith(
         {},
-        [{ kt: 'user', lk: 'user1' }, { kt: 'org', lk: 'org1' }]
+        [{ kt: 'org', lk: 'org1' }]
       );
     });
 
@@ -233,6 +233,110 @@ describe('AggregationBuilder', () => {
       expect(result.notifications).toEqual(expectedNotifications);
       // For PriKey, ikToLKA converts it to a location array with the item itself
       expect(mockLibraryInstance.operations.all).toHaveBeenCalledWith({}, [{ kt: 'user', lk: 'user1' }]);
+    });
+
+    it('should build aggregation for multi-level composite items (orderForm -> orderNoseShape)', async () => {
+      // OrderForm is contained in Order
+      const orderFormItem: Item<'orderForm', 'order'> = {
+        key: {
+          kt: 'orderForm',
+          pk: 'form-123',
+          loc: [{ kt: 'order', lk: 'order-456' }]
+        },
+        events: {
+          created: { at: new Date() },
+          updated: { at: new Date() },
+          deleted: { at: null }
+        }
+      };
+
+      // Aggregating orderNoseShape which is contained in OrderForm which is contained in Order
+      // Coordinate: ['orderNoseShape', 'orderForm', 'order']
+      const aggregationDef: AggregationDefinition = {
+        kta: ['orderNoseShape', 'orderForm', 'order'],
+        property: 'noseShape',
+        cardinality: 'one'
+      };
+
+      const expectedNoseShape = {
+        key: {
+          kt: 'orderNoseShape',
+          pk: 'nose-789',
+          loc: [
+            { kt: 'orderForm', lk: 'form-123' },
+            { kt: 'order', lk: 'order-456' }
+          ]
+        },
+        shape: 'rounded'
+      };
+      mockLibraryInstance.operations.one.mockResolvedValue(expectedNoseShape);
+
+      const result = await buildAggregation(orderFormItem, aggregationDef, mockRegistry, context);
+
+      expect(result.noseShape).toEqual(expectedNoseShape);
+      // The location array should include BOTH orderForm and order location keys
+      // [{ kt: 'orderForm', lk: 'form-123' }, { kt: 'order', lk: 'order-456' }]
+      expect(mockLibraryInstance.operations.one).toHaveBeenCalledWith(
+        {},
+        [
+          { kt: 'orderForm', lk: 'form-123' },
+          { kt: 'order', lk: 'order-456' }
+        ]
+      );
+    });
+
+    it('should build aggregation for three-level composite items (order -> orderForm -> orderNoseShape -> orderFit)', async () => {
+      // OrderNoseShape is contained in OrderForm which is contained in Order
+      const orderNoseShapeItem: Item<'orderNoseShape', 'orderForm', 'order'> = {
+        key: {
+          kt: 'orderNoseShape',
+          pk: 'nose-789',
+          loc: [
+            { kt: 'orderForm', lk: 'form-123' },
+            { kt: 'order', lk: 'order-456' }
+          ]
+        },
+        events: {
+          created: { at: new Date() },
+          updated: { at: new Date() },
+          deleted: { at: null }
+        }
+      };
+
+      // Aggregating orderFit which is contained in OrderNoseShape
+      // Coordinate: ['orderFit', 'orderNoseShape', 'orderForm', 'order']
+      const aggregationDef: AggregationDefinition = {
+        kta: ['orderFit', 'orderNoseShape', 'orderForm', 'order'],
+        property: 'fit',
+        cardinality: 'one'
+      };
+
+      const expectedFit = {
+        key: {
+          kt: 'orderFit',
+          pk: 'fit-999',
+          loc: [
+            { kt: 'orderNoseShape', lk: 'nose-789' },
+            { kt: 'orderForm', lk: 'form-123' },
+            { kt: 'order', lk: 'order-456' }
+          ]
+        },
+        fitType: 'tight'
+      };
+      mockLibraryInstance.operations.one.mockResolvedValue(expectedFit);
+
+      const result = await buildAggregation(orderNoseShapeItem, aggregationDef, mockRegistry, context);
+
+      expect(result.fit).toEqual(expectedFit);
+      // The location array should include ALL location keys in the hierarchy
+      expect(mockLibraryInstance.operations.one).toHaveBeenCalledWith(
+        {},
+        [
+          { kt: 'orderNoseShape', lk: 'nose-789' },
+          { kt: 'orderForm', lk: 'form-123' },
+          { kt: 'order', lk: 'order-456' }
+        ]
+      );
     });
   });
 });

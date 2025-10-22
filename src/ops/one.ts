@@ -1,7 +1,12 @@
-import { Item, LocKeyArray } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
-
-import { ItemQuery } from "@fjell/core";
+import {
+  Coordinate,
+  executeWithContext,
+  Item,
+  ItemQuery,
+  LocKeyArray,
+  OneMethod,
+  OperationContext
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from '../logger';
@@ -20,23 +25,34 @@ export const wrapOneOperation = <
   L5 extends string = never
 >(
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
     options: Options<V, S, L1, L2, L3, L4, L5>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): OneMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const one = async (
-    itemQuery: ItemQuery,
-    locations: LocKeyArray<L1, L2, L3, L4, L5> | [] = []
+    query?: ItemQuery,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
   ): Promise<V | null> => {
-    logger.default('one', { itemQuery, locations });
-    const item = await toWrap.one(itemQuery, locations);
-    logger.default("one: %j", { item });
-    return item;
-  }
+    const locs = locations ?? [];
+    logger.debug('one', { query, locations: locs });
+
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'one',
+      operationName: 'one',
+      params: { query, locations: locs },
+      locations: locs as any
+    };
+
+    return executeWithContext(
+      () => toWrap.one(query, locs),
+      context
+    );
+  };
 
   return one;
 }

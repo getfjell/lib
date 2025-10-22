@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ComKey, Item, PriKey } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
+import {
+  ComKey,
+  Coordinate,
+  executeWithContext,
+  GetMethod,
+  Item,
+  OperationContext,
+  PriKey,
+  validateKey
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import LibLogger from '../logger';
@@ -21,19 +29,30 @@ export const wrapGetOperation = <
     toWrap: Operations<V, S, L1, L2, L3, L4, L5>,
     options: Options<V, S, L1, L2, L3, L4, L5>,
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
-
     registry: Registry,
-  ) => {
+  ): GetMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const get = async (
-    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-  ): Promise<V> => {
-    logger.default('get', { key });
-    const item = await toWrap.get(key);
-    logger.default("get: %j", { item });
-    return item;
-  }
+    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>
+  ): Promise<V | null> => {
+    logger.debug('get', { key });
+
+    // Validate key structure
+    validateKey(key, coordinate, 'get');
+
+    const context: OperationContext = {
+      itemType: coordinate.kta[0],
+      operationType: 'get',
+      operationName: 'get',
+      params: { key },
+      key
+    };
+
+    return executeWithContext(
+      () => toWrap.get(key),
+      context
+    );
+  };
 
   return get;
-
 }

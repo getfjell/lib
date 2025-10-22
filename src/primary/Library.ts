@@ -1,8 +1,8 @@
 import { Library as AbstractLibrary, createLibrary as createAbstractLibrary } from "../Library";
 import LibLogger from "../logger";
 import { Operations } from "./Operations";
-import { Item } from "@fjell/core";
-import { Coordinate, Registry } from "@fjell/registry";
+import { Coordinate, Item } from "@fjell/core";
+import { Registry } from "@fjell/registry";
 import { Options } from "./Options";
 
 const logger = LibLogger.get("primary", "Instance");

@@ -3,7 +3,7 @@ import { Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapFindOneOperation } from "../../src/ops/findOne";
 import { Operations } from "../../src/Operations";
 import { createRegistry, Registry } from "../../src/Registry";
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { createOptions, Options } from '../../src/Options';
 
 vi.mock('@fjell/logging', () => {
@@ -47,8 +47,12 @@ describe('wrapFindOneOperation', () => {
     } as unknown as Operations<TestItem, 'test', 'loc1', 'loc2'>;
 
     registry = createRegistry();
-    mockOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
-    mockCoordinate = createCoordinate(['test'], ['scope1']);
+    mockOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>({
+      finders: {
+        testFinder: vi.fn()
+      }
+    });
+    mockCoordinate = createCoordinate(['test', 'loc1', 'loc2'], ['scope1']);
   });
 
   test('should call wrapped operations findOne with correct parameters', async () => {
@@ -85,7 +89,7 @@ describe('wrapFindOneOperation', () => {
 
     const result = await findOneOperation(finder, finderParams);
 
-    expect(mockOperations.findOne).toHaveBeenCalledWith(finder, finderParams, void 0);
+    expect(mockOperations.findOne).toHaveBeenCalledWith(finder, finderParams, []);
     expect(result).toEqual(expectedItem);
   });
 

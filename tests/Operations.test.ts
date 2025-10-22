@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { createReadOnlyOperations, Operations, wrapOperations } from "../src/Operations";
 import { createRegistry } from "../src/Registry";
 import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/core";
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { createOptions } from '../src/Options';
 
 vi.mock('@fjell/logging', () => {
@@ -61,7 +61,7 @@ describe('Operations', () => {
   };
 
   // Mock coordinate and options
-  const mockCoordinate = createCoordinate(['test'], ['scope1']);
+  const mockCoordinate = createCoordinate(['test', 'loc1', 'loc2'], ['scope1']);
   const mockOptions = createOptions<TestItem, 'test', 'loc1', 'loc2'>();
 
   describe('createOperations', () => {

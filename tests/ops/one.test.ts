@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { createCoordinate } from '@fjell/registry';
+import { createCoordinate } from '@fjell/core';
 import { Operations } from '../../src/Operations';
 import { wrapOneOperation } from '../../src/ops/one';
 import { createOptions, Options } from '../../src/Options';
@@ -53,7 +53,7 @@ describe('wrapOneOperation', () => {
     // Mock options
     mockOptions = createOptions<TestItem, 'test', 'level1'>({});
 
-    mockCoordinate = createCoordinate(['test'], ['level1']);
+    mockCoordinate = createCoordinate(['test', 'level1'], ['scope1']);
     mockRegistry = createRegistry();
   });
 

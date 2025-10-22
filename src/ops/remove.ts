@@ -1,6 +1,13 @@
 
-import { ComKey, Item, PriKey } from "@fjell/core";
-import { Coordinate } from "@fjell/registry";
+import {
+  ComKey,
+  Coordinate,
+  executeWithContext,
+  Item,
+  OperationContext,
+  PriKey,
+  RemoveMethod
+} from "@fjell/core";
 
 import { Options } from "../Options";
 import { HookError, RemoveError, RemoveValidationError } from "../errors";
@@ -24,72 +31,76 @@ export const wrapRemoveOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
-  ) => {
+  ): RemoveMethod<V, S, L1, L2, L3, L4, L5> => {
 
   const remove = async (
-    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-  ): Promise<V> => {
-    logger.default('📚 [LIB] Wrapped remove operation called', { key, coordinate: coordinate.kta });
+    key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>
+  ): Promise<V | void> => {
+    try {
+      logger.debug('remove', { key });
 
-    logger.default('📚 [LIB] Running pre-remove hook');
-    await runPreRemoveHook(key);
-    logger.default('📚 [LIB] Pre-remove hook completed');
+      await runPreRemoveHook(key);
 
-    logger.default('📚 [LIB] Running remove validation');
-    await validateRemove(key);
-    logger.default('📚 [LIB] Remove validation completed');
+      await validateRemove(key);
 
-    logger.default('📚 [LIB] Calling underlying operation (lib-firestore)', { key });
-    const item = await toWrap.remove(key);
-    logger.default('📚 [LIB] Underlying operation completed', { item });
+      const context: OperationContext = {
+        itemType: coordinate.kta[0],
+        operationType: 'remove',
+        operationName: 'remove',
+        params: { key },
+        key
+      };
 
-    if (!item) {
-      logger.error('📚 [LIB] Remove operation failed - no item returned', { key });
-      throw new RemoveError({ key }, coordinate);
+      const item = await executeWithContext(
+        () => toWrap.remove(key),
+        context
+      );
+
+      if (!item) {
+        logger.error('Remove operation failed - no item returned', { key });
+        throw new RemoveError({ key }, coordinate);
+      }
+
+      await runPostRemoveHook(item);
+
+      logger.debug("Remove operation completed successfully", { item });
+      return item;
+    } catch (error) {
+      // Wrap all errors in a generic Error with the lib error as cause
+      throw new Error((error as Error).message, { cause: error });
     }
+  };
 
-    logger.default('📚 [LIB] Running post-remove hook');
-    await runPostRemoveHook(item);
-    logger.default('📚 [LIB] Post-remove hook completed', { item });
-
-    logger.default("📚 [LIB] Wrapped remove operation completed", { item });
-    return item;
-  }
+  return remove;
 
   async function runPreRemoveHook(key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>) {
     if (options?.hooks?.preRemove) {
       try {
-        logger.default('Running preRemove hook', { key });
         await options.hooks.preRemove(key);
       } catch (error: unknown) {
         throw new HookError('preRemove', 'remove', coordinate, { cause: error as Error });
       }
     } else {
-      logger.default('No preRemove hook found, returning.');
     }
   }
 
   async function runPostRemoveHook(item: V) {
     if (options?.hooks?.postRemove) {
       try {
-        logger.default('Running postRemove hook', { item });
         await options.hooks.postRemove(item);
       } catch (error: unknown) {
         throw new HookError('postRemove', 'remove', coordinate, { cause: error as Error });
       }
     } else {
-      logger.default('No postRemove hook found, returning.');
     }
   }
 
   async function validateRemove(key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>) {
     if (!options?.validators?.onRemove) {
-      logger.default('No validator found for remove, returning.');
       return;
     }
 
     try {
-      logger.default('Validating remove', { key });
       const isValid = await options.validators.onRemove(key);
       if (!isValid) {
         throw new RemoveValidationError(
@@ -107,5 +118,4 @@ export const wrapRemoveOperation = <
     }
   }
 
-  return remove;
 }
