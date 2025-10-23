@@ -10,7 +10,7 @@ import { Registry } from "../Registry";
 import { Options } from "./Options";
 import { ActionMethod, AllActionMethod, AllFacetMethod, FacetMethod, FinderMethod } from "../Options";
 
-import logger from "src/logger";
+import logger from "../logger";
 
 /**
  * Contained Operations interface - extends core ContainedOperations and adds lib-specific properties
