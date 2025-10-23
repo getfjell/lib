@@ -112,5 +112,20 @@ describe('upsert', () => {
       expect(createMethodMock).not.toHaveBeenCalled();
       expect(updateMethodMock).not.toHaveBeenCalled();
     });
+
+    test('should throw when create returns null after NotFound', async () => {
+      const key = { kt: 'test', pk: randomUUID() } as PriKey<'test'>;
+      const itemProperties = { name: 'newItem' } as Partial<Item<'test'>>;
+      const coordinate = createCoordinate<'test'>(['test'], []);
+
+      getMethodMock.mockImplementation(() => {
+        throw new NotFoundError('get', coordinate, key, {});
+      });
+      createMethodMock.mockResolvedValueOnce(null as unknown as Item<'test'>);
+
+      const registry = createRegistry();
+      await expect(wrapUpsertOperation(operations, coordinate, registry)(key, itemProperties)).rejects.toThrow('Failed to retrieve or create item');
+      expect(updateMethodMock).not.toHaveBeenCalled();
+    });
   });
 });
