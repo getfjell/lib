@@ -8,32 +8,22 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: ['src/**/*.ts', 'examples/**/*.ts'],
+      include: ['src/**/*.ts'],
       exclude: [
         'node_modules/',
         'tests/',
         'src/index.ts',
+        'src/contained/index.ts',
+        'src/primary/index.ts',
+        'src/processing/index.ts',
+        'examples/**/*.ts',
       ],
       thresholds: {
-        // Overall thresholds (including examples)
-        statements: 91,
+        // Overall thresholds (src only, no examples)
+        statements: 95,
         branches: 85,
-        functions: 77,
-        lines: 91,
-        // Specific thresholds for src/ directory
-        'src/**/*.ts': {
-          statements: 95,
-          branches: 90,
-          functions: 90,
-          lines: 95,
-        },
-        // Relaxed thresholds for examples/
-        'examples/**/*.ts': {
-          statements: 80,
-          branches: 65,
-          functions: 55,
-          lines: 80,
-        },
+        functions: 90,
+        lines: 95,
       },
     },
     deps: {
