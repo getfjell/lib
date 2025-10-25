@@ -51,11 +51,13 @@ export const wrapUpsertOperation = <
         try {
           logger.debug('Retrieving item by key', { key });
           item = await ops.get(key);
-        } catch (error) {
+        } catch (error: any) {
+          // Check if this is a NotFoundError (preserved by core wrapper)
           if (error instanceof NotFoundError) {
             logger.debug('Item not found, creating new item', { key });
             item = await ops.create(itemProperties, { key });
           } else {
+            // Re-throw other errors (connection issues, permissions, etc.)
             throw error;
           }
         }

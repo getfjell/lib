@@ -127,5 +127,6 @@ describe('upsert', () => {
       await expect(wrapUpsertOperation(operations, coordinate, registry)(key, itemProperties)).rejects.toThrow('Failed to retrieve or create item');
       expect(updateMethodMock).not.toHaveBeenCalled();
     });
+
   });
 });
