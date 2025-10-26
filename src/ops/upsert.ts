@@ -53,11 +53,18 @@ export const wrapUpsertOperation = <
           item = await ops.get(key);
         } catch (error: any) {
           // Check if this is a NotFoundError (preserved by core wrapper)
-          if (error instanceof NotFoundError) {
-            logger.debug('Item not found, creating new item', { key });
+          // Check both instanceof and error code to handle cases where
+          // module duplication might break instanceof checks
+          const isNotFound = error instanceof NotFoundError ||
+            error?.name === 'NotFoundError' ||
+            error?.errorInfo?.code === 'NOT_FOUND';
+
+          if (isNotFound) {
+            logger.debug('Item not found, creating new item', { key, errorType: error?.name, errorCode: error?.errorInfo?.code });
             item = await ops.create(itemProperties, { key });
           } else {
             // Re-throw other errors (connection issues, permissions, etc.)
+            logger.error('Unexpected error during get operation', { error: error?.message, name: error?.name, code: error?.errorInfo?.code });
             throw error;
           }
         }
