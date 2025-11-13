@@ -1,7 +1,7 @@
 {
   "name": "@fjell/lib",
   "description": "Server-side Library for Fjell",
-  "version": "4.4.64-dev.0",
+  "version": "4.4.64",
   "keywords": [
     "library",
     "persistence",
