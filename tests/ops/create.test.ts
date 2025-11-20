@@ -352,7 +352,7 @@ describe('getCreateOperation', () => {
         await createOperation(item);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error.cause).toBeInstanceOf(CreateValidationError);
+        expect(error).toBeInstanceOf(CreateValidationError);
       }
     });
 
@@ -371,7 +371,7 @@ describe('getCreateOperation', () => {
         await createOperation(item);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error.cause).toBeInstanceOf(CreateValidationError);
+        expect(error).toBeInstanceOf(CreateValidationError);
       }
     });
 
@@ -466,7 +466,7 @@ describe('getCreateOperation', () => {
         await createOperation(item);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error.cause).toBeInstanceOf(CreateValidationError);
+        expect(error).toBeInstanceOf(CreateValidationError);
       }
 
       expect(preCreateHook).toHaveBeenCalled();
