@@ -315,7 +315,7 @@ describe('wrapUpdateOperation', () => {
         await updateOperation(key, item);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error.cause).toBeInstanceOf(UpdateValidationError);
+        expect(error).toBeInstanceOf(UpdateValidationError);
       }
       expect(validator).toHaveBeenCalledWith(key, item);
       expect(mockOperations.update).not.toHaveBeenCalled();
@@ -341,7 +341,7 @@ describe('wrapUpdateOperation', () => {
         await updateOperation(key, item);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error.cause).toBeInstanceOf(UpdateValidationError);
+        expect(error).toBeInstanceOf(UpdateValidationError);
       }
       expect(validator).toHaveBeenCalledWith(key, item);
       expect(mockOperations.update).not.toHaveBeenCalled();
@@ -477,7 +477,7 @@ describe('wrapUpdateOperation', () => {
         await updateOperation(key, item);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error.cause).toBeInstanceOf(UpdateValidationError);
+        expect(error).toBeInstanceOf(UpdateValidationError);
       }
       expect(preUpdateHook).toHaveBeenCalled();
       expect(validator).toHaveBeenCalled();

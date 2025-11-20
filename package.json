@@ -34,7 +34,7 @@
     "docs:test": "cd docs && npm run test"
   },
   "dependencies": {
-    "@fjell/core": "^4.4.62",
+    "@fjell/core": "file:../core",
     "@fjell/logging": "^4.4.58",
     "@fjell/registry": "^4.4.68",
     "deepmerge": "^4.3.1"
@@ -57,7 +57,8 @@
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.2"
+    "vitest": "^4.0.2",
+    "zod": "^4.1.12"
   },
   "repository": {
     "type": "git",
