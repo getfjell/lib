@@ -13,6 +13,7 @@ import { HookError, UpdateError, UpdateValidationError } from "../errors";
 import LibLogger from '../logger';
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
+import { validateSchema } from "../validation/schema";
 
 const logger = LibLogger.get('library', 'ops', 'update');
 
@@ -74,6 +75,10 @@ export const wrapUpdateOperation = <
       logger.debug("Update operation completed successfully", { updatedItem });
       return updatedItem;
     } catch (error) {
+      // If it is a UpdateValidationError, throw it directly
+      if (error instanceof UpdateValidationError) {
+        throw error;
+      }
       // Wrap all errors in a generic Error with the lib error as cause
       throw new Error((error as Error).message, { cause: error });
     }
@@ -124,6 +129,30 @@ export const wrapUpdateOperation = <
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
     itemToUpdate: Partial<Item<S, L1, L2, L3, L4, L5>>
   ) {
+    // 1. Schema Validation
+    if (options?.validation) {
+      try {
+        // Priority 1: Specific updateSchema
+        if (options.validation.updateSchema) {
+          await validateSchema(itemToUpdate, options.validation.updateSchema);
+        }
+        // Priority 2: Main schema (if it allows partials or if this is a full replace)
+        // Note: We can't easily know if main schema allows partials here without trying,
+        // but usually users should provide updateSchema if they want partial validation.
+        // However, purely relying on updateSchema is safer.
+        // If no updateSchema is provided, we skip schema validation for updates
+        // UNLESS we decide to enforce strictness.
+        // Decision: Only validate if updateSchema is present to avoid false positives on partial updates.
+      } catch (error: any) {
+        throw new UpdateValidationError(
+          { key, item: itemToUpdate },
+          coordinate,
+          { cause: error as Error }
+        );
+      }
+    }
+
+    // 2. Manual Validators
     if (!options?.validators?.onUpdate) {
       return;
     }
@@ -138,6 +167,8 @@ export const wrapUpdateOperation = <
         );
       }
     } catch (error: unknown) {
+      if (error instanceof UpdateValidationError) throw error;
+       
       throw new UpdateValidationError(
         { key, item: itemToUpdate },
         coordinate,
