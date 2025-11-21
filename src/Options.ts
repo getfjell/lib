@@ -28,6 +28,17 @@ export type {
 // Alias for backwards compatibility
 export type FinderParams = OperationParams;
 
+export interface SchemaValidator<T> {
+  parse: (data: unknown) => T;
+  safeParse: (data: unknown) => { success: true; data: T } | { success: false; error: any };
+  parseAsync?: (data: unknown) => Promise<T>;
+}
+
+export interface ValidationOptions<V> {
+  schema?: SchemaValidator<V>;
+  updateSchema?: SchemaValidator<Partial<V>>;
+}
+
 // TODO: The codesmell here is that we're passing lib to all the hooks.  This might be better with a create pattern.
 export interface Options<
   V extends Item<S, L1, L2, L3, L4, L5>,
@@ -80,6 +91,7 @@ export interface Options<
   allFacets?: Record<string, AllFacetMethod<L1, L2, L3, L4, L5>>,
   references?: ReferenceDefinition[],
   aggregations?: AggregationDefinition[],
+  validation?: ValidationOptions<V>,
 }
 
 export const createDefaultOptions = <

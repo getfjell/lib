@@ -17,6 +17,7 @@ import { CreateValidationError, HookError } from "../errors";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
+import { validateSchema } from "../validation/schema";
 
 const logger = LibLogger.get("library", "ops", "create");
 
@@ -85,6 +86,10 @@ export const wrapCreateOperation = <
       logger.debug("Create operation completed successfully", { createdItem });
       return createdItem;
     } catch (error) {
+      // If it is a CreateValidationError, throw it directly
+      if (error instanceof CreateValidationError) {
+        throw error;
+      }
       throw new Error((error as Error).message, { cause: error });
     }
   };
@@ -147,6 +152,23 @@ export const wrapCreateOperation = <
       locations: LocKeyArray<L1, L2, L3, L4, L5>,
     }
   ) {
+    // 1. Schema Validation
+    if (libOptions?.validation?.schema) {
+      try {
+        // Validate and potentially transform the item
+        // We cast to any because schema validation might return a slightly different type during transformation,
+        // but we expect it to be compatible with V for the rest of the flow.
+        await validateSchema(item, libOptions.validation.schema);
+      } catch (error: any) {
+        throw new CreateValidationError(
+          { item, options },
+          coordinate,
+          { cause: error as Error }
+        );
+      }
+    }
+
+    // 2. Manual Validators (legacy/custom)
     if (!libOptions?.validators?.onCreate) {
       return;
     }
@@ -161,6 +183,9 @@ export const wrapCreateOperation = <
         );
       }
     } catch (error: unknown) {
+      // If it's already a validation error (from schema above), just rethrow
+      if (error instanceof CreateValidationError) throw error;
+
       throw new CreateValidationError(
         { item, options },
         coordinate,
