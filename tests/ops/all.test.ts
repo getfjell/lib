@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { Item, LocKey, LocKeyArray } from "@fjell/core";
+import { AllOperationResult, Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapAllOperation } from "../../src/ops/all";
 import { Operations } from "../../src/Operations";
 import { createRegistry } from "../../src/Registry";
@@ -63,13 +63,18 @@ describe('getAllOperation', () => {
       { name: 'test1', key: { kt: 'test', pk: 'item1', loc: locations } } as TestItem,
       { name: 'test2', key: { kt: 'test', pk: 'item2', loc: locations } } as TestItem
     ];
+    const expectedResult: AllOperationResult<TestItem> = {
+      items: expectedItems,
+      metadata: { total: 2, returned: 2, offset: 0, hasMore: false }
+    };
 
-    (mockOperations.all as Mock).mockResolvedValue(expectedItems);
+    (mockOperations.all as Mock).mockResolvedValue(expectedResult);
 
     const result = await allOperation(itemQuery, locations);
 
-    expect(mockOperations.all).toHaveBeenCalledWith(itemQuery, locations);
-    expect(result).toEqual(expectedItems);
+    expect(mockOperations.all).toHaveBeenCalledWith(itemQuery, locations, undefined);
+    expect(result.items).toEqual(expectedItems);
+    expect(result.metadata.total).toBe(2);
   });
 
   test('should handle empty locations array', async () => {
@@ -79,24 +84,34 @@ describe('getAllOperation', () => {
       { kt: 'loc2', lk: 'loc2-id' } as LocKey<'loc2'>
     ];
     const expectedItems: TestItem[] = [];
+    const expectedResult: AllOperationResult<TestItem> = {
+      items: expectedItems,
+      metadata: { total: 0, returned: 0, offset: 0, hasMore: false }
+    };
 
-    (mockOperations.all as Mock).mockResolvedValue(expectedItems);
+    (mockOperations.all as Mock).mockResolvedValue(expectedResult);
 
     const result = await allOperation(itemQuery, locations);
 
-    expect(mockOperations.all).toHaveBeenCalledWith(itemQuery, locations);
-    expect(result).toEqual(expectedItems);
+    expect(mockOperations.all).toHaveBeenCalledWith(itemQuery, locations, undefined);
+    expect(result.items).toEqual(expectedItems);
+    expect(result.metadata.total).toBe(0);
   });
 
   test('should use undefined for locations if not provided', async () => {
     const itemQuery = { limit: 10, exclusiveStartKey: null };
     const expectedItems: TestItem[] = [];
+    const expectedResult: AllOperationResult<TestItem> = {
+      items: expectedItems,
+      metadata: { total: 0, returned: 0, offset: 0, hasMore: false }
+    };
 
-    (mockOperations.all as Mock).mockResolvedValue(expectedItems);
+    (mockOperations.all as Mock).mockResolvedValue(expectedResult);
 
     const result = await allOperation(itemQuery);
      
-    expect(mockOperations.all).toHaveBeenCalledWith(itemQuery, []);
-    expect(result).toEqual(expectedItems);
+    expect(mockOperations.all).toHaveBeenCalledWith(itemQuery, [], undefined);
+    expect(result.items).toEqual(expectedItems);
+    expect(result.metadata.total).toBe(0);
   });
 });
