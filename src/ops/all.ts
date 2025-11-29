@@ -1,6 +1,8 @@
 /* eslint-disable indent */
 import {
   AllMethod,
+  AllOperationResult,
+  AllOptions,
   Coordinate,
   executeWithContext,
   Item,
@@ -37,10 +39,11 @@ export const wrapAllOperation = <
 
   const all = async (
     query?: ItemQuery,
-    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<V[]> => {
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | [],
+    allOptions?: AllOptions
+  ): Promise<AllOperationResult<V>> => {
     const locs = locations ?? [];
-    logger.debug("all", { query, locations: locs });
+    logger.debug("all", { query, locations: locs, options: allOptions });
 
     // Validate locations
     if (locs.length > 0) {
@@ -51,12 +54,12 @@ export const wrapAllOperation = <
       itemType: coordinate.kta[0],
       operationType: 'all',
       operationName: 'all',
-      params: { query, locations: locs },
+      params: { query, locations: locs, options: allOptions },
       locations: locs as any
     };
 
     return executeWithContext(
-      () => toWrap.all(query, locs),
+      () => toWrap.all(query, locs, allOptions),
       context
     );
   };

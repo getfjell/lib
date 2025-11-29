@@ -4,8 +4,10 @@ import {
   Coordinate,
   executeWithContext,
   Item,
+  LocKeyArray,
   OperationContext,
   PriKey,
+  UpdateOptions,
   UpsertMethod
 } from "@fjell/core";
 
@@ -33,7 +35,9 @@ export const wrapUpsertOperation = <
 
   const upsert = async (
     key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
-    itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>
+    itemProperties: Partial<Item<S, L1, L2, L3, L4, L5>>,
+    locations?: LocKeyArray<L1, L2, L3, L4, L5>,
+    options?: UpdateOptions
   ): Promise<V> => {
     logger.debug('upsert', { key, itemProperties });
 
@@ -61,7 +65,8 @@ export const wrapUpsertOperation = <
 
           if (isNotFound) {
             logger.debug('Item not found, creating new item', { key, errorType: error?.name, errorCode: error?.errorInfo?.code });
-            item = await ops.create(itemProperties, { key });
+            const createOptions = locations ? { locations } : { key };
+            item = await ops.create(itemProperties, createOptions);
           } else {
             // Re-throw other errors (connection issues, permissions, etc.)
             logger.error('Unexpected error during get operation', { error: error?.message, name: error?.name, code: error?.errorInfo?.code });
@@ -74,7 +79,7 @@ export const wrapUpsertOperation = <
         }
 
         logger.debug('Updating item', { key: item.key, itemProperties });
-        item = await ops.update(item.key, itemProperties);
+        item = await ops.update(item.key, itemProperties, options);
         logger.debug('Item updated successfully', { item });
 
         return item;
