@@ -17,7 +17,7 @@ import { CreateValidationError, HookError } from "../errors";
 import LibLogger from "../logger";
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateSchema } from "../validation/schema";
+import { validateSchema } from "@fjell/core/validation";
 
 const logger = LibLogger.get("library", "ops", "create");
 

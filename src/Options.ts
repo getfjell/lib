@@ -8,6 +8,7 @@ import {
   OperationParams
 } from "@fjell/core";
 import { ComKey, Item, PriKey } from "@fjell/core";
+import type { SchemaValidator } from "@fjell/core/validation";
 import deepmerge from "deepmerge";
 import LibLogger from "./logger";
 import { AggregationDefinition, ReferenceDefinition } from "./processing";
@@ -28,11 +29,8 @@ export type {
 // Alias for backwards compatibility
 export type FinderParams = OperationParams;
 
-export interface SchemaValidator<T> {
-  parse: (data: unknown) => T;
-  safeParse: (data: unknown) => { success: true; data: T } | { success: false; error: any };
-  parseAsync?: (data: unknown) => Promise<T>;
-}
+// Re-export SchemaValidator from core for convenience
+export type { SchemaValidator };
 
 export interface ValidationOptions<V> {
   schema?: SchemaValidator<V>;
