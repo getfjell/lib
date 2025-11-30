@@ -2,6 +2,8 @@ import {
   Coordinate,
   executeWithContext,
   FindMethod,
+  FindOperationResult,
+  FindOptions,
   Item,
   LocKeyArray,
   OperationContext,
@@ -32,16 +34,18 @@ export const wrapFindOperation = <
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     registry: Registry,
   ): FindMethod<V, S, L1, L2, L3, L4, L5> => {
+  // Note: FindMethod now returns FindOperationResult<V>
 
   const { finders } = options || {};
 
   const find = async (
     finder: string,
     params: OperationParams,
-    locations?: LocKeyArray<L1, L2, L3, L4, L5> | []
-  ): Promise<V[]> => {
+    locations?: LocKeyArray<L1, L2, L3, L4, L5> | [],
+    findOptions?: FindOptions
+  ): Promise<FindOperationResult<V>> => {
     const locs = locations ?? [];
-    logger.debug("find", { finder, params, locations: locs });
+    logger.debug("find", { finder, params, locations: locs, findOptions });
 
     if (!finders?.[finder]) {
       const availableFinders = finders ? Object.keys(finders) : [];
@@ -61,10 +65,10 @@ export const wrapFindOperation = <
     };
 
     return executeWithContext(
-      () => toWrap.find(finder, params, locs),
+      () => (toWrap as any).find(finder, params, locs, findOptions) as Promise<FindOperationResult<V>>,
       context
     );
   };
 
-  return find;
+  return find as unknown as FindMethod<V, S, L1, L2, L3, L4, L5>;
 }

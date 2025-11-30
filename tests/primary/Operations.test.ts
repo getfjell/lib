@@ -274,13 +274,24 @@ describe('Primary Operations', () => {
           { name: 'test1', value: 1 } as TestItem,
           { name: 'test2', value: 2 } as TestItem
         ];
+        const expectedResult = {
+          items: expectedItems,
+          metadata: {
+            total: expectedItems.length,
+            returned: expectedItems.length,
+            offset: 0,
+            hasMore: false
+          }
+        };
 
-        (mockOperations.find as Mock).mockResolvedValue(expectedItems);
+        (mockOperations.find as Mock).mockResolvedValue(expectedResult);
 
         const result = await mockOperations.find(finder, finderParams);
 
+        // find() accepts optional locations and options, so calling with 2 params is valid
         expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams);
-        expect(result).toEqual(expectedItems);
+        expect(result.items).toEqual(expectedItems);
+        expect(result.metadata.total).toBe(expectedItems.length);
       });
 
       test('should handle complex finder params with arrays and dates', async () => {
@@ -292,13 +303,24 @@ describe('Primary Operations', () => {
           createdAt: new Date('2023-01-01')
         };
         const expectedItems: TestItem[] = [];
+        const expectedResult = {
+          items: expectedItems,
+          metadata: {
+            total: 0,
+            returned: 0,
+            offset: 0,
+            hasMore: false
+          }
+        };
 
-        (mockOperations.find as Mock).mockResolvedValue(expectedItems);
+        (mockOperations.find as Mock).mockResolvedValue(expectedResult);
 
         const result = await mockOperations.find(finder, finderParams);
 
+        // find() accepts optional locations and options, so calling with 2 params is valid
         expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams);
-        expect(result).toEqual(expectedItems);
+        expect(result.items).toEqual(expectedItems);
+        expect(result.metadata.total).toBe(0);
       });
     });
   });

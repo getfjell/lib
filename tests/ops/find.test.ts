@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { Item, LocKey, LocKeyArray } from "@fjell/core";
+import { AllOperationResult, Item, LocKey, LocKeyArray } from "@fjell/core";
 import { wrapFindOperation } from "../../src/ops/find";
 import { Operations } from "../../src/Operations";
 import { createRegistry, Registry } from "../../src/Registry";
@@ -70,12 +70,23 @@ describe('wrapFindOperation', () => {
       } as TestItem
     ];
 
-    (mockOperations.find as any).mockResolvedValue(expectedItems);
+    const expectedResult: AllOperationResult<TestItem> = {
+      items: expectedItems,
+      metadata: {
+        total: expectedItems.length,
+        returned: expectedItems.length,
+        offset: 0,
+        hasMore: false
+      }
+    };
+
+    (mockOperations.find as any).mockResolvedValue(expectedResult);
 
     const result = await findOperation(finder, finderParams, locations);
 
-    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, locations);
-    expect(result).toEqual(expectedItems);
+    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, locations, undefined);
+    expect(result.items).toEqual(expectedItems);
+    expect(result.metadata.total).toBe(expectedItems.length);
   });
 
   test('should handle empty locations array', async () => {
@@ -95,12 +106,23 @@ describe('wrapFindOperation', () => {
       } as TestItem
     ];
 
-    (mockOperations.find as any).mockResolvedValue(expectedItems);
+    const expectedResult: AllOperationResult<TestItem> = {
+      items: expectedItems,
+      metadata: {
+        total: expectedItems.length,
+        returned: expectedItems.length,
+        offset: 0,
+        hasMore: false
+      }
+    };
+
+    (mockOperations.find as any).mockResolvedValue(expectedResult);
 
     const result = await findOperation(finder, finderParams);
 
-    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, []);
-    expect(result).toEqual(expectedItems);
+    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, [], undefined);
+    expect(result.items).toEqual(expectedItems);
+    expect(result.metadata.total).toBe(expectedItems.length);
   });
 
   test('should use default empty array for locations if not provided', async () => {
@@ -120,12 +142,23 @@ describe('wrapFindOperation', () => {
       } as TestItem
     ];
 
-    (mockOperations.find as any).mockResolvedValue(expectedItems);
+    const expectedResult: AllOperationResult<TestItem> = {
+      items: expectedItems,
+      metadata: {
+        total: expectedItems.length,
+        returned: expectedItems.length,
+        offset: 0,
+        hasMore: false
+      }
+    };
+
+    (mockOperations.find as any).mockResolvedValue(expectedResult);
 
     const result = await findOperation(finder, finderParams);
 
-    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, []);
-    expect(result).toEqual(expectedItems);
+    expect(mockOperations.find).toHaveBeenCalledWith(finder, finderParams, [], undefined);
+    expect(result.items).toEqual(expectedItems);
+    expect(result.metadata.total).toBe(expectedItems.length);
   });
 
   test('should propagate errors from underlying operations', async () => {
@@ -163,11 +196,22 @@ describe('wrapFindOperation', () => {
       } as TestItem
     ];
 
-    (mockOperations.find as any).mockResolvedValue(expectedItems);
+    const expectedResult: AllOperationResult<TestItem> = {
+      items: expectedItems,
+      metadata: {
+        total: expectedItems.length,
+        returned: expectedItems.length,
+        offset: 0,
+        hasMore: false
+      }
+    };
+
+    (mockOperations.find as any).mockResolvedValue(expectedResult);
 
     const result = await findOperation(finder, finderParams);
 
-    expect(result).toEqual(expectedItems);
+    expect(result.items).toEqual(expectedItems);
+    expect(result.metadata.total).toBe(expectedItems.length);
   });
 
   test('should throw error when finder not found in options', async () => {
