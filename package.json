@@ -1,7 +1,7 @@
 {
   "name": "@fjell/lib",
   "description": "Server-side Library for Fjell",
-  "version": "4.4.75",
+  "version": "4.4.76",
   "keywords": [
     "library",
     "persistence",
@@ -34,9 +34,9 @@
     "docs:test": "cd docs && npm run test"
   },
   "dependencies": {
-    "@fjell/core": "^4.4.66",
+    "@fjell/core": "^4.4.67",
     "@fjell/logging": "^4.4.59",
-    "@fjell/registry": "^4.4.72",
+    "@fjell/registry": "^4.4.73",
     "deepmerge": "^4.3.1"
   },
   "devDependencies": {
