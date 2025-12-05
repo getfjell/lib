@@ -40,6 +40,17 @@ export const wrapUpdateOperation = <
     try {
       logger.debug('update', { key, item });
 
+      // Fetch original item if onChange hook is present
+      let originalItem: V | null | undefined;
+      if (options?.hooks?.onChange) {
+        try {
+          originalItem = await toWrap.get(key);
+        } catch (error) {
+          // Log warning but don't fail the update if we can't fetch the original
+          logger.warning('Failed to fetch original item for onChange hook', { key, error });
+        }
+      }
+
       let itemToUpdate = item;
       
       itemToUpdate = await runPreUpdateHook(key, itemToUpdate);
@@ -70,6 +81,20 @@ export const wrapUpdateOperation = <
       } catch (hookError) {
         // Wrap post-update hook errors in UpdateError
         throw new UpdateError({ key, item: itemToUpdate }, coordinate, { cause: hookError as Error });
+      }
+
+      // Call onChange hook if present and we successfully fetched the original item
+      if (options?.hooks?.onChange && originalItem != null) {
+        try {
+          await options.hooks.onChange(originalItem, updatedItem);
+        } catch (error: unknown) {
+          throw new HookError(
+            'Error in onChange',
+            'update',
+            coordinate,
+            { cause: error as Error }
+          );
+        }
       }
 
       logger.debug("Update operation completed successfully", { updatedItem });
