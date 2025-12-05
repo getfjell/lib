@@ -486,6 +486,483 @@ describe('wrapUpdateOperation', () => {
     });
   });
 
+  describe('onChange hooks', () => {
+    test('should fetch original item and call onChange hook with both items', async () => {
+      const onChangeHook = vi.fn().mockResolvedValue(undefined);
+      const optionsWithHook = {
+        ...mockOptions,
+        hooks: { onChange: onChangeHook }
+      };
+
+      // Mock the get operation for fetching original item
+      mockOperations.get = vi.fn();
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const originalItem: TestItem = {
+        id: 'test-id',
+        name: 'original-name',
+        key
+      } as TestItem;
+      const updatedItem: TestItem = {
+        id: 'test-id',
+        name: 'updated-name',
+        key
+      } as TestItem;
+
+      (mockOperations.get as any).mockResolvedValue(originalItem);
+      (mockOperations.update as any).mockResolvedValue(updatedItem);
+
+      const updateOperation = wrapUpdateOperation(mockOperations, optionsWithHook, mockCoordinate, registry);
+      const item: Partial<TestItem> = { name: 'updated-name' };
+
+      const result = await updateOperation(key, item);
+
+      expect(mockOperations.get).toHaveBeenCalledWith(key);
+      expect(mockOperations.update).toHaveBeenCalledWith(key, item);
+      expect(onChangeHook).toHaveBeenCalledWith(originalItem, updatedItem);
+      expect(result).toEqual(updatedItem);
+    });
+
+    test('should call onChange after postUpdate hook', async () => {
+      const callOrder: string[] = [];
+      const onChangeHook = vi.fn().mockImplementation(() => {
+        callOrder.push('onChange');
+        return Promise.resolve();
+      });
+      const postUpdateHook = vi.fn().mockImplementation((item) => {
+        callOrder.push('postUpdate');
+        return Promise.resolve(item);
+      });
+      const optionsWithHooks = {
+        ...mockOptions,
+        hooks: {
+          postUpdate: postUpdateHook,
+          onChange: onChangeHook
+        }
+      };
+
+      mockOperations.get = vi.fn();
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const originalItem: TestItem = {
+        id: 'test-id',
+        name: 'original-name',
+        key
+      } as TestItem;
+      const updatedItem: TestItem = {
+        id: 'test-id',
+        name: 'updated-name',
+        key
+      } as TestItem;
+
+      (mockOperations.get as any).mockResolvedValue(originalItem);
+      (mockOperations.update as any).mockResolvedValue(updatedItem);
+
+      const updateOperation = wrapUpdateOperation(mockOperations, optionsWithHooks, mockCoordinate, registry);
+      await updateOperation(key, { name: 'updated-name' });
+
+      expect(callOrder).toEqual(['postUpdate', 'onChange']);
+    });
+
+    test('should not fetch original item if onChange hook is not present', async () => {
+      mockOperations.get = vi.fn();
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const updatedItem: TestItem = {
+        id: 'test-id',
+        name: 'updated-name',
+        key
+      } as TestItem;
+
+      (mockOperations.update as any).mockResolvedValue(updatedItem);
+
+      const updateOperation = wrapUpdateOperation(mockOperations, mockOptions, mockCoordinate, registry);
+      await updateOperation(key, { name: 'updated-name' });
+
+      expect(mockOperations.get).not.toHaveBeenCalled();
+    });
+
+    test('should not call onChange if fetching original item fails', async () => {
+      const onChangeHook = vi.fn();
+      const optionsWithHook = {
+        ...mockOptions,
+        hooks: { onChange: onChangeHook }
+      };
+
+      mockOperations.get = vi.fn();
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const updatedItem: TestItem = {
+        id: 'test-id',
+        name: 'updated-name',
+        key
+      } as TestItem;
+
+      (mockOperations.get as any).mockRejectedValue(new Error('Failed to fetch'));
+      (mockOperations.update as any).mockResolvedValue(updatedItem);
+
+      const updateOperation = wrapUpdateOperation(mockOperations, optionsWithHook, mockCoordinate, registry);
+      const result = await updateOperation(key, { name: 'updated-name' });
+
+      expect(mockOperations.get).toHaveBeenCalledWith(key);
+      expect(onChangeHook).not.toHaveBeenCalled();
+      expect(result).toEqual(updatedItem);
+    });
+
+    test('should throw HookError when onChange hook fails', async () => {
+      const hookError = new Error('onChange failed');
+      const onChangeHook = vi.fn().mockRejectedValue(hookError);
+      const optionsWithHook = {
+        ...mockOptions,
+        hooks: { onChange: onChangeHook }
+      };
+
+      mockOperations.get = vi.fn();
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const originalItem: TestItem = {
+        id: 'test-id',
+        name: 'original-name',
+        key
+      } as TestItem;
+      const updatedItem: TestItem = {
+        id: 'test-id',
+        name: 'updated-name',
+        key
+      } as TestItem;
+
+      (mockOperations.get as any).mockResolvedValue(originalItem);
+      (mockOperations.update as any).mockResolvedValue(updatedItem);
+
+      const updateOperation = wrapUpdateOperation(mockOperations, optionsWithHook, mockCoordinate, registry);
+
+      try {
+        await updateOperation(key, { name: 'updated-name' });
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.cause).toBeInstanceOf(HookError);
+        expect(error.cause.message).toContain('Error in onChange');
+      }
+    });
+
+    test('should support synchronous onChange hooks', async () => {
+      let onChangeCalled = false;
+      const onChangeHook = (original: TestItem, updated: TestItem) => {
+        onChangeCalled = true;
+        expect(original.name).toBe('original-name');
+        expect(updated.name).toBe('updated-name');
+      };
+      const optionsWithHook = {
+        ...mockOptions,
+        hooks: { onChange: onChangeHook }
+      };
+
+      mockOperations.get = vi.fn();
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const originalItem: TestItem = {
+        id: 'test-id',
+        name: 'original-name',
+        key
+      } as TestItem;
+      const updatedItem: TestItem = {
+        id: 'test-id',
+        name: 'updated-name',
+        key
+      } as TestItem;
+
+      (mockOperations.get as any).mockResolvedValue(originalItem);
+      (mockOperations.update as any).mockResolvedValue(updatedItem);
+
+      const updateOperation = wrapUpdateOperation(mockOperations, optionsWithHook, mockCoordinate, registry);
+      await updateOperation(key, { name: 'updated-name' });
+
+      expect(onChangeCalled).toBe(true);
+    });
+
+    test('should detect field changes in onChange hook', async () => {
+      interface ExtendedTestItem extends TestItem {
+        statusId: string;
+      }
+
+      let detectedChange = false;
+      const onChangeHook = (original: ExtendedTestItem, updated: ExtendedTestItem) => {
+        if (original.statusId !== updated.statusId) {
+          detectedChange = true;
+        }
+      };
+      const optionsWithHook = {
+        ...mockOptions,
+        hooks: { onChange: onChangeHook }
+      } as any;
+
+      const mockOps = {
+        ...mockOperations,
+        get: vi.fn(),
+        update: vi.fn()
+      } as unknown as Operations<ExtendedTestItem, 'test', 'level1'>;
+
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const originalItem: ExtendedTestItem = {
+        id: 'test-id',
+        name: 'test-name',
+        statusId: 'status-1',
+        key
+      } as ExtendedTestItem;
+      const updatedItem: ExtendedTestItem = {
+        id: 'test-id',
+        name: 'test-name',
+        statusId: 'status-2',
+        key
+      } as ExtendedTestItem;
+
+      (mockOps.get as any).mockResolvedValue(originalItem);
+      (mockOps.update as any).mockResolvedValue(updatedItem);
+
+      const updateOperation = wrapUpdateOperation(mockOps, optionsWithHook, mockCoordinate, registry);
+      await updateOperation(key, { statusId: 'status-2' } as any);
+
+      expect(detectedChange).toBe(true);
+    });
+
+    test('should not call onChange when field has not changed', async () => {
+      interface ExtendedTestItem extends TestItem {
+        statusId: string;
+      }
+
+      let changeDetected = false;
+      const onChangeHook = (original: ExtendedTestItem, updated: ExtendedTestItem) => {
+        if (original.statusId !== updated.statusId) {
+          changeDetected = true;
+        }
+      };
+      const optionsWithHook = {
+        ...mockOptions,
+        hooks: { onChange: onChangeHook }
+      } as any;
+
+      const mockOps = {
+        ...mockOperations,
+        get: vi.fn(),
+        update: vi.fn()
+      } as unknown as Operations<ExtendedTestItem, 'test', 'level1'>;
+
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const originalItem: ExtendedTestItem = {
+        id: 'test-id',
+        name: 'test-name',
+        statusId: 'status-1',
+        key
+      } as ExtendedTestItem;
+      const updatedItem: ExtendedTestItem = {
+        id: 'test-id',
+        name: 'updated-name',
+        statusId: 'status-1', // Same statusId
+        key
+      } as ExtendedTestItem;
+
+      (mockOps.get as any).mockResolvedValue(originalItem);
+      (mockOps.update as any).mockResolvedValue(updatedItem);
+
+      const updateOperation = wrapUpdateOperation(mockOps, optionsWithHook, mockCoordinate, registry);
+      await updateOperation(key, { name: 'updated-name' } as any);
+
+      expect(changeDetected).toBe(false);
+    });
+  });
+
+  describe('combined scenarios with onChange', () => {
+    test('should run preUpdate, update, postUpdate, and onChange in sequence', async () => {
+      const callOrder: string[] = [];
+      const preUpdateHook = vi.fn().mockImplementation((k, item) => {
+        callOrder.push('preUpdate');
+        return Promise.resolve(item);
+      });
+      const postUpdateHook = vi.fn().mockImplementation((item) => {
+        callOrder.push('postUpdate');
+        return Promise.resolve(item);
+      });
+      const onChangeHook = vi.fn().mockImplementation(() => {
+        callOrder.push('onChange');
+        return Promise.resolve();
+      });
+
+      const optionsWithAll = {
+        ...mockOptions,
+        hooks: {
+          preUpdate: preUpdateHook,
+          postUpdate: postUpdateHook,
+          onChange: onChangeHook
+        }
+      };
+
+      mockOperations.get = vi.fn();
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const originalItem: TestItem = {
+        id: 'test-id',
+        name: 'original-name',
+        key
+      } as TestItem;
+      const updatedItem: TestItem = {
+        id: 'test-id',
+        name: 'updated-name',
+        key
+      } as TestItem;
+
+      (mockOperations.get as any).mockResolvedValue(originalItem);
+      (mockOperations.update as any).mockResolvedValue(updatedItem);
+
+      const updateOperation = wrapUpdateOperation(mockOperations, optionsWithAll, mockCoordinate, registry);
+      await updateOperation(key, { name: 'updated-name' });
+
+      expect(callOrder).toEqual(['preUpdate', 'postUpdate', 'onChange']);
+      expect(onChangeHook).toHaveBeenCalledWith(originalItem, updatedItem);
+    });
+
+    test('should not call onChange if update fails', async () => {
+      const onChangeHook = vi.fn();
+      const optionsWithHook = {
+        ...mockOptions,
+        hooks: { onChange: onChangeHook }
+      };
+
+      mockOperations.get = vi.fn();
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const originalItem: TestItem = {
+        id: 'test-id',
+        name: 'original-name',
+        key
+      } as TestItem;
+
+      (mockOperations.get as any).mockResolvedValue(originalItem);
+      (mockOperations.update as any).mockRejectedValue(new Error('Update failed'));
+
+      const updateOperation = wrapUpdateOperation(mockOperations, optionsWithHook, mockCoordinate, registry);
+
+      try {
+        await updateOperation(key, { name: 'updated-name' });
+        expect.fail('Should have thrown an error');
+      } catch {
+        // Expected error
+      }
+
+      expect(onChangeHook).not.toHaveBeenCalled();
+    });
+
+    test('should not call onChange if postUpdate fails', async () => {
+      const onChangeHook = vi.fn();
+      const postUpdateHook = vi.fn().mockRejectedValue(new Error('postUpdate failed'));
+      const optionsWithHooks = {
+        ...mockOptions,
+        hooks: {
+          postUpdate: postUpdateHook,
+          onChange: onChangeHook
+        }
+      };
+
+      mockOperations.get = vi.fn();
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const originalItem: TestItem = {
+        id: 'test-id',
+        name: 'original-name',
+        key
+      } as TestItem;
+      const updatedItem: TestItem = {
+        id: 'test-id',
+        name: 'updated-name',
+        key
+      } as TestItem;
+
+      (mockOperations.get as any).mockResolvedValue(originalItem);
+      (mockOperations.update as any).mockResolvedValue(updatedItem);
+
+      const updateOperation = wrapUpdateOperation(mockOperations, optionsWithHooks, mockCoordinate, registry);
+
+      try {
+        await updateOperation(key, { name: 'updated-name' });
+        expect.fail('Should have thrown an error');
+      } catch {
+        // Expected error
+      }
+
+      expect(onChangeHook).not.toHaveBeenCalled();
+    });
+
+    test('should allow onChange to work with validation', async () => {
+      const validator = vi.fn().mockResolvedValue(true);
+      const onChangeHook = vi.fn().mockResolvedValue(undefined);
+      const optionsWithValidationAndHook = {
+        ...mockOptions,
+        validators: { onUpdate: validator },
+        hooks: { onChange: onChangeHook }
+      };
+
+      mockOperations.get = vi.fn();
+      const key: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const originalItem: TestItem = {
+        id: 'test-id',
+        name: 'original-name',
+        key
+      } as TestItem;
+      const updatedItem: TestItem = {
+        id: 'test-id',
+        name: 'updated-name',
+        key
+      } as TestItem;
+
+      (mockOperations.get as any).mockResolvedValue(originalItem);
+      (mockOperations.update as any).mockResolvedValue(updatedItem);
+
+      const updateOperation = wrapUpdateOperation(mockOperations, optionsWithValidationAndHook, mockCoordinate, registry);
+      await updateOperation(key, { name: 'updated-name' });
+
+      expect(validator).toHaveBeenCalledWith(key, { name: 'updated-name' });
+      expect(onChangeHook).toHaveBeenCalledWith(originalItem, updatedItem);
+    });
+  });
+
   describe('edge cases', () => {
     test('should handle empty item object', async () => {
       const updateOperation = wrapUpdateOperation(mockOperations, mockOptions, mockCoordinate, registry);
