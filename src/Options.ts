@@ -62,6 +62,10 @@ export interface Options<
     postUpdate?: (
       item: V,
     ) => Promise<V>;
+    onChange?: (
+      originalItem: V,
+      updatedItem: V,
+    ) => Promise<void> | void;
     preRemove?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,
     ) => Promise<Partial<Item<S, L1, L2, L3, L4, L5>>>;
