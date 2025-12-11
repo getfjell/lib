@@ -1,7 +1,7 @@
 {
   "name": "@fjell/lib",
   "description": "Server-side Library for Fjell",
-  "version": "4.4.80",
+  "version": "4.4.81",
   "keywords": [
     "library",
     "persistence",
@@ -35,8 +35,8 @@
   },
   "dependencies": {
     "@fjell/core": "^4.4.70",
-    "@fjell/logging": "^4.4.60",
-    "@fjell/registry": "^4.4.77",
+    "@fjell/logging": "^4.4.62",
+    "@fjell/registry": "^4.4.79",
     "deepmerge": "^4.3.1"
   },
   "devDependencies": {
