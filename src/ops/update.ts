@@ -45,9 +45,19 @@ export const wrapUpdateOperation = <
       if (options?.hooks?.onChange) {
         try {
           originalItem = await toWrap.get(key);
-        } catch (error) {
+        } catch (error: any) {
           // Log warning but don't fail the update if we can't fetch the original
-          logger.warning('Failed to fetch original item for onChange hook', { key, error });
+          logger.warning('Failed to fetch original item for onChange hook', {
+            component: 'lib',
+            operation: 'update',
+            phase: 'fetch-for-onChange',
+            key: JSON.stringify(key),
+            itemType: coordinate.kta[0],
+            errorType: error?.constructor?.name || typeof error,
+            errorMessage: error?.message,
+            note: 'Update will continue without onChange hook',
+            coordinate: JSON.stringify(coordinate)
+          });
         }
       }
 
