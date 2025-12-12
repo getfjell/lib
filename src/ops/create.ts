@@ -85,11 +85,27 @@ export const wrapCreateOperation = <
 
       logger.debug("Create operation completed successfully", { createdItem });
       return createdItem;
-    } catch (error) {
+    } catch (error: any) {
       // If it is a CreateValidationError, throw it directly
       if (error instanceof CreateValidationError) {
         throw error;
       }
+      
+      // Log structured error information
+      logger.error('Create operation failed', {
+        component: 'lib',
+        operation: 'create',
+        itemType: coordinate.kta[0],
+        itemData: JSON.stringify(item),
+        createOptions: JSON.stringify(createOptions),
+        errorType: error?.constructor?.name || typeof error,
+        errorMessage: error?.message,
+        errorCode: error?.errorInfo?.code || error?.code,
+        suggestion: 'Check validation rules, required fields, unique constraints, and hooks implementation',
+        coordinate: JSON.stringify(coordinate),
+        stack: error?.stack
+      });
+      
       throw new Error((error as Error).message, { cause: error });
     }
   };
@@ -110,7 +126,19 @@ export const wrapCreateOperation = <
     if (libOptions?.hooks?.preCreate) {
       try {
         itemToCreate = await libOptions.hooks.preCreate(itemToCreate, options);
-      } catch (error: unknown) {
+      } catch (error: any) {
+        logger.error('preCreate hook failed', {
+          component: 'lib',
+          operation: 'create',
+          hook: 'preCreate',
+          itemType: coordinate.kta[0],
+          itemData: JSON.stringify(item),
+          errorType: error?.constructor?.name,
+          errorMessage: error?.message,
+          suggestion: 'Check preCreate hook implementation for errors',
+          coordinate: JSON.stringify(coordinate),
+          stack: error?.stack
+        });
         throw new HookError(
           'Error in preCreate',
           'create',
