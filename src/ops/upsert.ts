@@ -69,13 +69,33 @@ export const wrapUpsertOperation = <
             item = await ops.create(itemProperties, createOptions);
           } else {
             // Re-throw other errors (connection issues, permissions, etc.)
-            logger.error('Unexpected error during get operation', { error: error?.message, name: error?.name, code: error?.errorInfo?.code });
+            logger.error('Unexpected error during upsert get operation', {
+              component: 'lib',
+              operation: 'upsert',
+              phase: 'get-existing',
+              key: JSON.stringify(key),
+              itemType: coordinate.kta[0],
+              errorType: error?.constructor?.name || typeof error,
+              errorMessage: error?.message,
+              errorName: error?.name,
+              errorCode: error?.errorInfo?.code,
+              suggestion: 'Check database connectivity, permissions, and key validity',
+              coordinate: JSON.stringify(coordinate)
+            });
             throw error;
           }
         }
 
         if (!item) {
-          throw new Error(`Failed to retrieve or create item for key: ${JSON.stringify(key)}`);
+          logger.error('Failed to retrieve or create item during upsert', {
+            component: 'lib',
+            operation: 'upsert',
+            key: JSON.stringify(key),
+            itemType: coordinate.kta[0],
+            suggestion: 'This should not happen. Check create operation implementation and error handling.',
+            coordinate: JSON.stringify(coordinate)
+          });
+          throw new Error(`Failed to retrieve or create item for upsert with key: ${JSON.stringify(key)}`);
         }
 
         logger.debug('Updating item', { key: item.key, itemProperties });
