@@ -334,5 +334,50 @@ describe('wrapAllActionOperation', () => {
         expect(result).toEqual([expectedResult, affectedItems]);
       }
     });
+
+    it('should log comprehensive error details with database constraint', async () => {
+      const actionKey = 'testAction';
+      const errorWithConstraint = new Error('Constraint violation') as any;
+      errorWithConstraint.code = 'ER_DUP_ENTRY';
+      errorWithConstraint.constraint = 'unique_name';
+      errorWithConstraint.detail = 'Duplicate key value violates unique constraint';
+
+      mockActionMethod.mockRejectedValue(errorWithConstraint);
+
+      await expect(wrappedAllAction(actionKey, {})).rejects.toThrow('Constraint violation');
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        'AllAction "testAction" failed',
+        expect.objectContaining({
+          message: 'Constraint violation',
+          code: 'ER_DUP_ENTRY',
+          constraint: 'unique_name',
+          detail: 'Duplicate key value violates unique constraint'
+        })
+      );
+    });
+
+    it('should log error details with Sequelize validation errors', async () => {
+      const actionKey = 'testAction';
+      const validationError = new Error('Validation failed') as any;
+      validationError.name = 'SequelizeValidationError';
+      validationError.errors = [
+        { message: 'Name is required', type: 'notNull', path: 'name' },
+        { message: 'Email is invalid', type: 'isEmail', path: 'email' }
+      ];
+
+      mockActionMethod.mockRejectedValue(validationError);
+
+      await expect(wrappedAllAction(actionKey, {})).rejects.toThrow('Validation failed');
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        'AllAction "testAction" failed',
+        expect.objectContaining({
+          name: 'SequelizeValidationError',
+          validationErrors: [
+            { message: 'Name is required', type: 'notNull', path: 'name' },
+            { message: 'Email is invalid', type: 'isEmail', path: 'email' }
+          ]
+        })
+      );
+    });
   });
 });
