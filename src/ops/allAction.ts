@@ -27,7 +27,7 @@ export const wrapAllActionOperation = <
     coordinate: Coordinate<S, L1, L2, L3, L4, L5>,
   ): AllActionOperationMethod<V, S, L1, L2, L3, L4, L5> => {
   const { allActions } = options || {};
-  
+
   const allAction = async (
     allActionKey: string,
     allActionParams?: Record<string, any>,
@@ -35,7 +35,7 @@ export const wrapAllActionOperation = <
   ) => {
     const locs = locations ?? [];
     logger.debug('AllAction operation started', { allActionKey, allActionParams, locations: locs });
-    
+
     if (!allActions?.[allActionKey]) {
       const availableActions = allActions ? Object.keys(allActions) : [];
       throw new ValidationError(
@@ -53,15 +53,59 @@ export const wrapAllActionOperation = <
       locations: locs as any
     };
 
-    return executeWithContext(
-      () => {
-        const allActionMethod = allActions[allActionKey];
-        const result = allActionMethod(allActionParams || {}, locs);
-        logger.debug('AllAction operation completed', { allActionKey, result });
-        return result;
-      },
-      context
-    );
+    try {
+      return await executeWithContext(
+        async () => {
+          const allActionMethod = allActions[allActionKey];
+          const result = await allActionMethod(allActionParams || {}, locs);
+          logger.debug('AllAction operation completed', { allActionKey, result });
+          return result;
+        },
+        context
+      );
+    } catch (error: any) {
+      // Extract error details for better logging
+      const errorDetails: Record<string, any> = {
+        operation: 'allAction',
+        actionKey: allActionKey,
+        coordinate: coordinate.kta,
+        locations: locs
+      };
+
+      // Add standard error properties
+      if (typeof error.message === 'string') {
+        errorDetails.message = error.message;
+      }
+      if (typeof error.name === 'string') {
+        errorDetails.name = error.name;
+      }
+      if (typeof error.code === 'string' || typeof error.code === 'number') {
+        errorDetails.code = error.code;
+      }
+      if (typeof error.stack === 'string') {
+        errorDetails.stack = error.stack;
+      }
+
+      // Add database-specific properties
+      if (typeof error.constraint === 'string') {
+        errorDetails.constraint = error.constraint;
+      }
+      if (typeof error.detail === 'string') {
+        errorDetails.detail = error.detail;
+      }
+
+      // Add Sequelize validation errors
+      if (error.errors && Array.isArray(error.errors)) {
+        errorDetails.validationErrors = error.errors.map((e: any) => ({
+          message: e.message,
+          type: e.type,
+          path: e.path
+        }));
+      }
+
+      logger.error(`AllAction "${allActionKey}" failed`, errorDetails);
+      throw error;
+    }
   };
 
   return allAction;
