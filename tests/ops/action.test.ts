@@ -307,5 +307,64 @@ describe('wrapActionOperation', () => {
 
       expect(mockOperations.action).not.toHaveBeenCalled();
     });
+
+    it('should log comprehensive error details with database constraint', async () => {
+      const testKey: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const testItem: TestItem = { id: '1', name: 'test item', key: testKey } as TestItem;
+      const actionKey = 'testAction';
+      const errorWithConstraint = new Error('Constraint violation') as any;
+      errorWithConstraint.code = 'ER_DUP_ENTRY';
+      errorWithConstraint.constraint = 'unique_name';
+      errorWithConstraint.detail = 'Duplicate key value violates unique constraint';
+
+      (mockOperations.get as MockedFunction<any>).mockResolvedValue(testItem);
+      mockActionMethod.mockRejectedValue(errorWithConstraint);
+
+      await expect(wrappedAction(testKey, actionKey, {})).rejects.toThrow('Constraint violation');
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        'Action "testAction" failed',
+        expect.objectContaining({
+          message: 'Constraint violation',
+          code: 'ER_DUP_ENTRY',
+          constraint: 'unique_name',
+          detail: 'Duplicate key value violates unique constraint'
+        })
+      );
+    });
+
+    it('should log error details with Sequelize validation errors', async () => {
+      const testKey: ComKey<'test', 'level1'> = {
+        kt: 'test',
+        pk: 'test-id',
+        loc: [{ kt: 'level1', lk: 'location1' }]
+      };
+      const testItem: TestItem = { id: '1', name: 'test item', key: testKey } as TestItem;
+      const actionKey = 'testAction';
+      const validationError = new Error('Validation failed') as any;
+      validationError.name = 'SequelizeValidationError';
+      validationError.errors = [
+        { message: 'Name is required', type: 'notNull', path: 'name' },
+        { message: 'Email is invalid', type: 'isEmail', path: 'email' }
+      ];
+
+      (mockOperations.get as MockedFunction<any>).mockResolvedValue(testItem);
+      mockActionMethod.mockRejectedValue(validationError);
+
+      await expect(wrappedAction(testKey, actionKey, {})).rejects.toThrow('Validation failed');
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        'Action "testAction" failed',
+        expect.objectContaining({
+          name: 'SequelizeValidationError',
+          validationErrors: [
+            { message: 'Name is required', type: 'notNull', path: 'name' },
+            { message: 'Email is invalid', type: 'isEmail', path: 'email' }
+          ]
+        })
+      );
+    });
   });
 });
