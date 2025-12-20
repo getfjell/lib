@@ -2,13 +2,15 @@
 import {
   ComKey,
   Coordinate,
-  executeWithContext,
   Item,
   LocKeyArray,
-  OperationContext,
   PriKey,
   UpdateOptions,
   UpsertMethod
+} from "@fjell/types";
+import {
+  executeWithContext,
+  OperationContext
 } from "@fjell/core";
 
 import LibLogger from "../logger";

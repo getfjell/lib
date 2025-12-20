@@ -2,11 +2,13 @@
 import {
   ComKey,
   Coordinate,
-  executeWithContext,
   Item,
-  OperationContext,
   PriKey,
   RemoveMethod
+} from "@fjell/types";
+import {
+  executeWithContext,
+  OperationContext
 } from "@fjell/core";
 
 import { Options } from "../Options";

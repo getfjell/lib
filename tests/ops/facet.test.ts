@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, MockedFunction, vi } from 'vitest';
-import { ComKey, Item } from '@fjell/core';
+import { ComKey, Item } from '@fjell/types';
 
 // Create mock logger functions that can be accessed by tests
 const mockLoggerDebug = vi.hoisted(() => vi.fn());

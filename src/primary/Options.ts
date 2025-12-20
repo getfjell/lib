@@ -1,5 +1,5 @@
-import { Options as AbstractOptions, ActionMethod, FinderParams } from "../Options";
-import { Item, PriKey } from "@fjell/core";
+import { ActionMethod, ComKey, CreateOptions, Item, PriKey } from "@fjell/types";
+import { Options as AbstractOptions, FinderParams } from "../Options";
 
 export interface Options<
   V extends Item<S>,
@@ -8,23 +8,20 @@ export interface Options<
     hooks?: {
         preCreate?: (
           item: Partial<Item<S>>,
-          options?:
-          {
-            key?: PriKey<S>,
-          }
+          options?: CreateOptions<S>
         ) => Promise<Partial<Item<S>>>;
         postCreate?: (
           item: V,
         ) => Promise<V>;
         preUpdate?: (
-          key: PriKey<S>,
+          key: PriKey<S> | ComKey<S>,
           item: Partial<Item<S>>,
         ) => Promise<Partial<Item<S>>>;
         postUpdate?: (
           item: V,
         ) => Promise<V>;
         preRemove?: (
-          key: PriKey<S>,
+          key: PriKey<S> | ComKey<S>,
         ) => Promise<Partial<Item<S>>>;
         postRemove?: (
           item: V,
@@ -33,17 +30,14 @@ export interface Options<
       validators?: {
         onCreate?: (
           item: Partial<Item<S>>,
-          options?:
-          {
-            key?: PriKey<S>,
-          }
+          options?: CreateOptions<S>
         ) => Promise<boolean>;
         onUpdate?: (
-          key: PriKey<S>,
+          key: PriKey<S> | ComKey<S>,
           item: Partial<Item<S>>,
         ) => Promise<boolean>;
         onRemove?: (
-          key: PriKey<S>,
+          key: PriKey<S> | ComKey<S>,
         ) => Promise<boolean>;
       },
       finders?:

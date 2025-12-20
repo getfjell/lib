@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { createCoordinate } from '@fjell/core';
-import { ItemTypeArray } from '@fjell/core';
+import { ItemTypeArray } from '@fjell/types';
 
 vi.mock('@fjell/logging', () => {
   const logger = {

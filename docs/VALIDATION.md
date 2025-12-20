@@ -1,8 +1,8 @@
 # Validation
 
-`@fjell/lib` supports automatic schema validation for `create` and `update` operations. Schema validation is provided by `@fjell/core/validation`, making it available throughout the Fjell ecosystem. You can integrate any schema validation library (like Zod, Yup, or Joi) by adapting it to the `SchemaValidator` interface, but Zod is supported out of the box via duck typing.
+`@fjell/lib` supports automatic schema validation for `create` and `update` operations. Schema validation is provided by `@fjell/validation`, making it available throughout the Fjell ecosystem. You can integrate any schema validation library (like Zod, Yup, or Joi) by adapting it to the `SchemaValidator` interface, but Zod is supported out of the box via duck typing.
 
-> **Note**: Schema validation (`validateSchema` and `SchemaValidator`) is now part of `@fjell/core` and can be used independently in cache layers, APIs, or any system boundary. See [`@fjell/core` validation documentation](../../core/README.md#validation-module) for more details.
+> **Note**: Schema validation (`validateSchema` and `SchemaValidator`) is now part of `@fjell/validation` and can be used independently in cache layers, APIs, or any system boundary. See [`@fjell/validation` documentation](../../validation/README.md) for more details.
 
 ## Installation
 
@@ -21,7 +21,7 @@ You can define a schema in your `Options` object.
 ```typescript
 import { z } from 'zod';
 import { createOptions, Item, SchemaValidator } from '@fjell/lib';
-// SchemaValidator is re-exported from @fjell/core/validation
+// SchemaValidator is re-exported from @fjell/validation
 
 interface User extends Item<"user"> {
   name: string;

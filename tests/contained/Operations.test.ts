@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/core";
+import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/types";
 
 import { Operations, wrapOperations } from "../../src/contained/Operations";
 import { Operations as AbstractOperations, wrapOperations as wrapAbstractOperations } from "../../src/Operations";

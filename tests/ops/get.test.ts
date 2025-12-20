@@ -4,7 +4,7 @@ import { Operations } from '../../src/Operations';
 import { wrapGetOperation } from '../../src/ops/get';
 import { createOptions } from '../../src/Options';
 import { createRegistry } from '../../src/Registry';
-import { Item, PriKey } from '@fjell/core';
+import { Item, PriKey } from '@fjell/types';
 
 vi.mock('@fjell/logging', () => {
   const logger = {

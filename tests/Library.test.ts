@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { createLibrary, isLibrary, Library } from '../src/Library';
 import { Operations } from '../src/Operations';
 import { Options } from '../src/Options';
-import { Coordinate, Item } from '@fjell/core';
+import { Coordinate, Item } from '@fjell/types';
 import { Registry } from '@fjell/registry';
 
 // Mock the logging module
