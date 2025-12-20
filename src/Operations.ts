@@ -3,8 +3,8 @@ import {
   AffectedKeys,
   Operations as CoreOperations,
   CreateOptions,
-  isOperationComKey,
-  isOperationPriKey,
+  isComKey,
+  isPriKey,
   OperationParams
 } from "@fjell/core";
 import { ComKey, Coordinate, Item, LocKeyArray, PriKey } from "@fjell/core";
@@ -52,7 +52,7 @@ export interface Operations<
 
 // Re-export core types for convenience
 export type { OperationParams, AffectedKeys, CreateOptions };
-export { isOperationPriKey as isPriKey, isOperationComKey as isComKey };
+export { isPriKey, isComKey };
 
 export const wrapOperations = <
   V extends Item<S, L1, L2, L3, L4, L5>,
