@@ -1,10 +1,12 @@
 import {
   Coordinate,
-  executeWithContext,
   Item,
   ItemQuery,
   LocKeyArray,
   OneMethod,
+} from "@fjell/types";
+import {
+  executeWithContext,
   OperationContext
 } from "@fjell/core";
 

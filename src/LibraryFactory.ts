@@ -1,4 +1,4 @@
-import { Coordinate, Item } from "@fjell/core";
+import { Coordinate, Item } from "@fjell/types";
 import { Operations } from "./Operations";
 import { Options } from "./Options";
 import { InstanceFactory as BaseInstanceFactory, Registry, RegistryHub } from "@fjell/registry";

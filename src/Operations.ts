@@ -1,13 +1,16 @@
 /* eslint-disable indent */
 import {
   AffectedKeys,
+  ComKey,
+  Coordinate,
   Operations as CoreOperations,
   CreateOptions,
-  isComKey,
-  isPriKey,
-  OperationParams
-} from "@fjell/core";
-import { ComKey, Coordinate, Item, LocKeyArray, PriKey } from "@fjell/core";
+  Item,
+  LocKeyArray,
+  OperationParams,
+  PriKey
+} from "@fjell/types";
+import { isComKey, isPriKey } from "@fjell/core";
 
 import { wrapAllOperation } from "./ops/all";
 import { wrapCreateOperation } from "./ops/create";

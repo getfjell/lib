@@ -18,6 +18,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./processing": {
+      "types": "./dist/processing/index.d.ts",
+      "import": "./dist/processing/index.js"
     }
   },
   "scripts": {

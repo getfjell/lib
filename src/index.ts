@@ -6,6 +6,8 @@ export * from './Operations';
 export * from './Options';
 export * from './Registry';
 export * from './processing';
+export { createOperationContext, contextManager } from './processing';
+export type { OperationContext } from './processing';
 export * from './wrapImplementationOperations';
 export * as Primary from './primary';
 export * as Contained from './contained';
