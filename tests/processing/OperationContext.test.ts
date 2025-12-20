@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ComKey, PriKey } from '@fjell/core';
+import { ComKey, PriKey } from "@fjell/types";
 import {
   contextManager,
   createOperationContext,

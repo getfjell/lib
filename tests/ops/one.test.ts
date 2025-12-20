@@ -4,7 +4,7 @@ import { Operations } from '../../src/Operations';
 import { wrapOneOperation } from '../../src/ops/one';
 import { createOptions, Options } from '../../src/Options';
 import { createRegistry, Registry } from '../../src/Registry';
-import { Item, ItemQuery, LocKeyArray } from '@fjell/core';
+import { Item, ItemQuery, LocKeyArray } from '@fjell/types';
 import LibLogger from '../../src/logger';
 
 vi.mock('@fjell/logging', () => {

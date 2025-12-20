@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { Coordinate, Item } from '@fjell/core';
+import { Coordinate, Item } from '@fjell/types';
 import { createOptions } from '../src/Options';
 import { wrapCreateOperation } from '../src/ops/create';
 import { wrapUpdateOperation } from '../src/ops/update';
