@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ComKey, Item, PriKey } from '@fjell/core';
+import { ComKey, Item, PriKey } from '@fjell/types';
 import { wrapImplementationOperations } from '../src/wrapImplementationOperations';
 import { ImplementationOperations } from '../src/ImplementationOperations';
 import { Options } from '../src/Options';

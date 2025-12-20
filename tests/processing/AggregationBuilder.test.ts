@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Item } from '@fjell/core';
+import { Item } from '@fjell/types';
 import { AggregationDefinition, buildAggregation } from '../../src/processing/AggregationBuilder';
 import { createOperationContext, OperationContext } from '../../src/processing/OperationContext';
 import { Registry } from '../../src/Registry';

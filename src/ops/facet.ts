@@ -1,11 +1,13 @@
 import {
   ComKey,
   Coordinate,
-  executeWithContext,
   FacetOperationMethod,
   Item,
-  OperationContext,
   PriKey,
+} from "@fjell/types";
+import {
+  executeWithContext,
+  OperationContext,
   ValidationError
 } from "@fjell/core";
 

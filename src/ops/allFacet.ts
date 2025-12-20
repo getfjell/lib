@@ -1,9 +1,11 @@
 import {
   AllFacetOperationMethod,
   Coordinate,
-  executeWithContext,
   Item,
   LocKeyArray,
+} from "@fjell/types";
+import {
+  executeWithContext,
   OperationContext,
   ValidationError
 } from "@fjell/core";

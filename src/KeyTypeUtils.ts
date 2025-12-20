@@ -1,4 +1,4 @@
-import { ComKey, PriKey } from "@fjell/core";
+import { ComKey, PriKey } from "@fjell/types";
 
 /**
  * Type utility to determine the correct key type based on whether the library

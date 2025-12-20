@@ -6,9 +6,9 @@ import {
   FacetMethod,
   FinderMethod,
   OperationParams
-} from "@fjell/core";
-import { ComKey, Item, PriKey } from "@fjell/core";
-import type { SchemaValidator } from "@fjell/core/validation";
+} from "@fjell/types";
+import { ComKey, Item, PriKey } from "@fjell/types";
+import type { SchemaValidator } from "@fjell/validation";
 import deepmerge from "deepmerge";
 import LibLogger from "./logger";
 import { AggregationDefinition, ReferenceDefinition } from "./processing";

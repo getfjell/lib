@@ -1,11 +1,11 @@
-import { ComKey, Item, PriKey } from "@fjell/core";
+import { ComKey, Item, PriKey } from "@fjell/types";
 import { AsyncLocalStorage } from "async_hooks";
 import logger from "../logger";
 
 export type ItemKey = PriKey<any> | ComKey<any, any, any, any, any, any>;
 
 /**
- * Context for managing state across asynchronous operations.
+ * OperationContext for managing state across asynchronous operations.
  * Used to:
  * - Detect circular dependencies during reference/aggregation loading
  * - Cache loaded items to avoid duplicate work
@@ -57,13 +57,18 @@ export interface OperationContext {
 }
 
 /**
+ * @deprecated Use OperationContext instead
+ */
+export type ProcessingContext = OperationContext;
+
+/**
  * Serialize an ItemKey to a string for use in sets and maps
  */
 export const serializeKey = (key: ItemKey): string => {
-  if ('pk' in key && 'kt' in key && !('loc' in key)) {
+  if (key && 'pk' in key && 'kt' in key && !('loc' in key)) {
     // PriKey
     return `${key.kt}:${key.pk}`;
-  } else if ('pk' in key && 'kt' in key && 'loc' in key) {
+  } else if (key && 'pk' in key && 'kt' in key && 'loc' in key && key.loc) {
     // ComKey
     const locStr = key.loc.map(l => `${l.kt}:${l.lk}`).join(',');
     return `${key.kt}:${key.pk}|${locStr}`;
@@ -122,6 +127,11 @@ export const createOperationContext = (): OperationContext => {
     }
   };
 };
+
+/**
+ * @deprecated Use createOperationContext instead
+ */
+export const createProcessingContext = createOperationContext;
 
 /**
  * Context Manager for sharing context across operations without changing public interfaces

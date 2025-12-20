@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { createDefaultOptions, createOptions } from '../src/Options';
-import { Item, PriKey } from '@fjell/core';
+import { Item, PriKey } from "@fjell/types";
 
 vi.mock('@fjell/logging', () => {
   const logger = {

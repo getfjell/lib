@@ -1,13 +1,16 @@
 /* eslint-disable indent */
 import {
   AffectedKeys,
+  ComKey,
+  Coordinate,
   Operations as CoreOperations,
   CreateOptions,
-  isOperationComKey,
-  isOperationPriKey,
-  OperationParams
-} from "@fjell/core";
-import { ComKey, Coordinate, Item, LocKeyArray, PriKey } from "@fjell/core";
+  Item,
+  LocKeyArray,
+  OperationParams,
+  PriKey
+} from "@fjell/types";
+import { isComKey, isPriKey } from "@fjell/core";
 
 import { wrapAllOperation } from "./ops/all";
 import { wrapCreateOperation } from "./ops/create";
@@ -52,7 +55,7 @@ export interface Operations<
 
 // Re-export core types for convenience
 export type { OperationParams, AffectedKeys, CreateOptions };
-export { isOperationPriKey as isPriKey, isOperationComKey as isComKey };
+export { isPriKey, isComKey };
 
 export const wrapOperations = <
   V extends Item<S, L1, L2, L3, L4, L5>,

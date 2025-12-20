@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { AllOperationResult, Item, LocKey, LocKeyArray } from "@fjell/core";
+import { AllOperationResult, Item, LocKey, LocKeyArray } from "@fjell/types";
 import { wrapFindOperation } from "../../src/ops/find";
 import { Operations } from "../../src/Operations";
 import { createRegistry, Registry } from "../../src/Registry";

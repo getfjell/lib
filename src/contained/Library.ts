@@ -1,7 +1,7 @@
 import { Library as AbstractLibrary, createLibrary as createAbstractLibrary } from "../Library";
 import { Operations } from "./Operations";
 import { Registry } from "../Registry";
-import { Coordinate, Item } from "@fjell/core";
+import { Coordinate, Item } from "@fjell/types";
 import { Options } from "./Options";
 
 export interface Library<

@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { createCoordinate } from '@fjell/core';
 import { createOptions, wrapOperations } from '../../src';
-import { Item, LocKey, LocKeyArray } from '@fjell/core';
+import { Item, LocKey, LocKeyArray } from '@fjell/types';
 
 interface TestItem extends Item<'test', 'level1', 'level2'> {
   name: string;

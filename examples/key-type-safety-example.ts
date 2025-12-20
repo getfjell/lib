@@ -7,7 +7,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { ComKey, PriKey } from '@fjell/core';
+import { ComKey, PriKey } from "@fjell/types";
 import * as Library from '@fjell/lib';
 
 // ============================================================================

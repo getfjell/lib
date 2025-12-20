@@ -1,6 +1,7 @@
-import { ComKey, ikToLKA, isComKey, Item, LocKey, LocKeyArray } from "@fjell/core";
+import { ComKey, Item, LocKey, LocKeyArray } from "@fjell/types";
+import { ikToLKA, isComKey } from "@fjell/core";
 import type { Registry } from "../Registry";
-import { contextManager, OperationContext, serializeKey } from "./OperationContext";
+import { contextManager, createOperationContext, OperationContext, serializeKey } from "./OperationContext";
 import LibLogger from "../logger";
 
 const logger = LibLogger.get('lib', 'processing', 'AggregationBuilder');
@@ -164,7 +165,7 @@ export const buildAggregation = async (
 
   // Execute aggregation within the provided context, current context, or create a new one
   // This allows aggregations within reference loading to share context for proper circular reference detection
-  return contextManager.withContext(context || contextManager.getCurrentContext() || { inProgress: new Set(), cache: new Map() } as any, async () => {
+  return contextManager.withContext(context || contextManager.getCurrentContext() || createOperationContext(), async () => {
     // Based on cardinality, use either one or all operation
     if (aggregationDefinition.cardinality === 'one') {
       // For one-to-one relationship, use the one operation

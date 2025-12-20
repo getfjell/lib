@@ -3,8 +3,8 @@ import { createLibraryFactory } from '../src/LibraryFactory';
 import { Operations } from '../src/Operations';
 import { Options } from '../src/Options';
 import { createLibrary, Library } from '../src/Library';
-import { Item } from '@fjell/core';
-import { Coordinate, createCoordinate } from '@fjell/core';
+import { Coordinate, Item } from '@fjell/types';
+import { createCoordinate } from '@fjell/core';
 import { Registry, RegistryHub } from '@fjell/registry';
 
 vi.mock('@fjell/logging', () => {

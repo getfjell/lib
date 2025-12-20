@@ -1,11 +1,13 @@
 import {
   ComKey,
   Coordinate,
-  executeWithContext,
   Item,
-  OperationContext,
   PriKey,
   UpdateMethod
+} from "@fjell/types";
+import {
+  executeWithContext,
+  OperationContext
 } from "@fjell/core";
 
 import { Options } from "../Options";
@@ -13,7 +15,7 @@ import { HookError, UpdateError, UpdateValidationError } from "../errors";
 import LibLogger from '../logger';
 import { Operations } from "../Operations";
 import { Registry } from "../Registry";
-import { validateSchema } from "@fjell/core/validation";
+import { validateSchema } from "@fjell/validation";
 
 const logger = LibLogger.get('library', 'ops', 'update');
 

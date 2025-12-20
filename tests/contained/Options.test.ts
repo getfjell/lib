@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { createOptions, Options } from '../../src/contained/Options';
-import { ComKey, Item, LocKeyArray, PriKey } from '@fjell/core';
+import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/types";
 
 // Mock the logging module
 vi.mock('@fjell/logging', () => {

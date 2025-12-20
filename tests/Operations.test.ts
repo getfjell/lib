@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import { createReadOnlyOperations, Operations, wrapOperations } from "../src/Operations";
 import { createRegistry } from "../src/Registry";
-import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/core";
+import { ComKey, Item, ItemQuery, LocKeyArray, PriKey } from "@fjell/types";
 import { createCoordinate } from '@fjell/core';
 import { createOptions } from '../src/Options';
 

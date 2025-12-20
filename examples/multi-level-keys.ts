@@ -17,7 +17,7 @@
  * implement the actual operations with your chosen storage backend:
  *
  * import { createRegistry, createInstance, Primary, Contained } from '@fjell/lib';
- * import { Item, PriKey, ComKey, ItemQuery, LocKeyArray } from '@fjell/core';
+ * import { Item, PriKey, ComKey, ItemQuery, LocKeyArray } from "@fjell/types";
  */
 
 // ===== Hierarchical Data Model Patterns =====

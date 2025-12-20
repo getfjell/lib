@@ -5,7 +5,7 @@ import { Operations } from '../../src/Operations';
 import { createOptions, Options } from '../../src/Options';
 import { wrapUpdateOperation } from '../../src/ops/update';
 import { createRegistry, Registry } from '../../src/Registry';
-import { ComKey, Item } from '@fjell/core';
+import { ComKey, Item } from '@fjell/types';
 
 vi.mock('@fjell/logging', () => {
   const logger = {

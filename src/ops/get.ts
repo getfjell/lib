@@ -2,13 +2,15 @@
 import {
   ComKey,
   Coordinate,
-  executeWithContext,
   GetMethod,
   Item,
-  OperationContext,
   PriKey,
-  validateKey
+} from "@fjell/types";
+import {
+  executeWithContext,
+  OperationContext
 } from "@fjell/core";
+import { validateKey } from "@fjell/validation";
 
 import { Options } from "../Options";
 import LibLogger from '../logger';

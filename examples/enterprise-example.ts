@@ -17,14 +17,14 @@
  * Run this example with: npx tsx examples/enterprise-example.ts
  */
 
-import { Item, ItemQuery, LocKeyArray } from '@fjell/core';
+import { Item, ItemQuery, LocKeyArray } from "@fjell/types";
 import { createLibrary } from '../src/Library';
 import { Operations } from '../src/Operations';
 import { createOptions } from '../src/Options';
 import { createRegistry } from '../src/Registry';
 
 // Example imports for reference:
-// import { Item, PriKey, ComKey, ItemQuery, LocKeyArray } from '@fjell/core';
+// import { Item, PriKey, ComKey, ItemQuery, LocKeyArray } from "@fjell/types";
 // import { createRegistry, createInstance, Operations, Options } from '@fjell/lib';
 // import { ActionMethod, FacetMethod } from '@fjell/lib';
 

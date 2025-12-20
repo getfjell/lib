@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, MockedFunction, vi } from 'vitest';
-import { ComKey, Item } from '@fjell/core';
+import { ComKey, Item } from '@fjell/types';
 
 // Create mock logger functions that can be accessed by tests
 const mockLoggerDebug = vi.hoisted(() => vi.fn());
@@ -21,7 +21,8 @@ vi.mock('../../src/logger', () => ({
 import { wrapActionOperation } from '../../src/ops/action';
 import { Operations } from '../../src/Operations';
 import { createOptions, Options } from '../../src/Options';
-import { Coordinate, createCoordinate } from '@fjell/core';
+import { Coordinate } from "@fjell/types";
+import { createCoordinate } from "@fjell/core";
 
 // Type definitions for test data
 interface TestItem extends Item<'test', 'level1'> {

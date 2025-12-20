@@ -4,13 +4,15 @@ import {
   AllOperationResult,
   AllOptions,
   Coordinate,
-  executeWithContext,
   Item,
   ItemQuery,
   LocKeyArray,
-  OperationContext,
-  validateLocations
+} from "@fjell/types";
+import {
+  executeWithContext,
+  OperationContext
 } from "@fjell/core";
+import { validateLocations } from "@fjell/validation";
 
 import { Options } from "../Options";
 import LibLogger from "../logger";

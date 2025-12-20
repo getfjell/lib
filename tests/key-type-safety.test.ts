@@ -1,10 +1,10 @@
  
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ComKey, PriKey } from '@fjell/core';
+import { ComKey, PriKey } from "@fjell/types";
 import { wrapGetOperation } from '../src/ops/get';
 import { Operations } from '../src/Operations';
 import { Options } from '../src/Options';
-import { Coordinate } from '@fjell/core';
+import { Coordinate } from "@fjell/types";
 import { Registry } from '../src/Registry';
 
 describe('Key Type Safety for get() Operations', () => {

@@ -1,15 +1,15 @@
-import { Item } from "@fjell/core";
 import {
   AllMethod,
   CreateMethod,
   FindMethod,
   FindOneMethod,
   GetMethod,
+  Item,
   OneMethod,
   RemoveMethod,
   UpdateMethod,
   UpsertMethod
-} from "@fjell/core";
+} from "@fjell/types";
 
 /**
  * ImplementationOperations

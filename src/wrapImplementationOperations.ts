@@ -1,4 +1,4 @@
-import { AffectedKeys, Item } from "@fjell/core";
+import { AffectedKeys, Item } from "@fjell/types";
 import { ImplementationOperations } from "./ImplementationOperations";
 import { Operations } from "./Operations";
 import { Options } from "./Options";

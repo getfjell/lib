@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
 import { Operations, wrapOperations } from "../../src/primary/Operations";
 import { createRegistry, Registry } from "../../src/Registry";
-import { Item, ItemQuery, PriKey } from "@fjell/core";
+import { Item, ItemQuery, PriKey } from "@fjell/types";
 import { Coordinate } from "@fjell/registry";
 import { Options } from "../../src/primary/Options";
 

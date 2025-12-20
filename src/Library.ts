@@ -1,6 +1,5 @@
-/* eslint-disable no-undefined */
 import LibLogger from "./logger";
-import { Coordinate, Item } from "@fjell/core";
+import { Coordinate, Item } from "@fjell/types";
 import { Instance as BaseInstance, createInstance as createBaseInstance, Registry } from "@fjell/registry";
 import { Operations } from "./Operations";
 import { Options } from "./Options";
@@ -55,9 +54,9 @@ export const createLibrary = <
 
 export const isLibrary = (library: any): library is Library<any, any, any, any, any, any, any> => {
   return library !== null &&
-    library !== undefined &&
-    library.coordinate !== undefined &&
-    library.operations !== undefined &&
-    library.options !== undefined &&
-    library.registry !== undefined;
+    typeof library !== "undefined" &&
+    typeof library.coordinate !== "undefined" &&
+    typeof library.operations !== "undefined" &&
+    typeof library.options !== "undefined" &&
+    typeof library.registry !== "undefined";
 }

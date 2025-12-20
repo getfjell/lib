@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { CreateValidationError, HookError, NotFoundError, NotUpdatedError, RemoveError, RemoveValidationError, UpdateError, UpdateValidationError, ValidationError } from '../src/errors';
 import { createCoordinate } from '@fjell/core';
-import { ComKey, PriKey } from '@fjell/core';
+import { ComKey, PriKey } from '@fjell/types';
 
 describe('Error Classes', () => {
   const coordinate = createCoordinate(['test'], ['scope1']);

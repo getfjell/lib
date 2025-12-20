@@ -1,4 +1,5 @@
-import { abbrevIK, ComKey, Coordinate, isComKey, isPriKey, Item, LocKeyArray, PriKey } from "@fjell/core";
+import { ComKey, Coordinate, Item, LocKeyArray, PriKey } from "@fjell/types";
+import { abbrevIK, isComKey, isPriKey } from "@fjell/core";
 
 export class LibError<
   S extends string,
