@@ -1,10 +1,11 @@
 /* eslint-disable indent */
 import {
   AffectedKeys,
+  Coordinate,
   ContainedOperations as CoreContainedOperations,
+  Item,
   OperationParams
-} from "@fjell/core";
-import { Coordinate, Item } from "@fjell/core";
+} from "@fjell/types";
 import { wrapOperations as wrapAbstractOperations } from "../Operations";
 import { Registry } from "../Registry";
 import { Options } from "./Options";

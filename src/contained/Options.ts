@@ -4,7 +4,7 @@ import {
   createOptions as createAbstractOptions,
   FinderParams,
 } from "../Options";
-import { ComKey, Item, LocKeyArray, PriKey } from "@fjell/core";
+import { ComKey, CreateOptions, Item, PriKey } from "@fjell/types";
 
 // TODO: The codesmell here is that we're passing lib to all the hooks.  This might be better with a create pattern.
 export interface Options<
@@ -19,10 +19,7 @@ export interface Options<
   hooks?: {
     preCreate?: (
       item: Partial<Item<S, L1, L2, L3, L4, L5>>,
-      options?:
-      {
-        locations?: LocKeyArray<L1, L2, L3, L4, L5>,
-      }
+      options?: CreateOptions<S, L1, L2, L3, L4, L5>
     ) => Promise<Partial<Item<S, L1, L2, L3, L4, L5>>>;
     postCreate?: (
       item: V,
@@ -44,10 +41,7 @@ export interface Options<
   validators?: {
     onCreate?: (
       item: Partial<Item<S, L1, L2, L3, L4, L5>>,
-      options?:
-      {
-        locations?: LocKeyArray<L1, L2, L3, L4, L5>,
-      }
+      options?: CreateOptions<S, L1, L2, L3, L4, L5>
     ) => Promise<boolean>;
     onUpdate?: (
       key: PriKey<S> | ComKey<S, L1, L2, L3, L4, L5>,

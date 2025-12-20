@@ -1,7 +1,7 @@
 {
   "name": "@fjell/lib",
   "description": "Server-side Library for Fjell",
-  "version": "4.4.83",
+  "version": "4.4.84",
   "keywords": [
     "library",
     "persistence",
@@ -18,6 +18,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./processing": {
+      "types": "./dist/processing/index.d.ts",
+      "import": "./dist/processing/index.js"
     }
   },
   "scripts": {
@@ -34,9 +38,11 @@
     "docs:test": "cd docs && npm run test"
   },
   "dependencies": {
-    "@fjell/core": "^4.4.73",
-    "@fjell/logging": "^4.4.65",
-    "@fjell/registry": "^4.4.81",
+    "@fjell/core": "^4.4.74",
+    "@fjell/logging": "^4.4.66",
+    "@fjell/registry": "^4.4.82",
+    "@fjell/types": "^4.4.5",
+    "@fjell/validation": "^4.4.2",
     "deepmerge": "^4.3.1"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { Coordinate, Item } from '@fjell/core';
+import { Coordinate, Item } from '@fjell/types';
 import { createOptions } from '../src/Options';
 import { wrapCreateOperation } from '../src/ops/create';
 import { wrapUpdateOperation } from '../src/ops/update';
@@ -78,7 +78,7 @@ describe('Validation Library Integration', () => {
       };
 
       // Mock validateKey and validateLocations which are called internally
-      vi.mock('@fjell/core', async (importOriginal) => {
+      vi.mock('@fjell/validation', async (importOriginal) => {
         const mod = await importOriginal<any>();
         return {
           ...mod,
@@ -87,7 +87,7 @@ describe('Validation Library Integration', () => {
         };
       });
 
-      const result = await createOp(validItem, { locations: { loc1: "loc1Id" } });
+      const result = await createOp(validItem, { locations: [{ kt: "loc1", lk: "loc1Id" }] as any });
       expect(result).toEqual(validItem);
       expect(mockOperations.create).toHaveBeenCalledWith(validItem, expect.anything());
     });
@@ -108,7 +108,7 @@ describe('Validation Library Integration', () => {
       };
 
       try {
-        await createOp(invalidItem, { locations: { loc1: "loc1Id" } });
+        await createOp(invalidItem, { locations: [{ kt: "loc1", lk: "loc1Id" }] as any });
         expect.fail("Should have thrown validation error");
       } catch (error: any) {
         expect(error).toBeInstanceOf(CreateValidationError);
@@ -150,7 +150,7 @@ describe('Validation Library Integration', () => {
         age: 25
       };
 
-      await createOp(validItem, { locations: { loc1: "loc1Id" } });
+      await createOp(validItem, { locations: [{ kt: "loc1", lk: "loc1Id" }] as any });
       expect(manualValidator).toHaveBeenCalled();
     });
 
@@ -173,7 +173,7 @@ describe('Validation Library Integration', () => {
       };
   
       try {
-        await createOp(validItem, { locations: { loc1: "loc1Id" } });
+        await createOp(validItem, { locations: [{ kt: "loc1", lk: "loc1Id" }] as any });
         expect.fail("Should have thrown validation error");
       } catch (error) {
         expect(error).toBeInstanceOf(CreateValidationError);

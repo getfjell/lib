@@ -1,6 +1,6 @@
  
 import { beforeEach, describe, expect, Mock, test, vi } from 'vitest';
-import { ComKey, Item, LocKey, LocKeyArray } from "@fjell/core";
+import { ComKey, Item, LocKey, LocKeyArray } from "@fjell/types";
 import { wrapCreateOperation } from "../../src/ops/create";
 import { Operations } from "../../src/Operations";
 import { createRegistry } from "../../src/Registry";
