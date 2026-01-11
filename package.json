@@ -68,6 +68,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/getfjell/lib.git"
+    "url": "git+https://github.com/fjellgrunn/lib.git"
   }
 }
